@@ -10,7 +10,7 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
     const totalLeads = leads.length;
     const chatLeads = leads.filter((l) => l.usedChat).length;
     const calcLeads = leads.filter((l) => l.usedCalculator).length;
-    const avgTime = Math.round(leads.reduce((s, l) => s + l.timeOnPage, 0) / (leads.length || 1));
+    const avgTime = Math.round(leads.reduce((s, l) => s + (l.timeOnPage || 0), 0) / (leads.length || 1));
 
     const stats = [
         { label: "Total de Leads", value: totalLeads, icon: Users, color: "text-brand-600 bg-brand-50" },
@@ -54,11 +54,11 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
                                             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                                                {lead.name ? lead.name[0].toUpperCase() : "?"}
+                                                {lead.name ? lead.name.charAt(0).toUpperCase() : "?"}
                                             </div>
                                             <div>
                                                 <p className="font-medium text-slate-900">{lead.name ? `${lead.name} ${lead.lastName ?? ""}` : "Visitante"}</p>
-                                                <p className="text-xs text-slate-400">{lead.questions.length} perguntas</p>
+                                                <p className="text-xs text-slate-400">{(lead.questions || []).length} perguntas</p>
                                             </div>
                                         </div>
                                     </td>

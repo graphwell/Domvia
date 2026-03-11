@@ -22,11 +22,18 @@ export default function LeadsPage() {
             if (data) {
                 // Get all links for this user first to filter leads
                 const list: Lead[] = Object.entries(data)
-                    .map(([id, val]: [string, any]) => ({ id, ...val }))
-                    .filter((l: any) => l.userId === user.id || !l.userId) // support legacy leads
-                    .sort((a: any, b: any) =>
-                        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                    );
+                    .map(([id, val]: [string, any]) => ({ 
+                        id, 
+                        ...val,
+                        questions: val.questions || [],
+                        timeOnPage: val.timeOnPage || 0
+                    }))
+                    .filter((l: any) => l.userId === user.id || !l.userId)
+                    .sort((a: any, b: any) => {
+                        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        return dateB - dateA;
+                    });
                 setLeads(list);
             } else {
                 setLeads([]);
