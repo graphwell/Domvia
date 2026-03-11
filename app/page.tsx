@@ -1,65 +1,64 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+/**
+ * ============================================================
+ * DOMVIA — Ecossistema Inteligente para o Mercado Imobiliário
+ * ============================================================
+ * Produto Original: Domvia
+ * Autor: Francisco Einstein Albuquerque Barbosa
+ * Empresa: Somar.IA
+ * País de Origem: Brasil — Fortaleza, Ceará
+ * Ano de Criação: 2026
+ *
+ * Módulos Proprietários:
+ * - Smart Capture (Visão-Laser Multi-Placas com GenAI)
+ * - Detetive de CRECI (Visão de Parceria)
+ * - Extrator de Ficha Técnica via OCR
+ * - Auto GPS Traduzido via OpenStreetMap
+ * - Hub de Campanhas & Links Inteligentes
+ * - Gerador de Copys Imobiliários por IA
+ * - Smart CRM com Chatbot de Qualificação Financeira
+ * - Gerador Unificado de Documentos Oficiais
+ * - Assinatura Digital com Signature Pad
+ * - Motor de Governança com Credits Wallet
+ *
+ * Todos os direitos reservados.
+ * A reprodução parcial ou total deste sistema,
+ * sua arquitetura, fluxos ou nomenclaturas proprietárias
+ * sem autorização expressa é vedada.
+ *
+ * All rights reserved. Unauthorized reproduction prohibited.
+ * ============================================================
+ */
+import { HeroSection } from "@/components/landing/HeroSection";
+import { BenefitsSection } from "@/components/landing/BenefitsSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { ToolsSection } from "@/components/landing/ToolsSection";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { CTASection } from "@/components/landing/CTASection";
+import { PLANS } from "@/lib/mock-data";
+
+export const metadata: Metadata = {
+  title: "Domvia — Plataforma de IA para Corretores de Imóveis",
+  description:
+    "Link inteligente por imóvel com IA conversacional 24h, captação automática de leads, calculadora de financiamento e ferramentas de IA para corretores e imobiliárias.",
+};
+
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      <Header />
+      <main>
+        <HeroSection />
+        <BenefitsSection />
+        <HowItWorksSection />
+        <ToolsSection />
+        <PricingSection plans={PLANS} />
+        <CTASection />
       </main>
-    </div>
+      <Footer />
+    </>
   );
 }

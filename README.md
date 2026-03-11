@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeadBroker AI
 
-## Getting Started
+Plataforma SaaS inteligente para corretores de imóveis — captação de leads, IA conversacional, páginas inteligentes de imóveis e ferramentas de gestão.
 
-First, run the development server:
+## Stack
+
+- **Next.js 14** com App Router
+- **TypeScript**
+- **TailwindCSS** com design system customizado
+- **Recharts** para dashboards
+- **API Routes** (pronto para OpenAI, Supabase, etc.)
+
+## Estrutura de Rotas
+
+| Rota | Descrição |
+|------|-----------|
+| `/` | Landing page pública |
+| `/login` | Login |
+| `/register` | Cadastro |
+| `/dashboard` | Dashboard do corretor |
+| `/properties` | Gestão de imóveis |
+| `/properties/new` | Cadastrar imóvel |
+| `/leads` | Sistema de leads |
+| `/tools` | Ferramentas de IA |
+| `/tours` | Tours 360° |
+| `/plans` | Planos e créditos |
+| `/imovel/[id]` | Página pública inteligente do imóvel |
+
+## Desenvolvimento Local
 
 ```bash
+# Instalar dependências
+npm install
+
+# Criar arquivo de ambiente
+cp .env.local.example .env.local
+
+# Rodar servidor de desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variáveis de Ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copie `.env.local.example` para `.env.local` e preencha:
 
-## Learn More
+- `OPENAI_API_KEY` — para IA real (sem isso usa respostas mock inteligentes)
+- `DATABASE_URL` — Supabase, PlanetScale, Neon, etc.
+- `NEXTAUTH_SECRET` — para autenticação real
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy na Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push para GitHub
+2. Conecte o repositório na [Vercel](https://vercel.com)
+3. Configure as variáveis de ambiente no dashboard da Vercel
+4. Deploy automático a cada push na branch `main`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Integrações Futuras
 
-## Deploy on Vercel
+- [ ] **Banco de dados**: Supabase / PlanetScale / Neon
+- [ ] **Auth**: NextAuth.js com Google/GitHub OAuth
+- [ ] **Storage**: Vercel Blob / Cloudflare R2 para fotos
+- [ ] **AI real**: OpenAI GPT-4o
+- [ ] **Pagamentos**: Stripe para assinaturas
+- [ ] **Tour 360°**: Pannellum ou Photo Sphere Viewer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Arquitetura
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+leadbroker-ai/
+├── app/
+│   ├── (public)/          # Landing page
+│   ├── (auth)/            # Login, registro
+│   ├── (dashboard)/       # Dashboard autenticado
+│   │   ├── dashboard/
+│   │   ├── properties/
+│   │   ├── leads/
+│   │   ├── tools/
+│   │   ├── tours/
+│   │   └── plans/
+│   ├── imovel/[id]/       # Página pública do imóvel (Lead Page)
+│   └── api/               # API Routes
+├── components/
+│   ├── ui/                # Primitivas (Button, Card, Input, Badge)
+│   ├── layout/            # Header, Footer, Sidebar
+│   ├── landing/           # Seções da landing page
+│   ├── dashboard/         # Widgets do dashboard
+│   ├── property/          # Gestão de imóveis + SmartLeadPage
+│   ├── leads/             # Sistema de leads
+│   └── tools/             # Ferramentas de IA
+├── lib/
+│   ├── ai.ts              # Wrapper IA (mock → OpenAI)
+│   ├── financing.ts       # Calculadora de financiamento
+│   ├── utils.ts           # Utilitários
+│   └── mock-data.ts       # Dados de demonstração
+└── types/
+    └── index.ts           # TypeScript interfaces
+```

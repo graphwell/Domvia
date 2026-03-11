@@ -1,0 +1,16 @@
+{
+    "rules": {
+        "links": {
+            ".read": true,
+            ".write": true
+        },
+        "leads": {
+            ".read": true,
+            ".write": true
+        },
+        "tours": {
+            ".read": true,
+            ".write": true
+        }
+    }
+}

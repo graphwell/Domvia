@@ -1,0 +1,318 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "links": "My Links",
+        "leads": "Leads",
+        "tools": "Tools",
+        "documents": "Documents",
+        "tours": "360° Tour",
+        "plans": "Plans",
+        "settings": "Settings",
+        "suggestions": "Suggestions",
+        "logout": "Logout",
+        "chat": "Conversational AI",
+        "benefits": "Benefits",
+        "how_it_works": "How it Works"
+    },
+    "auth": {
+        "login": "Login",
+        "start_free": "Start for Free",
+        "register": "Register",
+        "welcome_back": "Welcome back",
+        "manage_account": "Access your account to manage your packages and tours",
+        "create_free": "Create your free account",
+        "start_capturing": "Start capturing leads in minutes",
+        "google_login": "Sign in with Google",
+        "google_register": "Sign up with Google",
+        "or_email": "Or use email",
+        "email_placeholder": "your@email.com",
+        "name_placeholder": "Full name",
+        "password_placeholder": "Your password",
+        "login_btn": "Access with Email",
+        "register_btn": "Create my free account",
+        "footer_login": "Already have an account?",
+        "footer_register": "Don't have an account?",
+        "terms_agree": "By signing in you agree to our",
+        "terms_agree_register": "By creating your account you agree to",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "errors": {
+            "terms_required": "Please accept the Terms of Use and Privacy Policy to continue.",
+            "fields_required": "Please fill in all fields",
+            "login_failed": "Error logging in. Check your credentials.",
+            "register_failed": "Error creating account. Check the provided data."
+        },
+        "perks": {
+            "trial": "Free trial",
+            "tour": "1 included 360° Tour",
+            "no_card": "No credit card"
+        }
+    },
+    "hero": {
+        "badge": "#1 Platform for realtors who want to sell more with AI",
+        "headlines": [
+            {
+                "start": "Your smart link that ",
+                "highlight": "sells while you sleep",
+                "sub": "Create a property link, paste it in the ad and let AI chat, calculate and qualify the client for you. Start free in 30 seconds."
+            },
+            {
+                "start": "Descriptions that ",
+                "highlight": "sell themselves while you take photos",
+                "sub": "AI generates a professional and persuasive description for your property based on the main features."
+            },
+            {
+                "start": "Calculations that ",
+                "highlight": "close the deal while the client is still on WhatsApp",
+                "sub": "Calculate installments and financing scenarios. Perfect for sending to clients via WhatsApp."
+            },
+            {
+                "start": "Ready-to-convert posts ",
+                "highlight": "while you drive",
+                "sub": "Create complete captions for Instagram, Facebook, and WhatsApp, with hashtags and emojis included."
+            },
+            {
+                "start": "Tours that ",
+                "highlight": "sell the property while you're at another appointment",
+                "sub": "Create immersive virtual tours by environment. Clients visit the property without leaving home."
+            },
+            {
+                "start": "Documents ready while ",
+                "highlight": "you attend to the next client",
+                "sub": "10 ready-made real estate documents: receipts, authorizations, proposals, forms and more. Via form or AI."
+            },
+            {
+                "start": "Discover how much your property ",
+                "highlight": "really yields while you plan the next one",
+                "sub": "Simulate the real return of a rental property (yield, payback, appreciation) or buy and sell (ROI, net profit)."
+            }
+        ],
+        "cta_main": "Start now for free",
+        "cta_secondary": "View demo",
+        "social_proof": "Used by +1,200 realtors",
+        "no_card": "No credit card",
+        "ready_fast": "Ready in 30 seconds"
+    },
+    "tools_section": {
+        "badge": "Domvia Tools",
+        "title_start": "Tools that ",
+        "title_highlight": "save hours every day",
+        "subtitle": "Integrated generative AI for every step of the realtor's routine — from ads to signed documents.",
+        "use_tool": "Use tool",
+        "items": {
+            "docs": {
+                "name": "Document Generator",
+                "hero": "Documents ready while you attend to the next client",
+                "desc": "10 ready-made real estate documents: receipts, authorizations, proposals, forms and more. Via form or AI.",
+                "badge": "10 Docs + AI"
+            },
+            "desc": {
+                "name": "Description Generator",
+                "hero": "Descriptions that sell themselves while you take photos",
+                "desc": "AI generates a professional and persuasive description for your property based on the main features.",
+                "badge": "AI"
+            },
+            "titles": {
+                "name": "Headline Suggestion",
+                "hero": "Headlines that make the client stop scrool in 3 seconds",
+                "desc": "Generate high-impact headlines for ads on major portals and social media.",
+                "badge": "AI"
+            },
+            "social": {
+                "name": "Social Media Text",
+                "hero": "Posts ready to convert while you drive",
+                "desc": "Create complete captions for Instagram, Facebook, and WhatsApp, with hashtags and emojis included.",
+                "badge": "AI"
+            },
+            "finance": {
+                "name": "Financing Simulator",
+                "hero": "Calculations that close the deal while the client is still on WhatsApp",
+                "desc": "Calculate installments and financing scenarios. Perfect for sending to clients via WhatsApp.",
+                "badge": "Free"
+            },
+            "tour": {
+                "name": "360° Virtual Tour",
+                "hero": "Tours that sell the property while you're at another appointment",
+                "desc": "Create immersive virtual tours by environment. Clients visit the property without leaving home.",
+                "badge": "1 Credit"
+            },
+            "terrain": {
+                "name": "Land Calculator",
+                "hero": "Exact area on any land while you drink coffee",
+                "desc": "Calculate land area in any shape. Converts to hectares, acres, and square feet.",
+                "badge": "Free"
+            },
+            "roi": {
+                "name": "Property Profitability",
+                "hero": "Discover how much your property really yields while you plan the next one",
+                "desc": "Simulate the real return of a property for rent (yield, payback) or buy and sell (ROI, net profit).",
+                "badge": "Free"
+            }
+        }
+    },
+    "footer": {
+        "tagline": "AI Platform for real estate agents who want to sell more, serve better, and waste less time.",
+        "platform": "Platform",
+        "plans": "Plans",
+        "contact": "Contact",
+        "rights": "All rights reserved.",
+        "developed_by": "Developed by Somar Soluções Digitais",
+        "privacy": "Privacy",
+        "terms": "Terms of Use",
+        "platform_links": [
+            "Smart Link",
+            "24h Conversational AI",
+            "Financing Calculator",
+            "360° Virtual Tour",
+            "Document Generator"
+        ],
+        "plans_links": [
+            "Start Free",
+            "Pro Plan",
+            "Agency Plan",
+            "Credits",
+            "FAQ"
+        ]
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "save": "Save",
+        "cancel": "Cancel",
+        "send": "Send",
+        "search_placeholder": "Search properties, leads...",
+        "developed_by_somar": "Developed by Somar Soluções Digitais",
+        "ia_trained": "AI trained for the real estate market · Domvia"
+    },
+    "chat": {
+        "title": "Conversational AI",
+        "subtitle": "Real estate specialist available 24/7",
+        "welcome": "Hello! I am Domvia's AI, a specialist in the real estate market. 🏠\n\nI can help you with:\n• **Financing simulation** (FGTS, SAC, Price, subsidies)\n• **Questions about buying, selling, or renting**\n• **Documentation and fee calculation** (ITBI, deed, registration)\n• **Home program information**\n• **Capture and negotiation strategies**\n\nTell me: how can I help you today?",
+        "quick_prompts": [
+            "Calculate financing of $ 400,000 with 20% down",
+            "How much deed tax will I pay on a $ 600,000 property?",
+            "How does the home subsidy work?",
+            "What documentation is needed to buy a property?",
+            "Difference between SAC and Price in financing",
+            "How to calculate the rental value of a property?"
+        ],
+        "input_placeholder": "Ask about financing, documentation, market...",
+        "new_chat": "New Chat",
+        "share": "Share",
+        "error_connection": "⚠️ Connection error. Try again.",
+        "error_processing": "Sorry, I couldn't process that."
+    },
+    "docs": {
+        "title": "Document Generator",
+        "hub": {
+            "subtitle": "Create, review, sign and share professional real estate documents — right from your phone",
+            "btn_ai_prompt": "Generate with AI (free prompt)",
+            "step1": "Choose document",
+            "step2": "Fill out or use AI",
+            "step3": "Sign digitally",
+            "step4": "Generate PDF and share",
+            "btn_form": "Form",
+            "btn_ai": "Generate with AI",
+            "categories": {
+                "recibo": "Receipts",
+                "autorizacao": "Authorizations",
+                "declaracao": "Declarations",
+                "proposta": "Proposals",
+                "ficha": "Filing",
+                "termo": "Terms"
+            },
+            "fields": {
+                "name": "Full Name",
+                "cpf": "Tax ID / CPF",
+                "rg": "Identity Card / RG",
+                "email": "E-mail",
+                "phone": "Phone",
+                "address": "Address",
+                "date": "Date",
+                "value": "Value",
+                "matricula": "Property Registration",
+                "iptu": "Municipal Tax ID (IPTU)",
+                "testemunhas": "Witnesses",
+                "observacoes": "Notes"
+            },
+            "templates": {
+                "recibo-chaves": {
+                    "name": "Key Handover Receipt",
+                    "desc": "Proves the delivery of keys in rentals, sales, or returns."
+                },
+                "recibo-sinal": {
+                    "name": "Business Signal Receipt",
+                    "desc": "Confirms receipt of signal for reservation or start of negotiation."
+                },
+                "recibo-pagamento": {
+                    "name": "Payment Receipt",
+                    "desc": "Confirms receipt of any value related to property."
+                },
+                "proposta-compra": {
+                    "name": "Property Purchase Proposal",
+                    "desc": "Formalizes an acquisition proposal with value, conditions, and term."
+                },
+                "autorizacao-visita": {
+                    "name": "Visit Authorization",
+                    "desc": "Authorizes the broker to carry out visits with potential buyers."
+                }
+            }
+        },
+        "ai_gen": {
+            "title": "Generate with AI",
+            "subtitle": "Describe the document and the AI creates it automatically",
+            "doc_type_label": "Document Type (optional)",
+            "doc_type_auto": "The AI identifies automatically",
+            "prompt_label": "Describe the document in natural language",
+            "prompt_placeholder": "Examples:\n• \"Generate a $15,000 sign-over receipt for the purchase of apt 302. Buyer: John Doe, ID 000.000.000-00. Today's date.\"\n• \"Visit authorization for the property at 100 Flowers St, for client Mary Smith today at 2 PM\"\n• \"Rent payment receipt for March, value $1,800, paid by John Smith, property Street A, 50\"",
+            "generate_btn": "Generate Document",
+            "generating": "Generating...",
+            "examples_title": "💡 Quick examples:",
+            "success_title": "Document generated!",
+            "success_subtitle": "The document is in the preview side. Review and, if necessary, make corrections.",
+            "btn_print": "Print / Save as PDF",
+            "btn_whatsapp": "Share on WhatsApp",
+            "btn_refine": "Redo with Observations",
+            "btn_new": "Create New Link",
+            "refine_title": "Redo with Observations",
+            "refine_subtitle": "State what you want to correct and the AI will generate a new version.",
+            "refine_placeholder": "Observation examples:\n• Correct the value to $12,000\n• Include two witnesses\n• Change date to 03/15/2025\n• Add a clause that the sign-over will be deducted from the total",
+            "btn_refining": "Refining...",
+            "preview_title": "Preview",
+            "footer_generated": "Generated with AI by Domvia — "
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "loading": "Loading dashboard...",
+        "stats": {
+            "links": "Active Links",
+            "leads": "Total Leads",
+            "week_leads": "Leads (Week)",
+            "simulations": "Simulations",
+            "ai_questions": "AI Questions"
+        },
+        "chart": {
+            "title": "Activity (Last 7 days)",
+            "leads": "Leads",
+            "views": "Views",
+            "days": [
+                "Sun",
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat"
+            ]
+        },
+        "recent_leads": {
+            "title": "Recent Leads",
+            "view_all": "View all"
+        },
+        "active_links": {
+            "title": "Top Active Links",
+            "view_all": "View all"
+        }
+    }
+}

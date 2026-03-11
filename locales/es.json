@@ -1,0 +1,363 @@
+{
+    "nav": {
+        "dashboard": "Panel Control",
+        "links": "Mis Enlaces",
+        "leads": "Leads",
+        "tools": "Herramientas",
+        "documents": "Documentos",
+        "tours": "Tour 360°",
+        "plans": "Planes",
+        "settings": "Configuración",
+        "suggestions": "Sugerencias",
+        "logout": "Cerrar sesión",
+        "chat": "IA Conversacional",
+        "benefits": "Beneficios",
+        "how_it_works": "Cómo Funciona"
+    },
+    "auth": {
+        "login": "Entrar",
+        "start_free": "Empezar Gratis",
+        "register": "Registrarse",
+        "welcome_back": "Bienvenido de nuevo",
+        "manage_account": "Accede a tu cuenta para gestionar tus paquetes y tours",
+        "create_free": "Crea tu cuenta gratis",
+        "start_capturing": "Comienza a captar leads en minutos",
+        "google_login": "Entrar con Google",
+        "google_register": "Crear cuenta con Google",
+        "or_email": "O usa tu email",
+        "email_placeholder": "tu@email.com",
+        "name_placeholder": "Nombre completo",
+        "password_placeholder": "Su contraseña",
+        "login_btn": "Acceder con Email",
+        "register_btn": "Crear mi cuenta gratis",
+        "footer_login": "¿Ya tienes una cuenta?",
+        "footer_register": "¿No tienes una cuenta?",
+        "terms_agree": "Al entrar, aceptas nuestros",
+        "terms_agree_register": "Al crear tu cuenta, aceptas los",
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "errors": {
+            "terms_required": "Por favor, acepte los Términos de Uso y la Política de Privacidad para continuar.",
+            "fields_required": "Por favor, rellene todos los campos",
+            "login_failed": "Error al iniciar sesión. Verifique sus credenciales.",
+            "register_failed": "Error al crear la cuenta. Verifique los datos proporcionados."
+        },
+        "perks": {
+            "trial": "Prueba gratis",
+            "tour": "1 Tour 360° incluido",
+            "no_card": "Sin tarjeta de crédito"
+        }
+    },
+    "hero": {
+        "badge": "Plataforma #1 para corredores que quieren vender más con IA",
+        "headlines": [
+            {
+                "start": "Tu enlace inteligente que ",
+                "highlight": "vende mientras duermes",
+                "sub": "Crea un enlace de la propiedad, pégalo en el anuncio y deja que la IA converse, calcule y califique al cliente por ti. Empieza gratis en 30 segundos."
+            },
+            {
+                "start": "Descripciones que ",
+                "highlight": "se venden solas mientras tomas fotos",
+                "sub": "La IA genera una descripción profesional y persuasiva para tu propiedad basada en las características principales."
+            },
+            {
+                "start": "Cálculos que ",
+                "highlight": "cierran el trato mientras el cliente aún está en WhatsApp",
+                "sub": "Calcula cuotas y escenarios de financiación. Perfecto para enviar a clientes vía WhatsApp."
+            },
+            {
+                "start": "Posts listos para ",
+                "highlight": "convertir mientras conduces",
+                "sub": "Crea subtítulos completos para Instagram, Facebook y WhatsApp, con hashtags y emojis incluidos."
+            },
+            {
+                "start": "Tours que ",
+                "highlight": "venden la propiedad mientras estás en otra cita",
+                "sub": "Crea tours virtuales inmersivos por ambiente. Los clientes visitan la propiedad sin salir de casa."
+            },
+            {
+                "start": "Documentos listos mientras ",
+                "highlight": "atiendes al siguiente cliente",
+                "sub": "10 documentos inmobiliarios listos: recibos, autorizaciones, propuestas, fichas y más. Vía formulario o IA."
+            },
+            {
+                "start": "Descubre cuánto rinde realmente tu propiedad ",
+                "highlight": "mientras planeas la siguiente",
+                "sub": "Simula el retorno real de una propiedad de alquiler (rendimiento, recuperación, valorización) o compra y venta (ROI, beneficio neto)."
+            }
+        ],
+        "cta_main": "Empezar ahora gratis",
+        "cta_secondary": "Ver demos",
+        "social_proof": "Usado por +1.200 corredores",
+        "no_card": "Sin tarjeta de crédito",
+        "ready_fast": "Listo en 30 segundos"
+    },
+    "tools_section": {
+        "badge": "Herramientas Domvia",
+        "title_start": "Herramientas que ",
+        "title_highlight": "ahorran horas cada día",
+        "subtitle": "IA generativa integrada para cada etapa de la rutina del corredor — desde el anuncio hasta el documento firmado.",
+        "use_tool": "Usar herramienta",
+        "items": {
+            "docs": {
+                "name": "Generador de Documentos",
+                "hero": "Documentos listos mientras atiendes al siguiente cliente",
+                "desc": "10 documentos inmobiliarios listos: recibos, autorizaciones, propuestas, fichas y más. Vía formulario o IA.",
+                "badge": "10 Docs + IA"
+            },
+            "desc": {
+                "name": "Generador de Descripción",
+                "hero": "Descripciones que se venden solas mientras tomas fotos",
+                "desc": "La IA genera una descripción profesional e persuasiva para tu propiedad basada en las características principales.",
+                "badge": "IA"
+            },
+            "titles": {
+                "name": "Sugerencia de Títulos",
+                "hero": "Títulos que hacen que el cliente detenga el scroll en 3 segundos",
+                "desc": "Genera títulos de alto impacto para anuncios en portales y redes sociales.",
+                "badge": "IA"
+            },
+            "social": {
+                "name": "Texto para Redes Sociales",
+                "hero": "Posts listos para convertir mientras conduces",
+                "desc": "Crea subtítulos completos para Instagram, Facebook y WhatsApp, con hashtags y emojis incluidos.",
+                "badge": "IA"
+            },
+            "finance": {
+                "name": "Simulador de Financiación",
+                "hero": "Cálculos que cierran el trato mientras el cliente aún está en WhatsApp",
+                "desc": "Calcula cuotas y escenarios de financiación. Perfecto para enviar a clientes vía WhatsApp.",
+                "badge": "Gratis"
+            },
+            "tour": {
+                "name": "Tour Virtual 360°",
+                "hero": "Tours que venden la propiedad mientras estás en otra cita",
+                "desc": "Crea tours virtuales inmersivos por ambiente. Los clientes visitan la propiedad sin salir de casa.",
+                "badge": "1 Crédito"
+            },
+            "terrain": {
+                "name": "Calculadora de Terreno",
+                "hero": "Área exacta en cualquier terreno mientras tomas café",
+                "desc": "Calcula el área de terrenos en cualquier forma. Convierte a hectáreas, acres y pies cuadrados.",
+                "badge": "Gratis"
+            },
+            "roi": {
+                "name": "Rentabilidad del Inmueble",
+                "hero": "Descubre cuánto rinde realmente tu propiedad mientras planeas la siguiente",
+                "desc": "Simula el retorno real de una propiedad para alquiler (rendimiento, payback) o compra y venta (ROI, beneficio neto).",
+                "badge": "Gratis"
+            }
+        }
+    },
+    "footer": {
+        "tagline": "Plataforma de IA para agentes inmobiliarios que quieren vender más, atender mejor y perder menos tiempo.",
+        "platform": "Plataforma",
+        "plans": "Planes",
+        "contact": "Contacto",
+        "rights": "Todos los derechos reservados.",
+        "developed_by": "Desarrollado por Somar Soluções Digitais",
+        "privacy": "Privacidad",
+        "terms": "Términos de Uso",
+        "platform_links": [
+            "Enlace Inteligente",
+            "IA Conversacional 24h",
+            "Calculadora de Financiación",
+            "Tour Virtual 360°",
+            "Generador de Documentos"
+        ],
+        "plans_links": [
+            "Empezar Gratis",
+            "Plan Pro",
+            "Plan Agency",
+            "Créditos",
+            "FAQ"
+        ]
+    },
+    "common": {
+        "loading": "Cargando...",
+        "error": "Ocurrió un error",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "send": "Enviar",
+        "search_placeholder": "Buscar inmuebles, leads...",
+        "developed_by_somar": "Desarrollado por Somar Soluções Digitais",
+        "ia_trained": "IA entrenada para el mercado inmobiliario · Domvia"
+    },
+    "chat": {
+        "title": "IA Conversacional",
+        "subtitle": "Especialista inmobiliaria disponible 24h",
+        "welcome": "¡Hola! Soy la IA de Domvia, especialista en el mercado inmobiliario. 🏠\n\nPuedo ayudarte con:\n• **Simulación de financiación** (FGTS, SAC, Price, subsidios)\n• **Dudas sobre compra, venta o alquiler**\n• **Cálculo de documentación y tasas** (ITBI, escritura, registro)\n• **Información sobre programas de vivienda**\n• **Estrategias de captación y negociación**\n\nDime: ¿cómo puedo ayudarte hoy?",
+        "quick_prompts": [
+            "Calcular financiación de $ 400.000 con 20% de entrada",
+            "¿Cuánto de ITBI pagaré en un inmueble de $ 600.000?",
+            "¿Cómo funciona el subsidio de vivienda?",
+            "¿Cuál es la documentación para comprar un inmueble?",
+            "Diferencia entre SAC y Price en la financiación",
+            "¿Cómo calcular el valor de alquiler de un inmueble?"
+        ],
+        "input_placeholder": "Pregunta sobre financiación, documentación, mercado...",
+        "new_chat": "Nueva Conversación",
+        "share": "Compartir",
+        "error_connection": "⚠️ Error de conexión. Inténtalo de nuevo.",
+        "error_processing": "Lo siento, no pude procesar."
+    },
+    "docs": {
+        "title": "Generador de Documentos",
+        "hub": {
+            "subtitle": "Cree, revise, firme y comparta documentos inmobiliarios profesionales — directo desde el móvil",
+            "btn_ai_prompt": "Generar con IA (prompt libre)",
+            "step1": "Elige el documento",
+            "step2": "Rellena o usa la IA",
+            "step3": "Firma digitalmente",
+            "step4": "Genera el PDF y comparte",
+            "btn_form": "Formulario",
+            "btn_ai": "Generar con IA",
+            "categories": {
+                "recibo": "Recibos",
+                "autorizacao": "Autorizaciones",
+                "declaracao": "Declaraciones",
+                "proposta": "Propuestas",
+                "ficha": "Registros",
+                "termo": "Términos"
+            },
+            "fields": {
+                "name": "Nombre Completo",
+                "cpf": "ID Fiscal / CPF",
+                "rg": "Cédula / RG",
+                "email": "Correo electrónico",
+                "phone": "Teléfono",
+                "address": "Dirección",
+                "date": "Fecha",
+                "value": "Valor",
+                "matricula": "Matrícula del Inmueble",
+                "iptu": "Inscripción Municipal (IPTU)",
+                "testemunhas": "Testigos",
+                "observacoes": "Observaciones"
+            },
+            "templates": {
+                "recibo-chaves": {
+                    "name": "Recibo de Entrega de Llaves",
+                    "desc": "Prueba la entrega de llaves en alquileres, ventas o devoluciones."
+                },
+                "recibo-sinal": {
+                    "name": "Recibo de Señal de Negocio",
+                    "desc": "Confirma la recepción de señal para reserva o inicio de negociación."
+                },
+                "recibo-pagamento": {
+                    "name": "Recibo de Pago",
+                    "desc": "Confirma la recepción de cualquier valor relacionado con la propiedad."
+                },
+                "proposta-compra": {
+                    "name": "Propuesta de Compra de Inmueble",
+                    "desc": "Formaliza una propuesta de adquisición con valor, condiciones y plazo."
+                },
+                "autorizacao-visita": {
+                    "name": "Autorización de Visita",
+                    "desc": "Autoriza al corredor a realizar visitas con potenciales compradores."
+                }
+            }
+        },
+        "ai_gen": {
+            "title": "Generar con IA",
+            "subtitle": "Describa el documento y la IA lo crea automáticamente",
+            "doc_type_label": "Tipo de Documento (opcional)",
+            "doc_type_auto": "La IA identifica automáticamente",
+            "prompt_label": "Describa el documento en lenguaje natural",
+            "prompt_placeholder": "Ejemplos:\n• \"Generar recibo de señal de 15 mil para compra del apt 302. Comprador: Juan Perez, ID 000.000.000-00. Fecha de hoy.\"\n• \"Autorización de visita para el inmueble en la Calle de las Flores, 100, para la cliente Maria Santos hoy a las 14h\"\n• \"Recibo de pago de alquiler de marzo, valor $ 1.800, pagado por Juan Ferreira, inmueble Calle A, 50\"",
+            "generate_btn": "Generar Documento",
+            "generating": "Generando...",
+            "examples_title": "💡 Ejemplos rápidos:",
+            "success_title": "¡Documento generado!",
+            "success_subtitle": "El documento está en la vista previa al lado. Revise y, si es necesario, realice correcciones.",
+            "btn_print": "Imprimir / Guardar como PDF",
+            "btn_whatsapp": "Compartir en WhatsApp",
+            "btn_refine": "Rehacer con Observaciones",
+            "btn_new": "Generar nuevo documento",
+            "refine_title": "Rehacer con Observaciones",
+            "refine_subtitle": "Informe lo que desea corregir y la IA generará una nueva versión.",
+            "refine_placeholder": "Ejemplos de observaciones:\n• Corregir el valor a $ 12.000\n• Incluir dos testigos\n• Cambiar fecha al 15/03/2025\n• Añadir cláusula de que la señal se deducirá del total",
+            "btn_refining": "Refinando...",
+            "preview_title": "Vista previa",
+            "footer_generated": "Generado con IA por Domvia — "
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "loading": "Cargando dashboard...",
+        "stats": {
+            "links": "Links Activos",
+            "leads": "Total de Leads",
+            "week_leads": "Leads (Semana)",
+            "simulations": "Simulaciones",
+            "ai_questions": "Dudas IA"
+        },
+        "chart": {
+            "title": "Actividad Semanal",
+            "leads": "Leads",
+            "views": "Visitas",
+            "days": [
+                "Dom",
+                "Lun",
+                "Mar",
+                "Mié",
+                "Jue",
+                "Vie",
+                "Sáb"
+            ]
+        },
+        "recent_leads": {
+            "title": "Leads Recientes",
+            "view_all": "Ver todos"
+        },
+        "active_links": {
+            "title": "Mis Links",
+            "view_all": "Ver todos"
+        },
+        "credits": {
+            "title": "Créditos disponibles",
+            "upgrade": "Hacer Upgrade",
+            "trial_info": "Plan Trial · 3 links"
+        },
+        "welcome": "¡Bienvenido! Vea el desempeño de sus enlaces.",
+        "btn_new": "Crear Nuevo Enlace"
+    },
+    "settings": {
+        "title": "Configuración",
+        "subtitle": "Gestione su cuenta y personalice su experiencia en Domvia.",
+        "groups": {
+            "opinion": "Danos tu opinión",
+            "account": "Mi Cuenta",
+            "preferences": "Preferencias"
+        },
+        "items": {
+            "suggestions": {
+                "label": "Sugerencias y Feedback",
+                "desc": "Ayúdenos a mejorar Domvia enviando sus ideas y sugerencias.",
+                "city": "Tu Ciudad",
+                "phone": "Tu WhatsApp",
+                "location_info": "Esta información nos ayuda a comprender el contexto regional de su sugerencia.",
+                "detecting": "Detectando ubicación...",
+                "title_label": "Título de la Sugerencia",
+                "category_label": "Categoría",
+                "priority_label": "Prioridad",
+                "desc_label": "Descripción Detallada",
+                "btn_send": "Enviar Sugerencia",
+                "success_title": "¡Gracias por tus comentarios!",
+                "success_desc": "Su sugerencia ha sido enviada con éxito e será analizada por nuestro equipo."
+            },
+            "profile": {
+                "label": "Perfil",
+                "desc": "Gestione su información personal y de contacto."
+            },
+            "notifications": {
+                "label": "Notificaciones",
+                "desc": "Configure cómo desea recibir alertas y actualizaciones."
+            },
+            "branding": {
+                "label": "Identidad Visual",
+                "desc": "Personalice los colores y el logo usados en sus enlaces y documentos."
+            }
+        }
+    }
+}
