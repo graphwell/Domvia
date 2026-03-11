@@ -195,13 +195,14 @@ export const WEEKLY_CHART_DATA = [
 export const MOCK_TOURS: Tour[] = [
     {
         id: "tour_001",
+        userId: "user_01",
         linkId: "link_001",
-        linkTitle: "Apartamento 3 quartos — Leblon",
-        rooms: [
-            { id: "r1", label: "Sala de Estar", imageUrl: "" },
-            { id: "r2", label: "Quarto Master", imageUrl: "" },
-            { id: "r3", label: "Cozinha", imageUrl: "" },
-        ],
+        title: "Apartamento 3 quartos — Leblon",
+        scenes: {
+            "r1": { id: "r1", name: "Sala de Estar", panoramaUrl: "" },
+            "r2": { id: "r2", name: "Quarto Master", panoramaUrl: "" },
+            "r3": { id: "r3", name: "Cozinha", panoramaUrl: "" },
+        },
         published: true,
         createdAt: "2025-03-02T10:00:00Z",
     },

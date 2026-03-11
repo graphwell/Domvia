@@ -272,14 +272,18 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             // @ts-ignore
             const html2pdf = (await import("html2pdf.js")).default;
             const element = document.getElementById("doc-preview");
+            if (!element) {
+                toast.error("Erro ao localizar elemento para o PDF.");
+                return;
+            }
             
             // Remove border for PDF generation specifically if needed, but styling is mostly ok
             const opt = {
                 margin:       15,
                 filename:     `${template.shortName.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
+                image:        { type: 'jpeg' as const, quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
             };
 
             await html2pdf().set(opt).from(element).save();
