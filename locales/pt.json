@@ -188,6 +188,7 @@
         "title": "IA Conversacional",
         "subtitle": "Especialista imobiliária disponível 24h",
         "welcome": "Olá! Sou a IA da Domvia, especialista no mercado imobiliário brasileiro. 🏠\n\nPosso te ajudar com:\n• **Simulação de financiamento** (FGTS, SAC, Price, subsídios)\n• **Dúvidas sobre compra, venda ou locação**\n• **Cálculo de documentação e taxas** (ITBI, escritura, registro)\n• **Informações sobre Minha Casa Minha Vida**\n• **Estratégias de captação e negociação**\n\nMe diga: como posso ajudar você hoje?",
+        "quick_prompts_title": "Sugestões de perguntas",
         "quick_prompts": [
             "Calcular financiamento de R$ 400.000 com 20% de entrada",
             "Quanto de ITBI vou pagar num imóvel de R$ 600.000?",
