@@ -74,6 +74,10 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: true,
   },
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 import { AuthProvider } from "@/hooks/auth-provider";
