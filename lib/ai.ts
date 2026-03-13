@@ -243,6 +243,60 @@ Máximo 3 frases. Foco em despertar curiosidade e fazer o cliente clicar no link
     return result.response.text();
 }
 
+// ── Gerador de Copy para Landing Page do Imóvel ──
+export async function generatePropertyLandingCopy(data: {
+    title: string;
+    price?: number;
+}, language: string = "pt"): Promise<{ headline: string; description: string; bullets: string[] }> {
+    const langNames: Record<string, string> = { pt: "Português", en: "English", es: "Español" };
+    const targetLang = langNames[language] || "Português";
+
+    if (!process.env.GEMINI_API_KEY) {
+        await delay(1000);
+        return {
+            headline: `Oportunidade Única: ${data.title}`,
+            description: `Descubra o conforto e a sofisticação que você merece neste imóvel exclusivo. Localização privilegiada e acabamento de alto padrão.`,
+            bullets: [
+                "Localização estratégica e valorizada",
+                "Acabamento premium e design moderno",
+                "Oportunidade imperdível de investimento"
+            ]
+        };
+    }
+
+    const genAI = getClient();
+    const model = genAI.getGenerativeModel({ model: MODEL });
+
+    const prompt = `Atue como um redator publicitário de alto nível especializado no mercado imobiliário de luxo e alta performance.
+    Sua missão é gerar o conteúdo persuasivo (copy) para uma Landing Page de um imóvel.
+    
+    Dados do Imóvel:
+    - Título: ${data.title}
+    ${data.price ? `- Preço: R$ ${data.price.toLocaleString("pt-BR")}` : ""}
+    
+    Você deve retornar OBRIGATORIAMENTE em **${targetLang}** um objeto JSON com:
+    1. "headline": Uma linha impactante e curta (máximo 12 palavras).
+    2. "description": Um parágrafo persuasivo de 3 a 4 linhas que desperte desejo e urgência.
+    3. "bullets": Um array com EXATAMENTE 3 pontos de destaque (bullet points) curtos focando nos benefícios.
+    
+    Retorne APENAS o JSON. Exemplo:
+    {
+      "headline": "Onde o luxo encontra o seu novo endereço no Leblon",
+      "description": "Viva a experiência única de morar a poucos passos da praia em um projeto que redefine o conceito de exclusividade. Cada detalhe foi pensado para proporcionar o máximo de conforto e sofisticação para sua família.",
+      "bullets": ["Vista panorâmica definitiva para o mar", "3 suítes amplas com acabamento premium", "Localização mais valorizada do Rio de Janeiro"]
+    }`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().trim();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    
+    if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+    }
+    
+    throw new Error("Falha ao gerar copy da landing page");
+}
+
 // ── Smart Capture: OCR for Real Estate Signs ──
 export interface AICaptureResult {
     phones: string[];

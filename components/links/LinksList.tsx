@@ -8,7 +8,8 @@ import type { CampaignLink } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 import {
     Plus, Link2, Copy, Eye, Users, MessageSquare,
-    Calculator, ExternalLink, MoreVertical, Search, CheckCheck
+    Calculator, ExternalLink, MoreVertical, Search, CheckCheck, 
+    MousePointer2, LayoutTemplate
 } from "lucide-react";
 import Link from "next/link";
 import { triggerHaptic } from "@/lib/haptic";
@@ -23,10 +24,10 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://domvia.ai";
 
-    const copyLink = (slug: string) => {
+    const copyLink = (path: string, id: string) => {
         triggerHaptic('light');
-        navigator.clipboard.writeText(`${baseUrl}/lead/${slug}`);
-        setCopied(slug);
+        navigator.clipboard.writeText(`${baseUrl}${path}`);
+        setCopied(id);
         setTimeout(() => setCopied(null), 2000);
     };
 
@@ -82,36 +83,77 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
                                         <p className="text-xs text-brand-600 font-semibold mt-0.5">{formatCurrency(link.price)}</p>
                                     )}
                                     {/* URL do link */}
-                                    <div className="flex items-center gap-1.5 mt-1.5">
-                                        <code className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg font-mono truncate max-w-[200px]">
-                                            /lead/{link.slug}
-                                        </code>
-                                        <button
-                                            onClick={() => copyLink(link.slug)}
-                                            className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
-                                        >
-                                            {copied === link.slug
-                                                ? <CheckCheck className="h-3.5 w-3.5 text-emerald-500" />
-                                                : <Copy className="h-3.5 w-3.5" />
-                                            }
-                                        </button>
+                                    <div className="flex flex-col gap-1 mt-2">
+                                        <div className="flex items-center gap-1.5">
+                                            <code className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg font-mono truncate max-w-[200px]">
+                                                /lead/{link.slug}
+                                            </code>
+                                            <button
+                                                onClick={() => copyLink(`/lead/${link.slug}`, link.id)}
+                                                className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
+                                            >
+                                                {copied === link.id
+                                                    ? <CheckCheck className="h-3 w-3 text-emerald-500" />
+                                                    : <Copy className="h-3 w-3" />
+                                                }
+                                            </button>
+                                        </div>
+                                        
+                                        {link.landing_enabled && (
+                                            <div className="flex items-center gap-1.5 group/lp">
+                                                <Badge variant="brand" className="text-[9px] h-4 py-0 flex items-center gap-1 border-brand-100">
+                                                    <LayoutTemplate className="h-2 w-2" /> LANDING
+                                                </Badge>
+                                                <code className="text-[10px] text-brand-600 bg-brand-50 px-2 py-0.5 rounded-lg font-mono truncate max-w-[200px]">
+                                                    /l/{link.slug}
+                                                </code>
+                                                <button
+                                                    onClick={() => copyLink(`/l/${link.slug}`, link.id + 'lp')}
+                                                    className="p-1 rounded-md hover:bg-brand-100 text-brand-400 hover:text-brand-600 transition-colors"
+                                                >
+                                                    {copied === link.id + 'lp'
+                                                        ? <CheckCheck className="h-3 w-3 text-emerald-500" />
+                                                        : <Copy className="h-3 w-3" />
+                                                    }
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Stats */}
-                            <div className="flex gap-4 text-xs text-slate-500 sm:justify-end">
-                                <div className="flex items-center gap-1">
-                                    <Eye className="h-3.5 w-3.5" />
-                                    <span>{link.visits}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Users className="h-3.5 w-3.5 text-brand-400" />
-                                    <span>{link.aiQuestions}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Calculator className="h-3.5 w-3.5 text-emerald-400" />
-                                    <span>{link.simulations}</span>
+                            <div className="flex items-center gap-4 sm:ml-auto">
+                                <div className="flex items-center gap-4 text-xs text-slate-500">
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] uppercase font-bold text-slate-400 mb-0.5">IA Chat</span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-1" title="Visitas no Chat">
+                                                <Eye className="h-3.5 w-3.5 text-slate-400" />
+                                                <span className="font-bold">{link.visits}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1" title="Perguntas feitas">
+                                                <Users className="h-3.5 w-3.5 text-brand-400" />
+                                                <span className="font-bold">{link.aiQuestions}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {link.landing_enabled && (
+                                        <div className="flex flex-col items-center border-l border-slate-100 pl-4">
+                                            <span className="text-[9px] uppercase font-bold text-slate-400 mb-0.5">Landing Page</span>
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-1" title="Visitas na Landing">
+                                                    <Eye className="h-3.5 w-3.5 text-slate-400" />
+                                                    <span className="font-bold text-slate-900">{link.landing_views || 0}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1" title="Cliques no Botão">
+                                                    <MousePointer2 className="h-3.5 w-3.5 text-brand-500" />
+                                                    <span className="font-bold text-brand-600">{link.landing_cta_clicks || 0}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

@@ -70,6 +70,7 @@ export function Footer() {
                     <p>© 2026 Domvia. {t("footer.rights") || "Todos os direitos reservados."}</p>
                     <p className="text-slate-600">{t("footer.developed_by") || "Desenvolvido por Somar.IA"}</p>
                     <div className="flex gap-4">
+                        <Link href="/help" className="hover:text-slate-300 transition-colors">{t("nav.help") || "Ajuda"}</Link>
                         <Link href="#" className="hover:text-slate-300 transition-colors">{t("footer.privacy") || "Privacidade"}</Link>
                         <Link href="#" className="hover:text-slate-300 transition-colors">{t("footer.terms") || "Termos de Uso"}</Link>
                     </div>

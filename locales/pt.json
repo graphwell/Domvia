@@ -8,6 +8,8 @@
         "tours": "Tour 360°",
         "plans": "Planos",
         "settings": "Configurações",
+        "help": "Central de Ajuda",
+        "invite": "Convidar Corretores",
         "suggestions": "Sugestões",
         "logout": "Sair",
         "chat": "IA Conversacional",
@@ -89,6 +91,7 @@
         ],
         "cta_main": "Começar agora grátis",
         "cta_secondary": "Ver ferramentas",
+        "cta_invite": "Convidar Corretores",
         "social_proof": "Usado por +1.200 corretores",
         "no_card": "Sem cartão de crédito",
         "ready_fast": "Pronto em 30 segundos"
@@ -171,7 +174,8 @@
             "Plano Pro",
             "Plano Agency",
             "Créditos",
-            "FAQ"
+            "FAQ",
+            "Central de Ajuda"
         ]
     },
     "common": {

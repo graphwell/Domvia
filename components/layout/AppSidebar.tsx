@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     LayoutDashboard, Link2, Users, Wrench, Camera, CreditCard,
-    Settings, LogOut, ChevronLeft, ChevronRight, FolderOpen, MessageSquare, Coins, Shield
+    Settings, LogOut, ChevronLeft, ChevronRight, FolderOpen, MessageSquare, Coins, Shield,
+    UserPlus, LifeBuoy
 } from "lucide-react";
 import { DomviaLogo } from "@/components/layout/Header";
 import { useState } from "react";
@@ -35,7 +36,8 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
         { href: "/tours", icon: FolderOpen, label: t("nav.tours") }, 
         { href: "/credits", icon: Coins, label: "Créditos" },
         { href: "/planos", icon: CreditCard, label: t("nav.plans") },
-        { href: "/help", icon: MessageSquare, label: "Central de Ajuda" },
+        { href: "/help", icon: LifeBuoy, label: t("nav.help") || "Central de Ajuda" },
+        { href: "/convite", icon: UserPlus, label: t("nav.invite") || "Convidar Corretores" },
     ];
 
     return (

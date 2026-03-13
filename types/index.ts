@@ -58,6 +58,18 @@ export interface CampaignLink {
     status: "active" | "paused" | "archived";
     createdAt: string;
     updatedAt: string;
+
+    // Landing Page (Pro/Max)
+    landing_enabled?: boolean;
+    landing_photos?: string[];
+    landing_cta?: string;
+    landing_headline?: string;
+    landing_description?: string;
+    landing_bullets?: string[];
+    landing_show_logo?: boolean;
+    landing_views?: number;
+    landing_cta_clicks?: number;
+    landing_avg_time?: number;
 }
 
 // ── Lead (visita ao link) ─────────────────────

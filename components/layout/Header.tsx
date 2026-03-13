@@ -59,6 +59,7 @@ export function Header() {
         { label: t("nav.how_it_works") || "Como Funciona", href: "#como-funciona" },
         { label: t("nav.tools") || "Ferramentas", href: "#ferramentas" },
         { label: t("nav.plans") || "Planos", href: "#planos" },
+        { label: t("nav.help") || "Ajuda", href: "/help" },
     ];
 
     return (
@@ -108,6 +109,13 @@ export function Header() {
                             {link.label}
                         </Link>
                     ))}
+                    <Link
+                        href="/convite"
+                        className="block text-sm font-bold text-brand-600 py-2"
+                        onClick={() => setOpen(false)}
+                    >
+                        {t("nav.invite") || "Convidar Corretores"}
+                    </Link>
                     <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
                         <div className="flex justify-center py-2">
                             <LanguageSelector />

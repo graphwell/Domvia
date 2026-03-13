@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { ArrowRight, Zap, CheckCircle, Star } from "lucide-react";
+import { ArrowRight, Zap, CheckCircle, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/hooks/use-language";
@@ -76,9 +76,10 @@ export function HeroSection() {
                                 <ArrowRight className="h-5 w-5" />
                             </Button>
                         </Link>
-                        <Link href="/imovel/prop_001">
-                            <Button size="xl" variant="secondary" className="min-w-[180px]">
-                                {t("hero.cta_secondary") || "Ver Demonstração"}
+                        <Link href="/convite">
+                            <Button size="xl" variant="ghost" className="min-w-[180px] border border-slate-200">
+                                <Users className="h-4 w-4 mr-2" />
+                                {t("hero.cta_invite") || "Convidar Corretores"}
                             </Button>
                         </Link>
                     </div>

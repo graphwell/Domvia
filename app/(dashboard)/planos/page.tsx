@@ -83,6 +83,7 @@ export default function PricingPage() {
                 "150 captações/mês",
                 "50 documentos/mês",
                 "100 links de campanha",
+                "Landing Page do Imóvel (2 créditos)",
                 "IA especialista (100 sessões)",
                 "Créditos do plano expiram no ciclo",
             ],
@@ -96,6 +97,7 @@ export default function PricingPage() {
             description: "Para quem não para de vender",
             features: [
                 "Tudo ILIMITADO",
+                "Landing Page do Imóvel (Sem custo)",
                 "Sem cobrança de créditos",
                 "Prioridade no suporte",
                 "Acesso antecipado a novas IAs",
@@ -112,10 +114,10 @@ export default function PricingPage() {
             {/* Header */}
             <div className="text-center space-y-4">
                 <Badge variant="brand" className="px-4 py-1 text-xs uppercase font-black tracking-widest">Planos Domvia</Badge>
-                <h1 className="text-4xl sm:text-5xl font-display font-black text-slate-900 tracking-tight">
+                <h1 className="text-3xl sm:text-5xl font-display font-black text-slate-900 tracking-tight leading-tight">
                     Escolha o motor da sua <span className="text-brand-600">produtividade.</span>
                 </h1>
-                <p className="text-slate-500 max-w-2xl mx-auto font-medium">
+                <p className="text-slate-500 max-w-2xl mx-auto font-medium text-sm sm:text-base">
                     Domvia substitui 4 ferramentas que custam R$ 300/mês por apenas R$ 49. 
                     Sem contrato. Cancele quando quiser.
                 </p>
@@ -162,9 +164,9 @@ export default function PricingPage() {
                                 <p className="text-xs text-slate-500 font-medium mt-1">{plan.description}</p>
                             </div>
 
-                            <div className="flex items-baseline gap-1">
+                            <div className="flex items-baseline gap-1 mt-4">
                                 <span className="text-sm font-bold text-slate-400">R$</span>
-                                <span className="text-4xl font-black text-slate-900">{plan.price}</span>
+                                <span className="text-4xl sm:text-5xl font-black text-slate-900">{plan.price}</span>
                                 <span className="text-sm font-bold text-slate-400">/{billingCycle === 'monthly' ? 'mês' : 'mês*'}</span>
                             </div>
                             {billingCycle === 'annual' && plan.price > 0 && (

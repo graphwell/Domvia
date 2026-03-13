@@ -62,6 +62,7 @@ export const TOOL_CREDIT_COSTS: Record<string, number> = {
     'finance': 0,
     'terrain': 0,
     'rentability': 0,
+    'landing_page': 2,
 };
 
 /**
