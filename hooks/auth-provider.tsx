@@ -227,7 +227,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = async () => {
         try {
             await signOut(auth);
-            router.push("/login");
+            router.push("/");
         } catch (error) {
             console.error("Error signing out:", error);
         }

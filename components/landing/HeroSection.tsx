@@ -55,7 +55,7 @@ export function HeroSection() {
                 <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-gold-400/8 blur-3xl" />
             </div>
 
-            <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pt-32 md:pb-40">
+            <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-16 md:pt-20 md:pb-24">
                 <div className="text-center space-y-8">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-4 py-1.5 text-sm font-medium text-brand-700 animate-fade-up">
@@ -74,12 +74,6 @@ export function HeroSection() {
                             <Button size="xl" className="min-w-[220px] shadow-glow">
                                 {t("auth.start_free") || "Começar Grátis Agora"}
                                 <ArrowRight className="h-5 w-5" />
-                            </Button>
-                        </Link>
-                        <Link href="/convite">
-                            <Button size="xl" variant="ghost" className="min-w-[180px] border border-slate-200">
-                                <Users className="h-4 w-4 mr-2" />
-                                {t("hero.cta_invite") || "Convidar Corretores"}
                             </Button>
                         </Link>
                     </div>

@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/auth-provider";
 import { triggerHaptic } from "@/lib/haptic";
 
 export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boolean; onClose?: () => void }) {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
     const { t } = useLanguage();
@@ -25,15 +25,15 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
     const NAV_ITEMS = [
         { href: "/tools/chat", icon: MessageSquare, label: t("nav.chat"), highlight: true },
         { href: "/dashboard", icon: LayoutDashboard, label: t("nav.dashboard") },
-        { href: "/links", icon: Link2, label: t("nav.links") },
-        { href: "/leads", icon: Users, label: t("nav.leads") },
+        { href: "/links", icon: Link2, label: t("nav.links") || "Meus Links" },
+        { href: "/leads", icon: Users, label: t("nav.leads") || "Leads" },
         { href: "/tools", icon: Wrench, label: t("nav.tools") },
         { href: "/tools/docs", icon: FolderOpen, label: t("nav.documents") },
         ...(user?.role === "AGENCY_ADMIN" || user?.role === "ADMIN_MASTER"
             ? [{ href: "/agency/team", icon: Shield, label: "Equipe" }]
             : []),
         { href: "/tools/captacao", icon: Camera, label: "Captação" },
-        { href: "/tours", icon: FolderOpen, label: t("nav.tours") }, 
+        { href: "/tours", icon: FolderOpen, label: t("nav.tours") || "Tour 360°" }, 
         { href: "/credits", icon: Coins, label: "Créditos" },
         { href: "/planos", icon: CreditCard, label: t("nav.plans") },
         { href: "/help", icon: LifeBuoy, label: t("nav.help") || "Central de Ajuda" },
@@ -128,7 +128,13 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
                     <MessageSquare className={cn("h-5 w-5 shrink-0", pathname === "/settings/suggestions" ? "text-brand-600" : "text-slate-400")} />
                     {!actualCollapsed && <span>{t("nav.suggestions")}</span>}
                 </Link>
-                <button className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
+                <button 
+                    onClick={() => {
+                        triggerHaptic('medium');
+                        logout();
+                    }}
+                    className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                >
                     <LogOut className="h-5 w-5 shrink-0" />
                     {!actualCollapsed && <span>{t("nav.logout")}</span>}
                 </button>

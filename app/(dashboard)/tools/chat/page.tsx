@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/auth-provider";
 import { trackUsage } from "@/lib/usage-tracking";
@@ -32,7 +33,7 @@ export default function ChatPage() {
         if (messages.length === 0) {
             setMessages([{
                 role: "assistant",
-                content: t("chat.welcome") || "Olá! Sou a IA da Domvia...",
+                content: "Olá! Sou a IA da Domvia 🏠\nEspecialista em imóveis, financiamento e captação.\nComo posso te ajudar hoje?",
                 ts: Date.now()
             }]);
         }
@@ -110,24 +111,35 @@ export default function ChatPage() {
         setInput("");
     };
 
-    const allQuickPrompts = t("chat.quick_prompts") || [];
+    const allQuickPrompts = [
+        "Calcular financiamento de R$ 400.000 com 20% de entrada",
+        "Quanto de ITBI vou pagar num imóvel de R$ 600.000?",
+        "Como funciona o subsídio Minha Casa Minha Vida?",
+        "Qual a diferença entre SAC e Price?",
+        "Como usar o FGTS na compra do imóvel?",
+        "Quanto custa escritura e registro de imóvel?",
+        "Como fazer uma boa captação de imóvel?",
+        "Quais documentos preciso para vender um imóvel?"
+    ];
+
     const [quickPrompts, setQuickPrompts] = useState<string[]>([]);
     const [rotationIndex, setRotationIndex] = useState(0);
     const rotationTimer = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (allQuickPrompts.length > 0) {
-            setQuickPrompts(allQuickPrompts.slice(0, 3));
+            setQuickPrompts(allQuickPrompts.slice(0, 2));
         }
-    }, [allQuickPrompts]);
+    }, []);
 
     useEffect(() => {
-        if (messages.length > 2 || allQuickPrompts.length <= 3) return;
+        if (messages.length > 2 || allQuickPrompts.length <= 2) return;
         
         rotationTimer.current = setInterval(() => {
             setRotationIndex((prev) => {
-                const next = (prev + 3) % allQuickPrompts.length;
-                setQuickPrompts(allQuickPrompts.slice(next, next + 3));
+                const step = 2;
+                const next = (prev + step) % allQuickPrompts.length;
+                setQuickPrompts(allQuickPrompts.slice(next, next + step));
                 return next;
             });
         }, 4000);
@@ -135,7 +147,7 @@ export default function ChatPage() {
         return () => {
             if (rotationTimer.current) clearInterval(rotationTimer.current);
         };
-    }, [messages.length, allQuickPrompts]);
+    }, [messages.length]);
 
     const stopRotation = () => {
         if (rotationTimer.current) {
@@ -230,15 +242,14 @@ export default function ChatPage() {
 
             {/* Input bar */}
             <div className="shrink-0 pb-2">
-                <Card padding="sm" className="flex items-end gap-2">
+                <Card padding="sm" className={cn(
+                    "flex items-end gap-2 border transition-all duration-300",
+                    input === "" && messages.length <= 2 ? "animate-pulse-blue border-brand-400" : "border-slate-200"
+                )}>
                     <textarea
                         ref={inputRef}
                         className="flex-1 resize-none text-sm bg-transparent outline-none placeholder-slate-400 max-h-32 leading-relaxed py-1"
                         placeholder={t("chat.input_placeholder")}
-                        style={{ 
-                            animation: input === "" ? 'pulse-border 2s ease-in-out infinite' : 'none',
-                            borderRadius: '8px'
-                        }}
                         rows={1}
                         value={input}
                         onFocus={() => {

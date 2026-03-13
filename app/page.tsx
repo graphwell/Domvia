@@ -50,12 +50,11 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main>
+      <main className="space-y-0">
         <HeroSection />
         <BenefitsSection />
         <HowItWorksSection />
         <ToolsSection />
-        <PricingSection plans={PLANS} />
         <CTASection />
       </main>
       <Footer />
