@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/auth-provider";
 import { rtdb } from "@/lib/firebase";
