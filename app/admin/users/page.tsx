@@ -123,81 +123,88 @@ export default function AdminUsersPage() {
     // ── Load users from Firebase ──────────────────────────────────
     useEffect(() => {
         const usersRef = ref(rtdb, "users");
-        const creditsRef = ref(rtdb, "user_credits");
-
-        let usersList: any[] = [];
-        let creditsMap: any = {};
-
-        const unsUsers = onValue(usersRef, (snap) => {
+        return onValue(usersRef, (snap) => {
             const data = snap.val() ?? {};
-            usersList = Object.entries(data).map(([id, u]: [string, any]) => ({
+            const list: UserRecord[] = Object.entries(data).map(([id, u]: [string, any]) => ({
                 id,
-                ...u,
                 name: u.name ?? "Sem nome",
                 email: u.email ?? "",
                 role: u.role ?? "CORRETOR",
-                plan: u.planId || u.plan || "trial",
-                status: u.status || u.planStatus || "active",
-                createdAt: u.createdAt || Date.now(),
+                plan: u.plan ?? "Trial",
+                status: u.status ?? "active",
+                createdAt: u.createdAt ?? Date.now(),
+                planExpiresAt: u.planExpiresAt,
+                permissions: u.permissions ?? DEFAULT_PERMISSIONS,
+                simulatorLevel: u.simulatorLevel,
+                inviteCode: u.inviteCode ?? genInviteCode(u.name ?? "user"),
+                invitedBy: u.invitedBy,
+                inviteCount: u.inviteCount ?? 0,
+                credits: u.credits ?? 0,
             }));
-            combine();
+            setUsers(list.sort((a, b) => b.createdAt - a.createdAt));
         });
-
-        const unsCredits = onValue(creditsRef, (snap) => {
-            creditsMap = snap.val() ?? {};
-            combine();
-        });
-
-        const combine = () => {
-            const final = usersList.map(u => ({
-                ...u,
-                credits: creditsMap[u.id]?.total_credits || u.credits || 0,
-                planCredits: creditsMap[u.id]?.plan_credits || 0,
-                bonusCredits: creditsMap[u.id]?.bonus_credits || 0,
-            }));
-            setUsers(final.sort((a, b) => b.createdAt - a.createdAt));
-        };
-
-        return () => {
-            unsUsers();
-            unsCredits();
-        };
     }, []);
 
-    // ... (rest of the component logic)
+    // ── Load usage stats ──────────────────────────────────────────
+    useEffect(() => {
+        const statsRef = ref(rtdb, "usage_stats");
+        return onValue(statsRef, (snap) => {
+            setUsageMap(snap.val() ?? {});
+        });
+    }, []);
 
-    const handleSubmitCredits = async (amount: number, type: "add" | "remove", reason: string) => {
+    // ── Filtered + sorted users ───────────────────────────────────
+    const visible = users
+        .filter((u) => {
+            const q = search.toLowerCase();
+            const matchSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+            const matchStatus = filterStatus === "all" || u.status === filterStatus;
+            return matchSearch && matchStatus;
+        })
+        .sort((a, b) => {
+            if (sortBy === "usage") return (totalActions(usageMap[b.id] ?? {}) - totalActions(usageMap[a.id] ?? {}));
+            if (sortBy === "lastSeen") return ((usageMap[b.id]?.last_seen ?? 0) - (usageMap[a.id]?.last_seen ?? 0));
+            return b.createdAt - a.createdAt;
+        });
+
+    // ── Actions ───────────────────────────────────────────────────
+    const saveUser = async (patch: Partial<UserRecord>) => {
         if (!selected) return;
-        const targetUserId = selected.id;
-        
-        const updates: any = {};
-        const creditsRef = ref(rtdb, `user_credits/${targetUserId}`);
-        const snap = await get(creditsRef);
-        const currentData = snap.val() || { plan_credits: 0, bonus_credits: 0, total_credits: 0 };
-        
-        let newBonus = currentData.bonus_credits || 0;
-        const change = type === "add" ? amount : -amount;
-        newBonus += change;
-        if (newBonus < 0) newBonus = 0;
+        await update(ref(rtdb, `users/${selected.id}`), patch);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 1500);
+        setModal(null);
+    };
 
-        const newTotal = (currentData.plan_credits || 0) + newBonus;
+    const toggleStatus = async (u: UserRecord) => {
+        const next = u.status === "active" ? "inactive" : "active";
+        await update(ref(rtdb, `users/${u.id}`), { status: next });
+    };
 
-        updates[`user_credits/${targetUserId}/bonus_credits`] = newBonus;
-        updates[`user_credits/${targetUserId}/total_credits`] = newTotal;
-        updates[`user_credits/${targetUserId}/updated_at`] = serverTimestamp();
+    const suspendUser = async (u: UserRecord) => {
+        if (!confirm(`Suspender ${u.name}?`)) return;
+        await update(ref(rtdb, `users/${u.id}`), { status: "suspended" });
+    };
 
-        // Transaction log
-        const txRef = ref(rtdb, `credit_transactions/${targetUserId}`);
-        const newTxKey = push(txRef).key;
-        updates[`credit_transactions/${targetUserId}/${newTxKey}`] = {
-            type: 'admin_adjustment',
-            amount: change,
-            balance_after: newTotal,
-            description: `Admin: ${reason}`,
-            created_at: serverTimestamp()
-        };
+    const deleteUser = async (u: UserRecord) => {
+        if (!confirm(`Excluir permanentemente ${u.name}? Essa ação não pode ser desfeita.`)) return;
+        await remove(ref(rtdb, `users/${u.id}`));
+    };
 
-        await update(ref(rtdb), updates);
+    const extendPlan = async (days: number) => {
+        if (!selected) return;
+        const current = selected.planExpiresAt ?? Date.now();
+        const next = Math.max(current, Date.now()) + days * 86400000;
+        await saveUser({ planExpiresAt: next });
+    };
+
+    const savePerms = async (perms: UserPerms, simulatorLevel?: string) => {
+        if (!selected) return;
+        const payload: any = { permissions: perms };
+        if (simulatorLevel !== undefined) {
+            payload.simulatorLevel = simulatorLevel === "" ? null : simulatorLevel;
+        }
+        await update(ref(rtdb, `users/${selected.id}`), payload);
         setModal(null);
     };
 

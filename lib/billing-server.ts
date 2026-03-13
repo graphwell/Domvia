@@ -3,9 +3,11 @@ import * as admin from "firebase-admin";
 import { adminDb } from "./firebase-admin";
 import { PLAN_CONFIG } from "./billing";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-01-27-02-00" as any,
-});
+function getStripe() {
+    return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: "2025-01-27-02-00" as any,
+    });
+}
 
 /**
  * Activate a trial for a new user.
@@ -73,6 +75,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     if (session.mode === 'subscription') {
         const subscriptionId = session.subscription as string;
+        const stripe = getStripe();
         const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
         const planType = session.metadata?.plan_type as any || 'pro';
         
@@ -118,7 +121,7 @@ async function logSale(userId: string, amount: number, currency: string, type: '
 
     // Also update monthly aggregates
     const metricsRef = adminDb.ref(`financial_metrics/${month}`);
-    await metricsRef.transaction((curr) => {
+    await metricsRef.transaction((curr: any) => {
         const data = curr || { total_sales: 0, subscription_revenue: 0, credit_revenue: 0, count: 0 };
         data.total_sales += amount;
         if (type === 'subscription') data.subscription_revenue += amount;
@@ -129,6 +132,7 @@ async function logSale(userId: string, amount: number, currency: string, type: '
 }
 
 async function renewSubscription(subscriptionId: string) {
+    const stripe = getStripe();
     const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
     const userSnap = await adminDb.ref('users').orderByChild('stripeSubscriptionId').equalTo(subscriptionId).get();
     

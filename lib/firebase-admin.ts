@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 
-if (!admin.apps.length) {
-    try {
+function getAdminApp() {
+    if (!admin.apps.length) {
         admin.initializeApp({
             credential: admin.credential.cert({
                 projectId: process.env.FIREBASE_PROJECT_ID,
@@ -10,10 +10,20 @@ if (!admin.apps.length) {
             }),
             databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
         });
-    } catch (error) {
-        console.error("Firebase admin initialization error", error);
     }
+    return admin.apps[0];
 }
 
-export const adminDb = admin.database();
-export const adminAuth = admin.auth();
+export const adminDb = {
+    get ref() {
+        getAdminApp();
+        return admin.database().ref;
+    }
+} as any;
+
+export const adminAuth = {
+    get auth() {
+        getAdminApp();
+        return admin.auth();
+    }
+} as any;
