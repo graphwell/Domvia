@@ -18,6 +18,8 @@ import MarzipanoViewer from "@/components/tours/MarzipanoViewer";
 import { rtdb } from "@/lib/firebase";
 import { ref, onValue, query, orderByChild, equalTo } from "firebase/database";
 import Image from "next/image";
+import { PropertyLandingPage } from "./PropertyLandingPage";
+import { triggerHaptic } from "@/lib/haptic";
 
 interface Props {
     link: CampaignLink;
@@ -50,6 +52,7 @@ export function LeadConversionPage({ link }: Props) {
     // Tour State
     const [tour, setTour] = useState<any>(null);
     const [currentRoomIdx, setCurrentRoomIdx] = useState(0);
+    const [showLanding, setShowLanding] = useState(link.landing_enabled || false);
 
     // Buscar tour associado no Firebase
     useEffect(() => {
@@ -179,6 +182,19 @@ export function LeadConversionPage({ link }: Props) {
             setIsRegistered(true);
         }
     };
+
+    if (showLanding && link.landing_enabled) {
+        return (
+            <PropertyLandingPage 
+                link={link} 
+                onContinue={() => {
+                    triggerHaptic('medium');
+                    setShowLanding(false);
+                }}
+                brokerLogo={brokerBranding.logoURL}
+            />
+        );
+    }
 
     if (!isRegistered) {
         return <LeadCaptureForm
