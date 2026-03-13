@@ -5,7 +5,7 @@ import { PLAN_CONFIG } from "./billing";
 
 function getStripe() {
     return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-        apiVersion: "2025-01-27-02-00" as any,
+        apiVersion: "2024-12-18.acacia" as any,
     });
 }
 
