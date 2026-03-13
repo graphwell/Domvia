@@ -30,6 +30,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getRealEstateChatResponse } from "@/lib/ai";
+import { checkAndConsumeCredits } from "@/lib/billing";
 
 export async function POST(req: NextRequest) {
     try {
@@ -37,6 +38,19 @@ export async function POST(req: NextRequest) {
 
         if (!question) {
             return NextResponse.json({ error: "Missing question" }, { status: 400 });
+        }
+
+        // Check and consume credits
+        // User ID should be passed in headers or extracted from session
+        const userId = req.headers.get("x-user-id"); 
+        if (userId) {
+            const creditCheck = await checkAndConsumeCredits(userId, 'ai_chat');
+            if (!creditCheck.success) {
+                return NextResponse.json({ 
+                    error: "Insufficient credits", 
+                    reason: creditCheck.reason 
+                }, { status: 402 });
+            }
         }
 
         const answer = await getRealEstateChatResponse(

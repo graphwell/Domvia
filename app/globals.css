@@ -94,18 +94,51 @@
     }
   }
 
+  @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+  }
+
+  @keyframes reward-jump {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-20px) scale(1.1); }
+    50% { transform: translateY(-25px) scale(1.1); }
+    100% { transform: translateY(0) scale(1); }
+  }
+
   --animate-fade-up: fade-up 0.5s ease-out both;
   --animate-fade-in: fade-in 0.4s ease-out both;
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-float: float 4s ease-in-out infinite;
+  --animate-pulse-subtle: pulse-subtle 3s ease-in-out infinite;
+  --animate-reward: reward-jump 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 :root {
   --font-inter: 'Inter', system-ui, sans-serif;
   --font-outfit: 'Outfit', system-ui, sans-serif;
 
+  /* Default Theme (Starter) */
+  --brand-primary: var(--color-brand-600);
+  --brand-light: var(--color-brand-50);
+  --brand-glow: var(--shadow-glow);
+
   /* Sidebar */
   --sidebar-width: 256px;
+}
+
+/* Plan-based Identity */
+.theme-pro {
+  --brand-primary: #8b5cf6; /* Violet 600 */
+  --brand-light: #f5f3ff;
+  --brand-glow: 0 0 40px -10px rgb(139 92 246 / 0.4);
+}
+
+.theme-elite {
+  --brand-primary: #0f172a; /* Slate 900 */
+  --brand-light: #f8fafc;
+  --brand-glow: 0 0 30px -8px rgb(15 23 42 / 0.3);
+  --accent-gold: #f59e0b;
 }
 
 * {

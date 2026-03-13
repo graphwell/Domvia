@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { forwardRef } from "react";
@@ -48,14 +50,23 @@ export interface ButtonProps
     asChild?: boolean;
 }
 
+import { triggerHaptic } from "@/lib/haptic";
+
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, loading, leftIcon, rightIcon, asChild = false, children, disabled, ...props }, ref) => {
+    ({ className, variant, size, loading, leftIcon, rightIcon, asChild = false, children, disabled, onClick, ...props }, ref) => {
+        const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+            // Haptic feedback for mobile
+            triggerHaptic('light');
+            if (onClick) onClick(e);
+        };
+
         if (asChild) {
             return (
                 <Slot
                     ref={ref as any}
                     className={cn(buttonVariants({ variant, size }), className)}
                     {...props}
+                    onClick={handleClick as any}
                 >
                     {children}
                 </Slot>
@@ -67,6 +78,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 ref={ref}
                 disabled={disabled || loading}
                 className={cn(buttonVariants({ variant, size }), className)}
+                onClick={handleClick}
                 {...props}
             >
                 {loading ? (

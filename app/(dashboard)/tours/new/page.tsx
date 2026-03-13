@@ -15,7 +15,7 @@ import { optimizeImage } from "@/lib/image-optimizer";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
 import { useToolAccess } from "@/hooks/use-tool-access";
-import { TOOL_COSTS } from "@/lib/tool-costs";
+import { TOOL_CREDIT_COSTS } from "@/lib/billing";
 
 interface RoomForm {
     id: string;
@@ -225,7 +225,7 @@ export default function NewTourPage() {
                     </div>
                     <Badge variant="gold" className="py-2 px-4 text-sm h-fit">
                         <Coins className="h-4 w-4 mr-2" />
-                        Custo: {TOOL_COSTS.TOUR_360} créditos
+                        Custo: {TOOL_CREDIT_COSTS['tour_360']} créditos
                     </Badge>
                 </div>
             </div>

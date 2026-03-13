@@ -18,6 +18,9 @@ export interface User {
     planId: string;
     plan?: string;
     credits: number;
+    bonusCredits?: number;
+    lastActivity?: number;
+    referredCount?: number;
     createdAt: number | string;
     inviteCode?: string;
     referredBy?: string;

@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { checkAndConsumeCreditsAdmin } from "@/lib/billing-server";
 
 const MODEL = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
 
 export async function POST(req: NextRequest) {
     try {
+        const userId = req.headers.get("x-user-id");
+        if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
         const { prompt, previousDocument, observations, brokerData, docType, language } = await req.json();
+
+        // Check credits
+        const creditCheck = await checkAndConsumeCreditsAdmin(userId, 'doc_gen');
+        if (!creditCheck.success) {
+            return NextResponse.json({ error: "Insufficient credits", reason: creditCheck.reason }, { status: 402 });
+        }
 
         const langNames: Record<string, string> = {
             pt: "Português",

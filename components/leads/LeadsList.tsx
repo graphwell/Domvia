@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import type { Lead } from "@/types";
 import { Users, MessageSquare, Calculator, Clock, Phone } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
+import { triggerHaptic } from "@/lib/haptic";
 
 export function LeadsList({ leads }: { leads: Lead[] }) {
     const totalLeads = leads.length;
@@ -50,7 +51,11 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
                         </thead>
                         <tbody>
                             {leads.map((lead) => (
-                                <tr key={lead.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <tr 
+                                    key={lead.id} 
+                                    onClick={() => triggerHaptic('light')}
+                                    className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                                >
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
                                             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">

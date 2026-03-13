@@ -27,7 +27,10 @@ export interface User {
     plan?: string;
     photoURL?: string;
     simulatorLevel?: "basic" | "advanced" | "professional";
-    credits?: number;
+    credits: number;
+    bonusCredits?: number;
+    lastActivity?: number;
+    referredCount?: number;
     inviteCode?: string;
     phone?: string;
     creci?: string;
@@ -64,6 +67,9 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
             plan: data.plan ?? "Trial",
             simulatorLevel: data.simulatorLevel,
             credits: data.credits ?? 0,
+            bonusCredits: data.bonusCredits ?? 0,
+            lastActivity: data.lastActivity ?? Date.now(),
+            referredCount: data.referredCount ?? 0,
             inviteCode: data.inviteCode,
             phone: data.phone,
             creci: data.creci,

@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/auth-provider";
 
-export function AppSidebar() {
+export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boolean; onClose?: () => void }) {
     const { user } = useAuth();
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
     const { t } = useLanguage();
+
+    const actualCollapsed = mobileMode ? false : collapsed;
 
     const NAV_ITEMS = [
         { href: "/tools/chat", icon: MessageSquare, label: t("nav.chat"), highlight: true },
@@ -29,28 +31,34 @@ export function AppSidebar() {
             ? [{ href: "/agency/team", icon: Shield, label: "Equipe" }]
             : []),
         { href: "/tools/captacao", icon: Camera, label: "Captação" },
-        { href: "/tours", icon: FolderOpen, label: t("nav.tours") }, // Changed icon to FolderOpen or similar if Camera is taken
+        { href: "/tours", icon: FolderOpen, label: t("nav.tours") }, 
         { href: "/credits", icon: Coins, label: "Créditos" },
         { href: "/plans", icon: CreditCard, label: t("nav.plans") },
+        { href: "/help", icon: MessageSquare, label: "Central de Ajuda" },
     ];
 
     return (
         <aside
             className={cn(
-                "hidden lg:flex flex-col border-r border-slate-200 bg-white transition-all duration-300 shrink-0",
-                collapsed ? "w-16" : "w-60"
+                mobileMode ? "flex h-full w-full" : "hidden lg:flex transition-all duration-300 shrink-0 border-r border-slate-200 bg-white",
+                !mobileMode && (actualCollapsed ? "w-16" : "w-60"),
+                "flex-col"
             )}
         >
-            {/* Logo */}
-            <div className="flex h-16 items-center px-4 border-b border-slate-200 gap-2">
-                <DomviaLogo collapsed={collapsed} />
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="ml-auto p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                    {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-                </button>
-            </div>
+            {/* Logo - Only in desktop or if not mobile drawer (Drawer has its own header) */}
+            {!mobileMode && (
+                <div className="flex h-16 items-center px-4 border-b border-slate-200 gap-2">
+                    <DomviaLogo collapsed={actualCollapsed} />
+                    {!mobileMode && (
+                        <button
+                            onClick={() => setCollapsed(!collapsed)}
+                            className="ml-auto p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                        >
+                            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+                        </button>
+                    )}
+                </div>
+            )}
 
             {/* Nav */}
             <nav className="flex-1 px-2 py-3 space-y-0.5">
@@ -60,6 +68,7 @@ export function AppSidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={onClose}
                             className={cn(
                                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                                 (item as any).highlight && !active
@@ -73,7 +82,7 @@ export function AppSidebar() {
                                 "h-5 w-5 shrink-0",
                                 (item as any).highlight && !active ? "text-white" : active ? "text-brand-600" : "text-slate-400"
                             )} />
-                            {!collapsed && <span>{item.label}</span>}
+                            {!actualCollapsed && <span>{item.label}</span>}
                         </Link>
                     );
                 })}
@@ -81,8 +90,7 @@ export function AppSidebar() {
 
             {/* Footer */}
             <div className="px-2 pb-4 space-y-0.5 border-t border-slate-200 pt-3">
-                {/* Subtle Credits Display */}
-                {!collapsed && (
+                {!actualCollapsed && (
                     <div className="px-3 py-2 mb-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Coins className="h-4 w-4 text-brand-600" />
@@ -94,27 +102,29 @@ export function AppSidebar() {
 
                 <Link
                     href="/settings"
+                    onClick={onClose}
                     className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                         pathname === "/settings" ? "bg-brand-50 text-brand-700 font-bold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     )}
                 >
                     <Settings className={cn("h-5 w-5 shrink-0", pathname === "/settings" ? "text-brand-600" : "text-slate-400")} />
-                    {!collapsed && <span>{t("nav.settings")}</span>}
+                    {!actualCollapsed && <span>{t("nav.settings")}</span>}
                 </Link>
                 <Link
                     href="/settings/suggestions"
+                    onClick={onClose}
                     className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors transition-all duration-200",
                         pathname === "/settings/suggestions" ? "bg-brand-50 text-brand-700 font-bold border-l-4 border-brand-500 rounded-l-none pl-2" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     )}
                 >
                     <MessageSquare className={cn("h-5 w-5 shrink-0", pathname === "/settings/suggestions" ? "text-brand-600" : "text-slate-400")} />
-                    {!collapsed && <span>{t("nav.suggestions")}</span>}
+                    {!actualCollapsed && <span>{t("nav.suggestions")}</span>}
                 </Link>
                 <button className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
                     <LogOut className="h-5 w-5 shrink-0" />
-                    {!collapsed && <span>{t("nav.logout")}</span>}
+                    {!actualCollapsed && <span>{t("nav.logout")}</span>}
                 </button>
             </div>
         </aside>

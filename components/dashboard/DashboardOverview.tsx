@@ -16,6 +16,7 @@ import { useState } from "react";
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from "recharts";
+import { triggerHaptic } from "@/lib/haptic";
 
 interface DashboardOverviewProps {
     user: User | null;
@@ -24,6 +25,9 @@ interface DashboardOverviewProps {
     links: CampaignLink[];
     chartData: Array<{ day: string; leads: number; views: number }>;
 }
+
+import { RotaryPhrases } from "./RotaryPhrases";
+import { SmartSuggestions } from "./SmartSuggestions";
 
 export function DashboardOverview({ user, stats, recentLeads, links, chartData }: DashboardOverviewProps) {
     const { t, language } = useLanguage();
@@ -39,59 +43,67 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData }
 
     const statCards = [
         { label: t("dashboard.stats.links"), value: stats.totalLinks, icon: Link2, color: "text-brand-600 bg-brand-50", href: "/links" },
-        {
-            label: t("dashboard.stats.leads"),
-            value: stats.totalLeads,
-            icon: Users,
-            color: "text-emerald-600 bg-emerald-50",
-            href: "/leads",
-            trend: language === "en" ? `+${stats.leadsThisWeek} this week` : language === "es" ? `+${stats.leadsThisWeek} esta semana` : `+${stats.leadsThisWeek} esta semana`
-        },
+        { label: t("dashboard.stats.leads"), value: stats.totalLeads, icon: Users, color: "text-emerald-600 bg-emerald-50", href: "/leads" },
         { label: t("dashboard.stats.simulations"), value: stats.totalSimulations, icon: Calculator, color: "text-purple-600 bg-purple-50", href: "/leads" },
-        { label: "Captações", value: stats.totalCaptures || 0, icon: Camera, color: "text-brand-600 bg-brand-50", href: "/tools/captacao" },
+        { label: "Captações", value: stats.totalCaptures || 0, icon: Camera, color: "text-blue-600 bg-blue-50", href: "/tools/captacao" },
     ];
 
     return (
         <div className="space-y-6">
-            {/* Page header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">{t("dashboard.title")}</h1>
-                    <p className="text-slate-500 text-sm mt-1">{t("dashboard.welcome")}</p>
-                </div>
-                <div className="flex gap-2">
-                    <Link href="/links/new">
-                        <Button leftIcon={<Plus className="h-4 w-4" />}>{t("dashboard.btn_new")}</Button>
-                    </Link>
-                </div>
+            {/* Page header & Rotary Phrases */}
+            <div className="text-center pt-2">
+                <RotaryPhrases />
             </div>
 
-            {/* Dashboard Stats */}
-
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Compact Stat Cards - Horizontal Scroll on Mobile */}
+            <div className="flex overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 gap-3 no-scrollbar">
                 {statCards.map((s) => (
-                    <Link key={s.label} href={s.href}>
-                        <Card hover padding="md" className="h-full">
-                            <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl mb-3 ${s.color}`}>
-                                <s.icon className="h-5 w-5" />
+                    <Link key={s.label} href={s.href} className="min-w-[140px] flex-1">
+                        <Card hover padding="none" className="h-full py-4 px-3 flex flex-col items-center justify-center text-center">
+                            <div className={`inline-flex h-8 w-8 items-center justify-center rounded-lg mb-2 ${s.color}`}>
+                                <s.icon className="h-4 w-4" />
                             </div>
-                            <p className="font-display text-2xl sm:text-3xl font-black text-slate-900">{s.value}</p>
-                            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">{s.label}</p>
-                            {s.trend && (
-                                <p className="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
-                                    <TrendingUp className="h-3 w-3" /> {s.trend}
-                                </p>
-                            )}
+                            <p className="font-display text-xl font-black text-slate-900 leading-none">{s.value}</p>
+                            <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mt-1.5">{s.label}</p>
                         </Card>
                     </Link>
                 ))}
             </div>
 
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <Link href="/tools/captacao" className="group" onClick={() => triggerHaptic('light')}>
+                    <Card hover className="bg-brand-600 border-none h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
+                        <Camera className="h-6 w-6 text-white" />
+                        <span className="text-xs font-bold text-white uppercase tracking-wide">Captar Imóvel</span>
+                    </Card>
+                </Link>
+                <Link href="/chat" className="group" onClick={() => triggerHaptic('light')}>
+                    <Card hover className="bg-slate-900 border-none h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
+                        <MessageSquare className="h-6 w-6 text-brand-400" />
+                        <span className="text-xs font-bold text-white uppercase tracking-wide">Assistente IA</span>
+                    </Card>
+                </Link>
+                <Link href="/links/new" className="group" onClick={() => triggerHaptic('light')}>
+                    <Card hover className="bg-white border-slate-200 h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
+                        <Link2 className="h-6 w-6 text-brand-600" />
+                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Criar Link</span>
+                    </Card>
+                </Link>
+                <Link href="/tools/finance" className="group" onClick={() => triggerHaptic('light')}>
+                    <Card hover className="bg-white border-slate-200 h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
+                        <Calculator className="h-6 w-6 text-purple-600" />
+                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Simular Fina.</span>
+                    </Card>
+                </Link>
+            </div>
+
+            {/* Smart Suggestions */}
+            <SmartSuggestions />
+
             {/* Chart + Leads */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <Card className="lg:col-span-3" padding="md">
-                    <h3 className="font-display font-bold text-slate-800 mb-4">{t("dashboard.chart.title")}</h3>
+                    <h3 className="font-display font-bold text-slate-800 mb-4 tracking-tight uppercase text-xs">{t("dashboard.chart.title")}</h3>
                     <ResponsiveContainer width="100%" height={200}>
                         <LineChart data={chartData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -154,7 +166,10 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData }
                                     <p className="font-semibold text-slate-900 truncate">{link.title}</p>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <code className="text-xs text-slate-400 font-mono">/lead/{link.slug}</code>
-                                        <button onClick={() => copyLink(link.slug)} className="text-slate-400 hover:text-brand-600">
+                                        <button 
+                                            onClick={() => { copyLink(link.slug); triggerHaptic('medium'); }} 
+                                            className="text-slate-400 hover:text-brand-600"
+                                        >
                                             {copied === link.slug ? <CheckCheck className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                                         </button>
                                     </div>
