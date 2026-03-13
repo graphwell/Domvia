@@ -30,9 +30,9 @@ export default function PricingPage() {
                 ? (billingCycle === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY)
                 : (billingCycle === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_YEARLY);
 
-            if (!priceId) {
-                console.error("Price ID not configured for:", planId, billingCycle);
-                toast.error("Configuração de preço incompleta no servidor.");
+            if (!priceId || priceId.includes('placeholder')) {
+                console.error("Price ID not configured correctly:", planId, billingCycle, priceId);
+                toast.error("Configuração de pagamento incompleta (Price ID inválido). Por favor, configure o Stripe no .env");
                 setLoading(null);
                 return;
             }
@@ -50,11 +50,19 @@ export default function PricingPage() {
                 }),
             });
 
-            const { url, error } = await response.json();
-            if (error) throw new Error(error);
-            if (url) window.location.href = url;
-        } catch (error) {
+            const data = await response.json();
+            if (data.error) {
+                toast.error(`Erro no Checkout: ${data.error}`);
+                throw new Error(data.error);
+            }
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                toast.error("Erro inesperado: Checkout não retornou URL.");
+            }
+        } catch (error: any) {
             console.error("Checkout error:", error);
+            toast.error(error.message || "Erro ao iniciar pagamento. Verifique sua conexão.");
             setLoading(null);
         }
     };
