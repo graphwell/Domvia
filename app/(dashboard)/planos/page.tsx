@@ -84,7 +84,7 @@ export default function PricingPage() {
         },
         {
             ...PLAN_CONFIG.pro,
-            price: billingCycle === 'monthly' ? 49 : 36.75, // R$ 441/12
+            price: billingCycle === 'monthly' ? 39.90 : 29.08, // R$ 349/12
             description: "Para corretores em crescimento",
             features: [
                 "500 créditos mensais",
@@ -101,7 +101,7 @@ export default function PricingPage() {
         },
         {
             ...PLAN_CONFIG.max,
-            price: billingCycle === 'monthly' ? 89 : 66.58, // R$ 799/12
+            price: billingCycle === 'monthly' ? 79 : 59.25, // R$ 711/12
             description: "Para quem não para de vender",
             features: [
                 "Tudo ILIMITADO",
@@ -126,7 +126,7 @@ export default function PricingPage() {
                     Escolha o motor da sua <span className="text-brand-600">produtividade.</span>
                 </h1>
                 <p className="text-slate-500 max-w-2xl mx-auto font-medium text-sm sm:text-base">
-                    Domvia substitui 4 ferramentas que custam R$ 300/mês por apenas R$ 49. 
+                    Domvia substitui 4 ferramentas que custam R$ 300/mês por apenas R$ 39,90. 
                     Sem contrato. Cancele quando quiser.
                 </p>
 
@@ -178,7 +178,7 @@ export default function PricingPage() {
                                 <span className="text-sm font-bold text-slate-400">/{billingCycle === 'monthly' ? 'mês' : 'mês*'}</span>
                             </div>
                             {billingCycle === 'annual' && plan.price > 0 && (
-                                <p className="text-[10px] text-slate-400 font-medium">* Cobrado anualmente (R$ {plan.id === 'pro' ? '441' : '799'})</p>
+                                <p className="text-[10px] text-slate-400 font-medium">* Cobrado anualmente (R$ {plan.id === 'pro' ? '349' : '711'})</p>
                             )}
 
                             <div className="space-y-3 pt-4 border-t border-slate-100">
