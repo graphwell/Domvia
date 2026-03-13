@@ -219,9 +219,9 @@ export default function PricingPage() {
                                 <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Sem multas. Sem fidelidade. 100% transparente.</p>
                             </div>
                         </div>
-                        <Link href="/manual/planos">
+                        <Link href="/help">
                             <Button variant="ghost" className="text-xs font-bold uppercase tracking-widest" rightIcon={<Info className="h-4 w-4" />}>
-                                Ver tabela comparativa completa
+                                Ver ajuda sobre planos
                             </Button>
                         </Link>
                     </div>
