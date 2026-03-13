@@ -11,6 +11,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/auth-provider";
+import { triggerHaptic } from "@/lib/haptic";
 
 export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boolean; onClose?: () => void }) {
     const { user } = useAuth();
@@ -68,7 +69,10 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
                         <Link
                             key={item.href}
                             href={item.href}
-                            onClick={onClose}
+                            onClick={() => {
+                                triggerHaptic('light');
+                                if (onClose) onClose();
+                            }}
                             className={cn(
                                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                                 (item as any).highlight && !active
@@ -157,9 +161,12 @@ export function MobileNav() {
                             href={item.href}
                             className={cn(
                                 "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all duration-300 min-w-[64px] snap-center shrink-0 border relative",
-                                active ? "text-brand-600 bg-brand-50 border-brand-500" : "text-slate-400 hover:text-slate-700 border-slate-200 animate-pulse"
+                                active ? "text-brand-600 bg-brand-50 border-brand-500" : "text-slate-400 hover:text-slate-700 border-slate-200"
                             )}
-                            style={{ animationDelay: `${index * 150}ms` }}
+                            onClick={() => {
+                                triggerHaptic('light');
+                                onClose?.();
+                            }}
                         >
                             <item.icon className="h-5 w-5" />
                             <span className="text-[10px] font-medium">{item.label}</span>

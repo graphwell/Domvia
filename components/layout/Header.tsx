@@ -38,7 +38,10 @@ export function DomviaLogo({ collapsed = false, dark = false }: { collapsed?: bo
                 fill
                 priority
                 unoptimized
-                className="object-contain object-left transition-transform duration-200 group-hover:opacity-90"
+                className={cn(
+                    "object-contain object-left transition-transform duration-200 group-hover:opacity-90",
+                    dark && "brightness-0 invert"
+                )}
             />
         </Link>
     );

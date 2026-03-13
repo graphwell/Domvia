@@ -1,5 +1,5 @@
 import { rtdb } from "./firebase";
-import { ref, get, update, runTransaction, serverTimestamp } from "firebase/database";
+import { ref, get, update, runTransaction, serverTimestamp, push } from "firebase/database";
 
 export type PlanType = 'trial' | 'pro' | 'max';
 
@@ -29,7 +29,7 @@ export const PLAN_CONFIG = {
         id: 'pro',
         name: 'Pro',
         creditsInbound: 500,
-        stripePriceId: 'ID_DO_PRECO_PRO_AQUI', // Troque pelo ID do Stripe
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'ID_DO_PRECO_PRO_AQUI',
         limits: {
             'captacao': 150,
             'doc_gen': 50,
@@ -45,6 +45,7 @@ export const PLAN_CONFIG = {
         id: 'max',
         name: 'Max',
         creditsInbound: 999999,
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'ID_DO_PRECO_MAX_AQUI',
         limits: {} // Unlimited
     }
 } as const;

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft, Save, Link2 } from "lucide-react";
 import Link from "next/link";
+import { triggerHaptic } from "@/lib/haptic";
 
 function generateSlug(title: string): string {
     return title
@@ -43,6 +44,7 @@ export default function NewLinkPage() {
         }
         setLoading(true);
         setError(null);
+        triggerHaptic('medium');
         try {
             const linksRef = ref(rtdb, "links");
             const newLinkRef = push(linksRef);
@@ -125,7 +127,7 @@ export default function NewLinkPage() {
                         <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
                             <p className="text-xs text-slate-500 font-medium mb-1">Seu link vai ser:</p>
                             <p className="text-sm font-mono text-brand-600 font-semibold">
-                                {typeof window !== "undefined" ? window.location.origin : "https://leadbroker.ai"}/lead/<strong>{previewSlug}</strong>
+                                {typeof window !== "undefined" ? window.location.origin : "https://domvia.ai"}/lead/<strong>{previewSlug}</strong>
                             </p>
                         </div>
                     )}

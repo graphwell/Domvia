@@ -11,6 +11,7 @@ import {
     Calculator, ExternalLink, MoreVertical, Search, CheckCheck
 } from "lucide-react";
 import Link from "next/link";
+import { triggerHaptic } from "@/lib/haptic";
 
 export function LinksList({ links }: { links: CampaignLink[] }) {
     const [search, setSearch] = useState("");
@@ -23,6 +24,7 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://domvia.ai";
 
     const copyLink = (slug: string) => {
+        triggerHaptic('light');
         navigator.clipboard.writeText(`${baseUrl}/lead/${slug}`);
         setCopied(slug);
         setTimeout(() => setCopied(null), 2000);
@@ -36,7 +38,7 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
                     <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">Meus Links</h1>
                     <p className="text-slate-500 text-sm mt-1">{links.length} link(s) ativo(s)</p>
                 </div>
-                <Link href="/links/new">
+                <Link href="/links/new" onClick={() => triggerHaptic('light')}>
                     <Button leftIcon={<Plus className="h-4 w-4" />}>Criar Novo Link</Button>
                 </Link>
             </div>

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { rtdb } from "@/lib/firebase";
 import { ref, push, set } from "firebase/database";
 import { notFound } from "next/navigation";
+import { triggerHaptic } from "@/lib/haptic";
 
 function toTitleCase(str: string) {
     if (!str) return "";
@@ -234,6 +235,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             firstErrorField?.scrollIntoView({ behavior: "smooth", block: "center" });
             return;
         }
+        triggerHaptic('medium');
         setStep(1);
     };
 
@@ -277,10 +279,16 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
                 return;
             }
             
+            triggerHaptic('medium');
+
+            const dateStr = new Date().toISOString().split('T')[0];
+            const safeName = (data.nome || data.cliente || "Documento").replace(/\s+/g, '_');
+            const filename = `${template.shortName.replace(/\s+/g, '_')}_${safeName}_${dateStr}.pdf`;
+
             // Remove border for PDF generation specifically if needed, but styling is mostly ok
             const opt = {
                 margin:       15,
-                filename:     `${template.shortName.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
+                filename:     filename,
                 image:        { type: 'jpeg' as const, quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
@@ -297,6 +305,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
     }
 
     const handleShare = () => {
+        triggerHaptic('light');
         const text = `📄 *${t(`docs.hub.templates.${template.id}.name`, template.name).toUpperCase()}*\n\nDocumento gerado por: *${brokerData.name || "Consultor"}*\n\nInformações do documento:\n${docText.split("\n").slice(0, 5).filter(l => l.trim().length > 0).map(l => `• ${l}`).join("\n")}\n\nEntre em contato ou solicite o arquivo em anexo para o documento na íntegra.\n\n_Gerado pelo Domvia_`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
     };
@@ -386,7 +395,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
                                 <div className="flex gap-3">
                                     <Button variant="outline" onClick={() => setStep(0)}>{t("common.back")}</Button>
                                     <Button className="flex-1" rightIcon={<ChevronRight className="h-4 w-4" />}
-                                        onClick={() => { collectSignatures(); setStep(2); }}>
+                                        onClick={() => { triggerHaptic('medium'); collectSignatures(); setStep(2); }}>
                                         {t("docs.btn_next_export")}
                                     </Button>
                                 </div>

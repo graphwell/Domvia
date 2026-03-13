@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { analyzeCaptureImage } from "@/lib/ai";
 import { toast } from "sonner";
+import { triggerHaptic } from "@/lib/haptic";
 
 // ── Compression Helper ──
 function compressImage(base64Str: string, maxWidth = 1200, quality = 0.7): Promise<string> {
@@ -145,6 +146,7 @@ export function CaptacaoClient() {
         }
         
         if (fileInputRef.current) {
+            triggerHaptic('medium');
             fileInputRef.current.click();
         }
     };
@@ -300,6 +302,7 @@ export function CaptacaoClient() {
     };
 
     const handleCall = async (phone: string, captureId: string) => {
+        triggerHaptic('light');
         window.location.href = `tel:${phone.replace(/\D/g, '')}`;
         // Ask to archive after a small delay to allow the phone dialer to pop open
         setTimeout(async () => {
@@ -313,6 +316,7 @@ export function CaptacaoClient() {
     };
 
     const handleWhatsApp = async (phone: string, captureId: string) => {
+        triggerHaptic('light');
         window.open(`https://wa.me/55${phone.replace(/\D/g, '')}`, "_blank");
         // Ask to archive after opening WhatsApp
         setTimeout(async () => {
@@ -505,7 +509,10 @@ export function CaptacaoClient() {
                 <div className="space-y-8 animate-in fade-in duration-700">
                     {/* Empty State / CTA */}
                     <div
-                        onClick={handleStartCapture}
+                        onClick={() => {
+                            triggerHaptic('medium');
+                            handleStartCapture();
+                        }}
                         className="bg-gradient-to-br from-brand-600 to-indigo-700 rounded-3xl p-8 text-white text-center space-y-4 cursor-pointer hover:scale-[1.02] transition-transform shadow-xl shadow-brand-500/20 active:scale-95 group"
                     >
                         <div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto backdrop-blur-md group-hover:scale-110 transition-transform">

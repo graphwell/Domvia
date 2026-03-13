@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/auth-provider";
 import { trackUsage } from "@/lib/usage-tracking";
 import { Send, Loader2, Bot, User, Sparkles, RefreshCw, Share2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { triggerHaptic } from "@/lib/haptic";
 
 interface Message {
     role: "assistant" | "user";
@@ -45,6 +46,7 @@ export default function ChatPage() {
         setMessages((prev) => [...prev, userMsg]);
         setInput("");
         setLoading(true);
+        triggerHaptic('light');
 
         // Track usage
         if (user?.id) trackUsage(user.id, "ai_chat_message", { chars: text.length });
@@ -85,6 +87,7 @@ export default function ChatPage() {
     };
 
     const handleShare = () => {
+        triggerHaptic('light');
         const text = messages
             .slice(1, 6)
             .map((m) => `${m.role === "user" ? "Você" : "IA Domvia"}: ${m.content}`)

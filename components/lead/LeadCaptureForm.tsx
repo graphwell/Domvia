@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Phone, CheckCircle2, AlertCircle } from "lucide-react";
 import Image from "next/image";
+import { triggerHaptic } from "@/lib/haptic";
 
 interface Props {
     onSuccess: (data: { name: string; lastName: string; phone: string }) => void;
@@ -60,6 +61,7 @@ export function LeadCaptureForm({ onSuccess, brokerName, brokerLogo, useLogo }: 
         }
 
         setIsLoading(true);
+        triggerHaptic('medium');
 
         try {
             // Em produção, isso chamaria a API /api/leads/register

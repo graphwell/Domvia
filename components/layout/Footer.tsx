@@ -60,19 +60,15 @@ export function Footer() {
                         <ul className="space-y-3 text-sm">
                             <li className="flex items-center gap-2 text-slate-400">
                                 <Mail className="h-4 w-4 text-brand-400 shrink-0" />
-                                suporte@domvia.ai
-                            </li>
-                            <li className="flex items-center gap-2 text-slate-400">
-                                <Phone className="h-4 w-4 text-brand-400 shrink-0" />
-                                (11) 9 9999-9999
+                                somarsuporte@gmail.com
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-                    <p>© 2025 Domvia. {t("footer.rights") || "Todos os direitos reservados."}</p>
-                    <p className="text-slate-600">{t("footer.developed_by") || "Desenvolvido por Somar Soluções Digitais"}</p>
+                    <p>© 2026 Domvia. {t("footer.rights") || "Todos os direitos reservados."}</p>
+                    <p className="text-slate-600">{t("footer.developed_by") || "Desenvolvido por Somar.IA"}</p>
                     <div className="flex gap-4">
                         <Link href="#" className="hover:text-slate-300 transition-colors">{t("footer.privacy") || "Privacidade"}</Link>
                         <Link href="#" className="hover:text-slate-300 transition-colors">{t("footer.terms") || "Termos de Uso"}</Link>

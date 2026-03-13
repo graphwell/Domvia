@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Check, Zap, Star, ShieldCheck, ArrowRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLAN_CONFIG } from "@/lib/billing";
+import { toast } from "sonner";
 
 export default function PricingPage() {
     const { user } = useAuth();
@@ -29,7 +30,9 @@ export default function PricingPage() {
 
             if (!priceId) {
                 console.error("Price ID not configured for:", planId, billingCycle);
-                throw new Error("Configuração de preço incompleta no servidor.");
+                toast.error("Configuração de preço incompleta no servidor.");
+                setLoading(null);
+                return;
             }
             
             const response = await fetch("/api/billing/checkout", {
@@ -141,7 +144,7 @@ export default function PricingPage() {
                         key={plan.id} 
                         className={cn(
                             "relative flex flex-col transition-all duration-300",
-                            plan.highlight ? "border-brand-500 shadow-[0_0_40px_rgba(32,87,245,0.15)] scale-105 z-10" : "hover:border-brand-200"
+                            plan.highlight ? "border-brand-500 shadow-[0_0_40px_rgba(32,87,245,0.15)] scale-100 md:scale-105 z-10" : "hover:border-brand-200"
                         )}
                         padding="lg"
                     >
@@ -179,7 +182,7 @@ export default function PricingPage() {
                         </div>
 
                         <Button 
-                            className="w-full mt-8 py-6 text-sm font-black uppercase tracking-widest" 
+                            className="w-full mt-8 h-[48px] text-sm font-black uppercase tracking-widest" 
                             variant={plan.highlight ? 'primary' : 'outline'}
                             loading={loading === plan.id}
                             onClick={() => handleSubscribe(plan.id)}
@@ -211,6 +214,12 @@ export default function PricingPage() {
                         </Link>
                     </div>
                 </Card>
+            </div>
+            {/* Footer context */}
+            <div className="text-center pt-8 border-t border-slate-100 italic font-medium">
+                <p className="text-sm text-slate-500">
+                    Precisa de créditos avulsos? <Link href="/creditos" className="text-brand-600 hover:underline">Veja nossos pacotes</Link>.
+                </p>
             </div>
         </div>
     );
