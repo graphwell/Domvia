@@ -95,7 +95,7 @@ export default function ToursPage() {
                 <Coins className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
                     <p className="font-medium text-amber-800 text-sm">Tour Profissional</p>
-                    <p className="text-amber-600 text-xs mt-0.5">Cada tour criado consome 1 crédito. <Link href="/plans" className="underline">Adquira mais créditos</Link></p>
+                    <p className="text-amber-600 text-xs mt-0.5">Cada tour criado consome 1 crédito. <Link href="/planos" className="underline">Adquira mais créditos</Link></p>
                 </div>
             </div>
 

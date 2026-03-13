@@ -34,7 +34,7 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
         { href: "/tools/captacao", icon: Camera, label: "Captação" },
         { href: "/tours", icon: FolderOpen, label: t("nav.tours") }, 
         { href: "/credits", icon: Coins, label: "Créditos" },
-        { href: "/plans", icon: CreditCard, label: t("nav.plans") },
+        { href: "/planos", icon: CreditCard, label: t("nav.plans") },
         { href: "/help", icon: MessageSquare, label: "Central de Ajuda" },
     ];
 
@@ -135,7 +135,7 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
     );
 }
 
-export function MobileNav() {
+export function MobileNav({ onClose }: { onClose?: () => void }) {
     const pathname = usePathname();
     const { t } = useLanguage();
 

@@ -121,7 +121,7 @@ export function ToolPaywall({ toolId, toolName, description, creditCost, duratio
                                 <div className="h-px bg-slate-200 flex-1" />
                             </div>
 
-                            <Link href="/plans">
+                            <Link href="/planos">
                                 <Button variant="ghost" className="w-full h-12 rounded-xl text-slate-600 hover:bg-slate-100" rightIcon={<ArrowRight className="h-4 w-4" />}>
                                     Assinar um Plano Premium
                                 </Button>
