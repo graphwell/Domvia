@@ -18,7 +18,12 @@ export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
     const [loading, setLoading] = useState<string | null>(null);
 
-    const handleSubscribe = async (planId: string) => {
+    const formatPrice = (value: number) => {
+        return value.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    };
         if (!user) {
             window.location.href = "/login";
             return;
@@ -174,7 +179,7 @@ export default function PricingPage() {
 
                             <div className="flex items-baseline gap-1 mt-4">
                                 <span className="text-sm font-bold text-slate-400">R$</span>
-                                <span className="text-4xl sm:text-5xl font-black text-slate-900">{plan.price}</span>
+                                <span className="text-4xl sm:text-5xl font-black text-slate-900">{formatPrice(plan.price)}</span>
                                 <span className="text-sm font-bold text-slate-400">/{billingCycle === 'monthly' ? 'mês' : 'mês*'}</span>
                             </div>
                             {billingCycle === 'annual' && plan.price > 0 && (
