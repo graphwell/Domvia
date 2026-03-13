@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
     LayoutDashboard, Link2, Users, Wrench, Camera, CreditCard,
     Settings, LogOut, ChevronLeft, ChevronRight, FolderOpen, MessageSquare, Coins, Shield,
-    UserPlus, LifeBuoy
+    UserPlus, LifeBuoy, Sparkles
 } from "lucide-react";
 import { DomviaLogo } from "@/components/layout/Header";
 import { useState } from "react";
@@ -170,7 +170,10 @@ export function MobileNav({ onClose }: { onClose?: () => void }) {
                                 onClose?.();
                             }}
                         >
-                            <item.icon className="h-5 w-5" />
+                            <div className="relative">
+                                <item.icon className="h-5 w-5" />
+                                <Sparkles className="absolute -top-1 -right-1 h-2 w-2 text-brand-500 animate-pulse" />
+                            </div>
                             <span className="text-[10px] font-medium">{item.label}</span>
                         </Link>
                     );

@@ -39,6 +39,10 @@ export default function ChatPage() {
     }, [t, messages.length]);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
@@ -106,7 +110,39 @@ export default function ChatPage() {
         setInput("");
     };
 
-    const quickPrompts = t("chat.quick_prompts") || [];
+    const allQuickPrompts = t("chat.quick_prompts") || [];
+    const [quickPrompts, setQuickPrompts] = useState<string[]>([]);
+    const [rotationIndex, setRotationIndex] = useState(0);
+    const rotationTimer = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        if (allQuickPrompts.length > 0) {
+            setQuickPrompts(allQuickPrompts.slice(0, 3));
+        }
+    }, [allQuickPrompts]);
+
+    useEffect(() => {
+        if (messages.length > 2 || allQuickPrompts.length <= 3) return;
+        
+        rotationTimer.current = setInterval(() => {
+            setRotationIndex((prev) => {
+                const next = (prev + 3) % allQuickPrompts.length;
+                setQuickPrompts(allQuickPrompts.slice(next, next + 3));
+                return next;
+            });
+        }, 4000);
+
+        return () => {
+            if (rotationTimer.current) clearInterval(rotationTimer.current);
+        };
+    }, [messages.length, allQuickPrompts]);
+
+    const stopRotation = () => {
+        if (rotationTimer.current) {
+            clearInterval(rotationTimer.current);
+            rotationTimer.current = null;
+        }
+    };
 
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto">
@@ -182,8 +218,8 @@ export default function ChatPage() {
                             <button
                                 key={p}
                                 type="button"
-                                onClick={() => send(p)}
-                                className="text-xs bg-slate-100 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 text-slate-600 border border-slate-200 rounded-full px-3 py-1.5 transition-colors"
+                                onClick={() => { send(p); stopRotation(); }}
+                                className="text-xs bg-slate-100 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 text-slate-600 border border-slate-200 rounded-full px-3 py-1.5 transition-all duration-300 animate-fade-in"
                             >
                                 {p}
                             </button>
@@ -199,8 +235,15 @@ export default function ChatPage() {
                         ref={inputRef}
                         className="flex-1 resize-none text-sm bg-transparent outline-none placeholder-slate-400 max-h-32 leading-relaxed py-1"
                         placeholder={t("chat.input_placeholder")}
+                        style={{ 
+                            animation: input === "" ? 'pulse-border 2s ease-in-out infinite' : 'none',
+                            borderRadius: '8px'
+                        }}
                         rows={1}
                         value={input}
+                        onFocus={() => {
+                            stopRotation();
+                        }}
                         onChange={(e) => {
                             setInput(e.target.value);
                             e.target.style.height = "auto";

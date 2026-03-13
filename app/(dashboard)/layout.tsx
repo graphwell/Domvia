@@ -3,7 +3,7 @@
 import { AppSidebar, MobileNav } from "@/components/layout/AppSidebar";
 import { UserAvatar } from "@/components/layout/UserAvatar";
 import { DomviaLogo } from "@/components/layout/Header";
-import { Bell, Search, Menu, X } from "lucide-react";
+import { Bell, Search, Menu, X, UserPlus } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/use-language";
@@ -66,6 +66,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <div className="hidden sm:block">
                                     <LanguageSelector />
                                 </div>
+
+                                {user && (
+                                    <Link 
+                                        href="/convite" 
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 hover:bg-brand-100 transition-all shadow-sm active:scale-95"
+                                        style={{ animation: 'pulse-invite 2s ease-in-out infinite' }}
+                                    >
+                                        <UserPlus className="h-4 w-4" />
+                                        <span className="text-[10px] font-black uppercase tracking-tight hidden sm:inline">Convide</span>
+                                    </Link>
+                                )}
 
                                 {/* Notification bell */}
                                 <button className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors">

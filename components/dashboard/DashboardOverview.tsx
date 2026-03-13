@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useLanguage } from "@/hooks/use-language";
-import { formatCurrency, formatRelativeDate } from "@/lib/utils";
+import { formatCurrency, formatRelativeDate, cn } from "@/lib/utils";
 import type { DashboardStats, Lead, CampaignLink } from "@/types";
 import type { User } from "@/hooks/auth-provider";
 import {
@@ -12,9 +12,10 @@ import {
     Eye, Plus, ArrowRight, Coins, Copy, CheckCheck, Gift, Camera
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+    AreaChart, Area, BarChart, Bar
 } from "recharts";
 import { triggerHaptic } from "@/lib/haptic";
 
@@ -32,6 +33,23 @@ import { SmartSuggestions } from "./SmartSuggestions";
 export function DashboardOverview({ user, stats, recentLeads, links, chartData }: DashboardOverviewProps) {
     const { t, language } = useLanguage();
     const [copied, setCopied] = useState<string | null>(null);
+    const [activeChart, setActiveChart] = useState(0);
+    const [capturesView, setCapturesView] = useState<'day' | 'month'>('day');
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveChart((prev) => (prev === 0 ? 1 : 0));
+        }, 6000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Mock captures data for visualization (in real app, this would come from a helper or buildChartData)
+    const capturesData = capturesView === 'day' 
+        ? chartData.map(d => ({ label: d.day, count: Math.floor(Math.random() * 5) }))
+        : [
+            { label: 'Out', count: 12 }, { label: 'Nov', count: 19 }, { label: 'Dez', count: 25 },
+            { label: 'Jan', count: 32 }, { label: 'Fev', count: 28 }, { label: 'Mar', count: 45 }
+        ];
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://domvia.ai";
 
@@ -70,51 +88,75 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData }
                 ))}
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <Link href="/tools/captacao" className="group" onClick={() => triggerHaptic('light')}>
-                    <Card hover className="bg-brand-600 border-none h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
-                        <Camera className="h-6 w-6 text-white" />
-                        <span className="text-xs font-bold text-white uppercase tracking-wide">Captar Imóvel</span>
-                    </Card>
-                </Link>
-                <Link href="/chat" className="group" onClick={() => triggerHaptic('light')}>
-                    <Card hover className="bg-slate-900 border-none h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
-                        <MessageSquare className="h-6 w-6 text-brand-400" />
-                        <span className="text-xs font-bold text-white uppercase tracking-wide">Assistente IA</span>
-                    </Card>
-                </Link>
-                <Link href="/links/new" className="group" onClick={() => triggerHaptic('light')}>
-                    <Card hover className="bg-white border-slate-200 h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
-                        <Link2 className="h-6 w-6 text-brand-600" />
-                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Criar Link</span>
-                    </Card>
-                </Link>
-                <Link href="/tools/finance" className="group" onClick={() => triggerHaptic('light')}>
-                    <Card hover className="bg-white border-slate-200 h-24 lg:h-20 flex flex-col items-center justify-center gap-2 group-active:scale-95 transition-all">
-                        <Calculator className="h-6 w-6 text-purple-600" />
-                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Simular Fina.</span>
-                    </Card>
-                </Link>
-            </div>
-
             {/* Smart Suggestions */}
             <SmartSuggestions />
 
             {/* Chart + Leads */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <Card className="lg:col-span-3" padding="md">
-                    <h3 className="font-display font-bold text-slate-800 mb-4 tracking-tight uppercase text-xs">{t("dashboard.chart.title")}</h3>
-                    <ResponsiveContainer width="100%" height={200}>
-                        <LineChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                            <XAxis dataKey="day" tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                            <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
-                            <Legend />
-                            <Line type="monotone" dataKey="leads" name={t("dashboard.chart.leads")} stroke="#2057f5" strokeWidth={2.5} dot={false} />
-                            <Line type="monotone" dataKey="views" name={t("dashboard.chart.views")} stroke="#a78bfa" strokeWidth={2.5} dot={false} strokeDasharray="5 5" />
-                        </LineChart>
-                    </ResponsiveContainer>
+                <Card className="lg:col-span-3" padding="none">
+                    <div className="p-4 flex items-center justify-between border-b border-slate-100/60">
+                        <h3 className="font-display font-bold text-slate-800 tracking-tight uppercase text-[10px]">Análise de Performance</h3>
+                        <div className="flex gap-1">
+                            <div className={cn("h-1.5 w-1.5 rounded-full transition-all", activeChart === 0 ? "bg-brand-600 w-4" : "bg-slate-200")} />
+                            <div className={cn("h-1.5 w-1.5 rounded-full transition-all", activeChart === 1 ? "bg-brand-600 w-4" : "bg-slate-200")} />
+                        </div>
+                    </div>
+                    
+                    <div className="p-4 h-[250px] relative overflow-hidden group">
+                        <div className={cn("absolute inset-0 p-4 transition-all duration-700 flex flex-col", activeChart === 0 ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 pointer-events-none")}>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Leads vs Visitas</p>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={chartData}>
+                                    <defs>
+                                        <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#2057f5" stopOpacity={0.1}/>
+                                            <stop offset="95%" stopColor="#2057f5" stopOpacity={0}/>
+                                        </linearGradient>
+                                        <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                                    <Tooltip 
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                    />
+                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#2057f5" strokeWidth={3} fillOpacity={1} fill="url(#colorLeads)" />
+                                    <Area type="monotone" dataKey="views" name="Visitas" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        <div className={cn("absolute inset-0 p-4 transition-all duration-700 flex flex-col", activeChart === 1 ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none")}>
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase">Captações de Imóveis</p>
+                                <div className="flex bg-slate-100 rounded-lg p-0.5">
+                                    <button 
+                                        onClick={() => setCapturesView('day')}
+                                        className={cn("text-[9px] px-2 py-1 rounded-md transition-all", capturesView === 'day' ? "bg-white text-brand-700 shadow-sm" : "text-slate-500")}
+                                    >Dia</button>
+                                    <button 
+                                        onClick={() => setCapturesView('month')}
+                                        className={cn("text-[9px] px-2 py-1 rounded-md transition-all", capturesView === 'month' ? "bg-white text-brand-700 shadow-sm" : "text-slate-500")}
+                                    >Mês</button>
+                                </div>
+                            </div>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={capturesData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                                    <Tooltip 
+                                        cursor={{fill: '#f8fafc'}}
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                    />
+                                    <Bar dataKey="count" name="Captações" fill="#2057f5" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
                 </Card>
 
                 <Card className="lg:col-span-2" padding="md">
