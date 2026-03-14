@@ -8,6 +8,7 @@ import { triggerHaptic } from "@/lib/haptic";
 interface NotificationContextType {
     showReward: (amount: number) => void;
     showBillingPopup: (type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached', data?: any) => void;
+    unreadCount: number;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -46,8 +47,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         triggerHaptic('warning');
     };
 
+    // For now, mock unreadCount as 0. In the future, this can be synced with real DB notifications.
+    const [unreadCount, setUnreadCount] = useState(0);
+
     return (
-        <NotificationContext.Provider value={{ showReward, showBillingPopup }}>
+        <NotificationContext.Provider value={{ showReward, showBillingPopup, unreadCount }}>
             {children}
             {reward && (
                 <CreditNotification 
