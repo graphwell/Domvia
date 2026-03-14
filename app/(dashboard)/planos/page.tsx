@@ -133,7 +133,7 @@ export default function PricingPage() {
                     Escolha o motor da sua <span className="text-brand-600">produtividade.</span>
                 </h1>
                 <p className="text-slate-500 max-w-2xl mx-auto font-medium text-sm sm:text-base">
-                    Domvia substitui 4 ferramentas que custam R$ 300/mês por apenas R$ 39,90. 
+                    Domvia substitui 4 ferramentas que custam R$ 300,00/mês por apenas R$ 39,90. 
                     Sem contrato. Cancele quando quiser.
                 </p>
 
@@ -185,7 +185,7 @@ export default function PricingPage() {
                                 <span className="text-sm font-bold text-slate-400">/{plan.id === 'trial' ? 'mês' : (billingCycle === 'monthly' ? 'mês' : 'mês*')}</span>
                             </div>
                             {billingCycle === 'annual' && plan.price > 0 && (
-                                <p className="text-[10px] text-slate-400 font-medium">* Cobrado anualmente (R$ {plan.id === 'pro' ? '349' : '711'})</p>
+                                <p className="text-[10px] text-slate-400 font-medium">* Cobrado anualmente (R$ {plan.id === 'pro' ? '349,00' : '711,00'})</p>
                             )}
 
                             <div className="space-y-3 pt-4 border-t border-slate-100">

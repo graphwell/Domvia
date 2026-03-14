@@ -46,9 +46,8 @@ export function PricingSection({ plans }: { plans: Plan[] }) {
                                         </span>
                                     ) : (
                                         <>
-                                            <span className={`text-sm font-medium self-start mt-2 ${plan.highlighted ? "text-brand-200" : "text-slate-500"}`}>R$</span>
                                             <span className={`font-display text-5xl font-black ${plan.highlighted ? "text-white" : "text-slate-900"}`}>
-                                                {plan.price}
+                                                {formatCurrency(plan.price)}
                                             </span>
                                             <span className={`text-sm font-medium mb-1 ${plan.highlighted ? "text-brand-200" : "text-slate-500"}`}>/mês</span>
                                         </>
