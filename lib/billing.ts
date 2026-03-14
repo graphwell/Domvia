@@ -1,7 +1,7 @@
 import { rtdb } from "./firebase";
 import { ref, get, update, runTransaction, serverTimestamp, push } from "firebase/database";
 
-export type PlanType = 'trial' | 'pro' | 'max';
+export type PlanType = 'trial' | 'corretor_pro' | 'imobiliaria_start' | 'imobiliaria_pro' | 'max';
 
 export interface PlanLimit {
     monthlyLimit: number;
@@ -12,40 +12,63 @@ export const PLAN_CONFIG = {
     trial: {
         id: 'trial',
         name: 'Trial',
-        creditsInbound: 100,
-        durationDays: 14,
+        creditsInbound: 10,
+        durationDays: 7,
         limits: {
             'captacao': 15,
-            'doc_gen': 5,
-            'description_gen': 10,
-            'title_gen': 10,
-            'social_gen': 10,
-            'tour_360': 2,
+            'doc_gen': 2,
+            'description_gen': 5,
+            'title_gen': 5,
+            'social_gen': 5,
+            'tour_360': 0,
             'ai_chat': 10,
-            'link_gen': 10,
+            'link_gen': 5,
         }
     },
-    pro: {
-        id: 'pro',
-        name: 'Pro',
-        creditsInbound: 500,
-        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'ID_DO_PRECO_PRO_AQUI',
+    corretor_pro: {
+        id: 'corretor_pro',
+        name: 'Corretor Pró',
+        creditsInbound: 50,
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'price_1corretor_pro',
         limits: {
             'captacao': 150,
             'doc_gen': 50,
             'description_gen': 100,
             'title_gen': 100,
             'social_gen': 100,
-            'tour_360': 20,
-            'ai_chat': 100,
-            'link_gen': 100,
+            'tour_360': 0,
+            'ai_chat': 200,
+            'link_gen': 50,
         }
+    },
+    imobiliaria_start: {
+        id: 'imobiliaria_start',
+        name: 'Imobiliária Start',
+        creditsInbound: 200,
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_AGENCY_MONTHLY || 'price_1imobiliaria_start',
+        limits: {
+            'captacao': 500,
+            'doc_gen': 200,
+            'description_gen': 500,
+            'title_gen': 500,
+            'social_gen': 500,
+            'tour_360': 10,
+            'ai_chat': 1000,
+            'link_gen': 150,
+        }
+    },
+    imobiliaria_pro: {
+        id: 'imobiliaria_pro',
+        name: 'Imobiliária Pró',
+        creditsInbound: -1,
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_AGENCY_PRO_MONTHLY || 'price_1imobiliaria_pro',
+        limits: {} // Unlimited
     },
     max: {
         id: 'max',
-        name: 'Max',
+        name: 'Elite / Lifetime',
         creditsInbound: 999999,
-        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'ID_DO_PRECO_MAX_AQUI',
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'price_1max',
         limits: {} // Unlimited
     }
 } as const;

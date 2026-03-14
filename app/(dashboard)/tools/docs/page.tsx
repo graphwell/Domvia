@@ -11,13 +11,13 @@ import { DOCUMENT_TEMPLATES, DocumentTemplate } from "@/lib/document-templates";
 import {
     FileText, Key, Banknote, Receipt, FileSignature,
     DoorOpen, ClipboardCheck, UserCheck, Handshake,
-    Home, CalendarClock, Bot, ArrowRight, Sparkles
+    Home, CalendarClock, Bot, ArrowRight, Sparkles, History
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
     Key, Banknote, Receipt, FileSignature,
     DoorOpen, ClipboardCheck, UserCheck, Handshake,
-    Home, CalendarClock, FileText,
+    Home, CalendarClock, FileText, History,
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -92,11 +92,18 @@ export default function DocsHubPage() {
                         {t("docs.hub.subtitle")}
                     </p>
                 </div>
-                <Link href="/tools/docs/ai">
-                    <Button leftIcon={<Sparkles className="h-4 w-4" />} className="w-full sm:w-auto">
-                        {t("docs.hub.btn_ai_prompt")}
-                    </Button>
-                </Link>
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <Link href="/tools/docs/history" className="flex-1 sm:flex-none">
+                        <Button variant="outline" leftIcon={<History className="h-4 w-4" />} className="w-full">
+                            Ver Histórico
+                        </Button>
+                    </Link>
+                    <Link href="/tools/docs/ai" className="flex-1 sm:flex-none">
+                        <Button leftIcon={<Sparkles className="h-4 w-4" />} className="w-full">
+                            {t("docs.hub.btn_ai_prompt")}
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* How to use */}

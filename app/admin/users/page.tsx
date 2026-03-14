@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/hooks/auth-provider";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -78,11 +79,12 @@ const PERM_LABELS: { key: keyof UserPerms; label: string; icon: React.ElementTyp
     { key: "social_gen", label: "Texto para Redes Sociais", icon: BarChart2 },
 ];
 
-const PLANS = ["Trial", "Starter", "Pro", "Elite", "Lifetime"];
+const PLANS = ["Trial", "Corretor Pró", "Imobiliária Start", "Imobiliária Pró", "Elite", "Lifetime"];
 const PLAN_COLOR: Record<string, string> = {
     Trial: "text-slate-500",
-    Starter: "text-blue-600",
-    Pro: "text-indigo-600",
+    "Corretor Pró": "text-blue-600",
+    "Imobiliária Start": "text-indigo-600",
+    "Imobiliária Pró": "text-violet-600",
     Elite: "text-amber-500",
     Lifetime: "text-emerald-600",
 };
@@ -111,6 +113,7 @@ function genInviteCode(name: string) {
 
 // ─── Component ───────────────────────────────────────────────────
 export default function AdminUsersPage() {
+    const { user: currentUser } = useAuth();
     const [users, setUsers] = useState<UserRecord[]>([]);
     const [usageMap, setUsageMap] = useState<Record<string, UsageStats>>({});
     const [search, setSearch] = useState("");
@@ -187,8 +190,33 @@ export default function AdminUsersPage() {
     };
 
     const deleteUser = async (u: UserRecord) => {
-        if (!confirm(`Excluir permanentemente ${u.name}? Essa ação não pode ser desfeita.`)) return;
-        await remove(ref(rtdb, `users/${u.id}`));
+        if (currentUser && u.id === currentUser.id) {
+            return alert("Você não pode excluir sua própria conta administrativa.");
+        }
+        if (!confirm(`Excluir permanentemente ${u.name}? Essa ação removerá TODOS os dados, créditos e histórico e NÃO pode ser desfeita.`)) return;
+        
+        try {
+            const paths = [
+                `users/${u.id}`,
+                `user_credits/${u.id}`,
+                `usage/${u.id}`,
+                `usage_stats/${u.id}`,
+                `documents/${u.id}`,
+                `credit_history/${u.id}`,
+                `tool_unlocks/${u.id}`,
+                `tool_usage/${u.id}`,
+                `credit_transactions/${u.id}`
+            ];
+            
+            const updates: any = {};
+            paths.forEach(p => updates[p] = null);
+            await update(ref(rtdb), updates);
+            
+            alert("Usuário e todos os seus dados foram excluídos com sucesso.");
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao excluir usuário.");
+        }
     };
 
     const extendPlan = async (days: number) => {
@@ -428,6 +456,13 @@ export default function AdminUsersPage() {
                                                     className={`p-1.5 rounded-lg transition-colors ${u.status === "active" ? "text-slate-400 hover:bg-red-50 hover:text-red-500" : "text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"}`}
                                                 >
                                                     <Power className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteUser(u)}
+                                                    title="Excluir Usuário Permanentemente"
+                                                    className="p-1.5 rounded-lg text-slate-300 hover:bg-red-500 hover:text-white transition-all shadow-sm hover:shadow-md"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </div>
                                         </td>

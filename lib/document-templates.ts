@@ -2,7 +2,7 @@
 //  Document Templates — 10 documentos imobiliários padrão
 // ────────────────────────────────────────────────────────────
 
-export type FieldType = "text" | "textarea" | "date" | "currency" | "cpf" | "phone" | "number" | "select";
+export type FieldType = "text" | "textarea" | "date" | "currency" | "cpf" | "phone" | "number" | "select" | "file" | "checklist";
 
 export interface FieldDef {
     key: string;
@@ -845,6 +845,160 @@ ${d.observacoes ? `${labels.notes}: ${d.observacoes}\n\n` : ""}${b?.name ? `${la
 };
 
 // ── Export ────────────────────────────────────────────────
+// ── 11. Ficha de Captação de Terreno ─────────────────────
+const fichaTerreno: DocumentTemplate = {
+    id: "ficha-terreno",
+    name: "Ficha de Captação de Terreno",
+    shortName: "Captação Terreno",
+    description: "Ficha técnica completa para captação de terrenos, áreas e lotes.",
+    category: "ficha",
+    icon: "Home",
+    color: "text-emerald-600 bg-emerald-50",
+    fields: [
+        { key: "data", label: "Data da Captação", type: "date", required: true, section: "Ato" },
+        { key: "local", label: "Local (Cidade - UF)", type: "text", required: true, section: "Ato" },
+
+        { key: "proprietario_nome", label: "Proprietário — Nome Completo", type: "text", required: true, section: "Proprietário" },
+        { key: "proprietario_cpf", label: "Proprietário — CPF/CNPJ", type: "cpf", required: true, section: "Proprietário" },
+        { key: "proprietario_rg", label: "Proprietário — RG", type: "text", section: "Proprietário" },
+
+        { key: "endereco", label: "Endereço do Terreno", type: "text", required: true, section: "Localização" },
+        { key: "bairro", label: "Bairro", type: "text", required: true, section: "Localização" },
+        { key: "cidade", label: "Cidade", type: "text", required: true, section: "Localização" },
+        { key: "estado", label: "Estado (UF)", type: "text", required: true, section: "Localização" },
+        { key: "cep", label: "CEP", type: "text", section: "Localização" },
+
+        {
+            key: "situacao_juridica", label: "Situação Jurídica", type: "select", required: true, section: "Jurídico",
+            options: [
+                { value: "Escritura pública registrada", label: "Escritura pública registrada" },
+                { value: "Contrato de compra e venda", label: "Contrato de compra e venda" },
+                { value: "Posse", label: "Posse" },
+                { value: "Cessão de direitos", label: "Cessão de direitos" },
+                { value: "Outro", label: "Outro" }
+            ]
+        },
+
+        { key: "area_total", label: "Área Total (m²)", type: "number", required: true, section: "Medidas" },
+        { key: "frente", label: "Frente (metros)", type: "number", section: "Medidas" },
+        { key: "fundos", label: "Fundos (metros)", type: "number", section: "Medidas" },
+        { key: "lado_direito", label: "Lado Direito (metros)", type: "number", section: "Medidas" },
+        { key: "lado_esquerdo", label: "Lado Esquerdo (metros)", type: "number", section: "Medidas" },
+
+        { key: "confrontante_frente", label: "Confrontante Frente", type: "text", section: "Confrontações" },
+        { key: "confrontante_fundos", label: "Confrontante Fundos", type: "text", section: "Confrontações" },
+        { key: "confrontante_direito", label: "Confrontante Direito", type: "text", section: "Confrontações" },
+        { key: "confrontante_esquerdo", label: "Confrontante Esquerdo", type: "text", section: "Confrontações" },
+
+        {
+            key: "topografia", label: "Topografia", type: "select", section: "Características",
+            options: [
+                { value: "Plano", label: "Plano" },
+                { value: "Aclive", label: "Aclive" },
+                { value: "Declive", label: "Declive" },
+                { value: "Misto", label: "Misto" }
+            ]
+        },
+        {
+            key: "tipo_terreno", label: "Tipo de Terreno", type: "select", section: "Características",
+            options: [
+                { value: "Urbano", label: "Urbano" },
+                { value: "Rural", label: "Rural" },
+                { value: "Loteamento", label: "Loteamento" },
+                { value: "Condomínio", label: "Condomínio" }
+            ]
+        },
+        { key: "infra_energia", label: "Energia Elétrica", type: "select", section: "Infraestrutura", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+        { key: "infra_agua", label: "Água Encanada", type: "select", section: "Infraestrutura", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+        { key: "infra_esgoto", label: "Rede de Esgoto", type: "select", section: "Infraestrutura", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+        { key: "infra_pavimentacao", label: "Rua Pavimentada", type: "select", section: "Infraestrutura", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+
+        { key: "valor", label: "Valor do Terreno (R$)", type: "currency", required: true, section: "Comercial" },
+        { key: "aceita_proposta", label: "Aceita Proposta?", type: "select", section: "Comercial", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+        { key: "aceita_permuta", label: "Aceita Permuta?", type: "select", section: "Comercial", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+        { key: "documentacao_ok", label: "Doc. pronta p/ transferência?", type: "select", section: "Comercial", options: [{ value: "Sim", label: "Sim" }, { value: "Não", label: "Não" }] },
+
+        { key: "anexos", label: "Documentos Anexos (links ou descrições)", type: "textarea", section: "Anexos" },
+        { 
+            key: "lista_anexos", label: "Checklist de Documentos", type: "checklist", section: "Anexos",
+            options: [
+                { value: "escritura", label: "Escritura Pública" },
+                { value: "contrato", label: "Contrato de Compra e Venda" },
+                { value: "planta", label: "Planta do Terreno" },
+                { value: "memorial", label: "Memorial Descritivo" },
+                { value: "fotos", label: "Fotos do Local" },
+                { value: "certidao", label: "Certidão de Matrícula" }
+            ]
+        },
+
+        { key: "observacoes", label: "Observações Adicionais", type: "textarea", section: "Extras" },
+    ],
+    generateText: (d, b, lang) => {
+        const isEn = lang === "en";
+        const isEs = lang === "es";
+
+        const title = isEn ? "LAND CAPTURE SHEET" : isEs ? "FICHA DE CAPTACIÓN DE TERRENO" : "FICHA DE CAPTAÇÃO DE TERRENO";
+        const labels = {
+            owner: isEn ? "OWNER" : isEs ? "PROPIETARIO" : "PROPRIETÁRIO",
+            location: isEn ? "LOCATION" : isEs ? "UBICACIÓN" : "LOCALIZAÇÃO",
+            legal: isEn ? "LEGAL STATUS" : isEs ? "SITUACIÓN JURÍDICA" : "SITUAÇÃO JURÍDICA",
+            measures: isEn ? "MEASURES AND AREA" : isEs ? "MEDIDAS Y ÁREA" : "MEDIDAS E ÁREA",
+            confrontations: isEn ? "CONFRONTATIONS" : isEs ? "CONFRONTACIONES" : "CONFRONTAÇÕES",
+            characteristics: isEn ? "CHARACTERISTICS" : isEs ? "CARACTERÍSTICAS" : "CARACTERÍSTICAS",
+            infra: isEn ? "INFRASTRUCTURE" : isEs ? "INFRAESTRUCTURA" : "INFRAESTRUTURA",
+            commercial: isEn ? "COMMERCIAL INFORMATION" : isEs ? "INFORMACIÓN COMERCIAL" : "INFORMAÇÕES COMERCIAIS",
+            notes: isEn ? "NOTES" : isEs ? "OBSERVACIONES" : "OBSERVAÇÕES",
+            intermed: isEn ? "Intermediation" : isEs ? "Intermediación" : "Intermediação"
+        };
+
+        const locale = isEn ? "en-US" : isEs ? "es-ES" : "pt-BR";
+        const dateStr = d.data ? new Date(d.data).toLocaleDateString(locale) : today(lang);
+
+        const infraList = [];
+        if (d.infra_energia === "Sim") infraList.push(isEn ? "Electricity" : isEs ? "Energía" : "Energia Elétrica");
+        if (d.infra_agua === "Sim") infraList.push(isEn ? "Water" : isEs ? "Agua" : "Água Encanada");
+        if (d.infra_esgoto === "Sim") infraList.push(isEn ? "Sewage" : isEs ? "Alcantarillado" : "Rede de Esgoto");
+        if (d.infra_pavimentacao === "Sim") infraList.push(isEn ? "Paved" : isEs ? "Pavimentado" : "Rua Pavimentada");
+
+        return `
+${title}
+
+${fmt(d.local)}, ${dateStr}
+
+${labels.owner}: ${fmt(d.proprietario_nome)}${d.proprietario_cpf ? ` | ${isEn ? "Tax ID" : "CPF/CNPJ"}: ${d.proprietario_cpf}` : ""}${d.proprietario_rg ? ` | ${isEn ? "ID" : "RG"}: ${d.proprietario_rg}` : ""}
+
+${labels.location}:
+${fmt(d.endereco)} - ${fmt(d.bairro)}
+${fmt(d.cidade)} - ${fmt(d.estado)} | CEP: ${fmt(d.cep)}
+
+${labels.legal}: ${fmt(d.situacao_juridica)}
+
+${labels.measures}:
+${isEn ? "Total Area" : "Área Total"}: ${fmt(d.area_total)} m²
+${isEn ? "Front" : "Frente"}: ${fmt(d.frente)}m | ${isEn ? "Back" : "Fundos"}: ${fmt(d.fundos)}m
+${isEn ? "Right" : "Direita"}: ${fmt(d.lado_direito)}m | ${isEn ? "Left" : "Esquerda"}: ${fmt(d.lado_esquerdo)}m
+
+${labels.confrontations}:
+${isEn ? "Front" : "Frente"}: ${fmt(d.confrontante_frente)}
+${isEn ? "Back" : "Fundos"}: ${fmt(d.confrontante_fundos)}
+${isEn ? "Right" : "Direita"}: ${fmt(d.confrontante_direito)}
+${isEn ? "Left" : "Esquerda"}: ${fmt(d.confrontante_esquerdo)}
+
+${labels.characteristics}:
+${isEn ? "Topography" : "Topografia"}: ${fmt(d.topografia)} | ${isEn ? "Type" : "Tipo"}: ${fmt(d.tipo_terreno)}
+${labels.infra}: ${infraList.length > 0 ? infraList.join(", ") : (isEn ? "None reported" : isEs ? "Nada informado" : "Nada informado")}
+
+${labels.commercial}:
+${isEn ? "Market Value" : "Valor de Mercado"}: ${fmtCurrency(d.valor, lang)}
+${isEn ? "Accepts Proposal?" : "Aceita Proposta?"}: ${fmt(d.aceita_proposta)}
+${isEn ? "Accepts Exchange?" : "Aceita Permuta?"}: ${fmt(d.aceita_permuta)}
+${isEn ? "Docs Ready?" : "Doc. p/ Transferência?"}: ${fmt(d.documentacao_ok)}
+
+${d.observacoes ? `${labels.notes}: ${d.observacoes}\n\n` : ""}${b?.name ? `${labels.intermed}: ${b.name}${b.creci ? ` — CRECI ${b.creci}` : ""}` : ""}
+        `.trim();
+    },
+};
+
 export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     reciboChaves,
     reciboSinal,
@@ -856,6 +1010,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     autorizacaoVenda,
     autorizacaoLocacao,
     termoReserva,
+    fichaTerreno,
 ];
 
 export function getTemplate(id: string): DocumentTemplate | undefined {

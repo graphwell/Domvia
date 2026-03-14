@@ -268,6 +268,10 @@
                 "ficha-cadastral": {
                     "name": "Ficha Cadastral",
                     "desc": "Dados completos para análise de crédito e negociação."
+                },
+                "ficha-terreno": {
+                    "name": "Ficha de Captação de Terreno",
+                    "desc": "Ficha técnica completa para captação de terrenos, áreas e lotes."
                 }
             }
         },

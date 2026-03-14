@@ -1,50 +1,52 @@
 import type { CampaignLink, Lead, Plan, DashboardStats, Tour } from "@/types";
 
-// ── Planos ────────────────────────────────────
 export const PLANS: Plan[] = [
     {
         id: "trial",
         name: "Trial",
         type: "individual",
         price: 0,
-        creditsPerMonth: 5,
-        maxLinks: 3,
+        creditsPerMonth: 10,
+        maxLinks: 5,
         highlighted: false,
         features: [
-            { label: "Até 3 links ativos", included: true },
-            { label: "Captação Inteligente", included: true },
+            { label: "7 dias de teste", included: true },
+            { label: "Até 5 links ativos", included: true },
+            { label: "IA Conversacional", included: true },
             { label: "Documentos Básicos", included: true },
             { label: "Suporte via WhatsApp", included: false },
         ],
     },
     {
-        id: "broker_monthly",
-        name: "Corretor Pro",
+        id: "corretor_pro",
+        name: "Corretor Pró",
         type: "individual",
         price: 97,
         creditsPerMonth: 50,
         maxLinks: 50,
         highlighted: true,
         features: [
+            { label: "Tudo do Trial", included: true },
             { label: "Até 50 links ativos", included: true },
             { label: "Todas as Ferramentas IA", included: true },
-            { label: "Documentos Ilimitados", included: true },
+            { label: "Gerador de Documentos", included: true },
             { label: "Suporte Prioritário", included: true },
         ],
     },
     {
-        id: "agency_start",
+        id: "imobiliaria_start",
         name: "Imobiliária Start",
         type: "agency",
-        price: 397,
+        price: 297,
         creditsPerMonth: 200,
         maxMembers: 5,
         highlighted: false,
         features: [
             { label: "Até 5 Corretores", included: true },
+            { label: "150 links ativos", included: true },
             { label: "Gestão de Equipe", included: true },
+            { label: "Tour 360°", included: true },
             { label: "Créditos Compartilhados", included: true },
-            { label: "Relatórios de Vendas", included: true },
         ],
     },
 ];

@@ -50,8 +50,8 @@ export const metadata: Metadata = {
     template: "%s | Domvia",
   },
   description:
-    "Link inteligente com IA para corretores de imóveis. IA conversacional 24h, captação automática de leads, calculadora de financiamento e ferramentas de IA.",
-  keywords: ["corretor de imóveis", "captação de leads", "plataforma imobiliária", "IA imobiliária", "link inteligente"],
+    "Domvia v3.0 — Link inteligente com IA para corretores de imóveis. Agora com Módulo de Terrenos, Histórico de Documentos e IA Conversacional 24h.",
+  keywords: ["corretor de imóveis", "terrenos", "captação de leads", "plataforma imobiliária", "IA imobiliária", "documentos imobiliários"],
   authors: [{ name: "Domvia" }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   openGraph: {

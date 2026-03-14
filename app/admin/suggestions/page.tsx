@@ -63,7 +63,7 @@ export default function AdminSuggestionsPage() {
         <div className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 font-display">Sugestões e Sugestões</h1>
+                    <h1 className="text-2xl font-black text-slate-900 font-display">Sugestões e Feedbacks</h1>
                     <p className="text-slate-500 text-sm">Feedback dos usuários e solicitações de melhoria</p>
                 </div>
                 <div className="flex gap-2">

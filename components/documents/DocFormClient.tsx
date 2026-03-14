@@ -12,7 +12,7 @@ import { getTemplate } from "@/lib/document-templates";
 import { useLanguage } from "@/hooks/use-language";
 import {
     ArrowLeft, Printer, Share2, ChevronRight,
-    CheckCircle2, FileText, PenLine, Download
+    CheckCircle2, FileText, PenLine, Download, Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { rtdb } from "@/lib/firebase";
@@ -62,6 +62,23 @@ function renderField(field: any, value: string, onChange: (v: string) => void, l
                 <option value="">{lang === "en" ? "Select..." : lang === "es" ? "Seleccione..." : "Selecione..."}</option>
                 {field.options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
+        );
+    }
+    if (field.type === "checklist" && field.options) {
+        const selected = value ? value.split(",") : [];
+        const toggle = (v: string) => {
+            const next = selected.includes(v) ? selected.filter(s => s !== v) : [...selected, v];
+            onChange(next.join(","));
+        };
+        return (
+            <div className="grid grid-cols-2 gap-2 mt-1">
+                {field.options.map((o: any) => (
+                    <label key={o.value} className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked={selected.includes(o.value)} onChange={() => toggle(o.value)} />
+                        <span className="text-xs text-slate-600">{o.label}</span>
+                    </label>
+                ))}
+            </div>
         );
     }
     const inputType = field.type === "date" ? "date" : field.type === "phone" ? "tel" : field.type === "number" || field.type === "currency" ? "number" : "text";
@@ -209,6 +226,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
         witness1?: string | null; witness2?: string | null;
     }>({});
     const [saved, setSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState<Record<string, boolean>>({});
     const [showWitness2, setShowWitness2] = useState(false);
 
@@ -283,7 +301,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             triggerHaptic('medium');
 
             const dateStr = new Date().toISOString().split('T')[0];
-            const safeName = (data.nome || data.cliente || "Documento").replace(/\s+/g, '_');
+            const safeName = (data.nome || data.cliente || data.proprietario_nome || "Documento").replace(/\s+/g, '_');
             const filename = `${template.shortName.replace(/\s+/g, '_')}_${safeName}_${dateStr}.pdf`;
 
             // Remove border for PDF generation specifically if needed, but styling is mostly ok
@@ -305,6 +323,37 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             toast.error("Erro ao gerar o PDF.");
         }
     }
+
+    const handleSaveDocument = async () => {
+        if (!user?.id) return;
+        setSaving(true);
+        const docRef = ref(rtdb, `documents/${user.id}`);
+        const newDocRef = push(docRef);
+        
+        const payload = {
+            id: newDocRef.key,
+            templateId,
+            templateName: template.name,
+            data,
+            docText,
+            signatures,
+            createdAt: new Date().toISOString(),
+            brokerName: brokerData.name,
+        };
+
+        try {
+            await set(newDocRef, payload);
+            setSaved(true);
+            triggerHaptic('success');
+            toast.success(t("docs.saved_success") || "Documento salvo no histórico!");
+            trackUsage(user.id, "doc_saved", { templateId });
+        } catch (err) {
+            console.error(err);
+            toast.error("Erro ao salvar documento.");
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const handleShare = () => {
         triggerHaptic('light');
@@ -418,6 +467,21 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
                                     <Button variant="outline" leftIcon={<Printer className="h-4 w-4" />} onClick={handlePrint} className="w-full justify-center">
                                         {t("docs.btn_print", "Imprimir")}
                                     </Button>
+                                    {!saved ? (
+                                        <Button 
+                                            variant="secondary" 
+                                            className="w-full justify-center bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                            leftIcon={saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                                            onClick={handleSaveDocument}
+                                            disabled={saving}
+                                        >
+                                            {saving ? t("common.saving", "Salvando...") : t("docs.btn_save", "Salvar no Sistema")}
+                                        </Button>
+                                    ) : (
+                                        <div className="flex items-center justify-center gap-2 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 italic text-sm">
+                                            <CheckCircle2 className="h-4 w-4" /> {t("docs.saved_success")}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="flex items-start gap-2 mt-2">
                                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />

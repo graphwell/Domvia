@@ -18,6 +18,7 @@ export type UsageEventType =
     | "calculator_land"          // Calculadora de Terrenos
     | "calculator_investment"    // Simulador de Investimento
     | "doc_form_generate"        // Gerador de Documentos (formulário)
+    | "doc_saved"                // Documento salvo no histórico
     | "doc_share_whatsapp"       // Compartilhar documento
     | "link_created"             // Novo link inteligente criado
     | "link_view"                // Link visualizado por cliente
