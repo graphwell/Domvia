@@ -14,7 +14,7 @@ import {
     updateProfile
 } from "firebase/auth";
 import { auth, rtdb } from "@/lib/firebase";
-import { ref, get, set } from "firebase/database";
+import { ref, get, set, onValue } from "firebase/database";
 
 export type UserRole = "ADMIN_MASTER" | "ADMIN" | "CORRETOR" | "AGENCY_ADMIN" | "AGENCY_MEMBER";
 
@@ -158,18 +158,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         }
 
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        let dbUnsubscribe: (() => void) | null = null;
+
+        const authUnsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-                // Get pending invite from storage if not already used
+                // 1. Initial manual fetch (for registration/metadata)
                 const pendingInvite = localStorage.getItem("lb_pending_invite") || undefined;
-                
-                const mappedUser = await fetchUserFromDB(firebaseUser, pendingInvite);
-                setUser(mappedUser);
-                localStorage.setItem("lb_user", JSON.stringify(mappedUser));
-                
+                const initialUser = await fetchUserFromDB(firebaseUser, pendingInvite);
+                setUser(initialUser);
+                localStorage.setItem("lb_user", JSON.stringify(initialUser));
+
+                // 2. Setup Real-time Listener for user data (Credits, Role, Plan, etc.)
+                const userRef = ref(rtdb, `users/${firebaseUser.uid}`);
+                dbUnsubscribe = onValue(userRef, (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.val();
+                        const updatedUser: User = {
+                            id: firebaseUser.uid,
+                            name: data.name ?? firebaseUser.displayName ?? initialUser.name,
+                            email: data.email ?? firebaseUser.email ?? initialUser.email,
+                            photoURL: data.photoURL ?? firebaseUser.photoURL ?? initialUser.photoURL,
+                            role: (data.role as UserRole) ?? initialUser.role,
+                            planId: data.planId ?? data.plan ?? initialUser.planId,
+                            plan: data.plan ?? initialUser.plan,
+                            credits: data.credits ?? 0,
+                            bonusCredits: data.bonusCredits ?? 0,
+                            phone: data.phone,
+                            creci: data.creci,
+                            logoURL: data.logoURL,
+                            useLogoInDocs: data.useLogoInDocs ?? true,
+                        };
+                        setUser(updatedUser);
+                        localStorage.setItem("lb_user", JSON.stringify(updatedUser));
+                    }
+                });
+
                 // Auto-redirect to dashboard if user lands on home while logged in
                 if (window.location.pathname === "/") {
-                    if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
+                    if (initialUser.role === "ADMIN_MASTER" || initialUser.role === "ADMIN") {
                         router.push("/admin/dashboard");
                     } else {
                         router.push("/dashboard");
@@ -178,11 +204,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
                 setUser(null);
                 localStorage.removeItem("lb_user");
+                if (dbUnsubscribe) {
+                    dbUnsubscribe();
+                    dbUnsubscribe = null;
+                }
             }
             setIsLoading(false);
         });
 
-        return () => unsubscribe();
+        return () => {
+            authUnsubscribe();
+            if (dbUnsubscribe) dbUnsubscribe();
+        };
     }, []);
 
     const loginWithGoogle = async () => {
