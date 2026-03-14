@@ -144,6 +144,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const mappedUser = await fetchUserFromDB(firebaseUser);
                 setUser(mappedUser);
                 localStorage.setItem("lb_user", JSON.stringify(mappedUser));
+                
+                // Auto-redirect to dashboard if user lands on home while logged in
+                if (window.location.pathname === "/") {
+                    if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
+                        router.push("/admin/dashboard");
+                    } else {
+                        router.push("/dashboard");
+                    }
+                }
             } else {
                 setUser(null);
                 localStorage.removeItem("lb_user");

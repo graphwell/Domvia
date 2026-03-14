@@ -12,9 +12,22 @@ import { FloatingIntelligentButton } from "@/components/dashboard/FloatingIntell
 import { FeedbackPrompt } from "@/components/dashboard/FeedbackPrompt";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/auth-provider";
-import { NotificationProvider } from "@/context/NotificationContext";
+import { NotificationProvider, useNotifications } from "@/context/NotificationContext";
 
 import { CreditCounter } from "@/components/dashboard/CreditCounter";
+
+function NotificationBell() {
+    const { unreadCount } = useNotifications();
+    
+    return (
+        <button className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors">
+            <Bell className={cn("h-5 w-5", unreadCount > 0 && "animate-shake origin-top")} />
+            {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-brand-600 animate-pulse" />
+            )}
+        </button>
+    );
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { t } = useLanguage();
@@ -80,10 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 )}
 
                                 {/* Notification bell */}
-                                <button className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors">
-                                    <Bell className="h-5 w-5" />
-                                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-brand-600" />
-                                </button>
+                                <NotificationBell />
 
                                 {/* Avatar */}
                                 <UserAvatar />
@@ -119,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <div 
-                            className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300"
+                            className="absolute left-0 top-0 bottom-0 w-56 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex h-16 items-center px-4 border-b border-slate-200 justify-between">

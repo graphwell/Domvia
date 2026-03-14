@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 
@@ -16,6 +16,12 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+// Enforce persistence for mobile/PWA
+if (typeof window !== "undefined") {
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+}
+
 const storage = getStorage(app);
 const rtdb = getDatabase(app);
 
