@@ -128,6 +128,7 @@ export default function DashboardPage() {
             recentLeads={recentLeads}
             links={links}
             chartData={chartData}
+            captures={captures}
         />
     );
 }

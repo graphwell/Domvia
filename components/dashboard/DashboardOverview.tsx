@@ -25,12 +25,13 @@ interface DashboardOverviewProps {
     recentLeads: Lead[];
     links: CampaignLink[];
     chartData: Array<{ day: string; leads: number; views: number }>;
+    captures: any[];
 }
 
 import { RotaryPhrases } from "./RotaryPhrases";
 import { SmartSuggestions } from "./SmartSuggestions";
 
-export function DashboardOverview({ user, stats, recentLeads, links, chartData }: DashboardOverviewProps) {
+export function DashboardOverview({ user, stats, recentLeads, links, chartData, captures }: DashboardOverviewProps) {
     const { t, language } = useLanguage();
     const [copied, setCopied] = useState<string | null>(null);
     const [activeChart, setActiveChart] = useState(0);
@@ -43,13 +44,34 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData }
         return () => clearInterval(interval);
     }, []);
 
-    // Mock captures data for visualization (in real app, this would come from a helper or buildChartData)
+    // Generate real captures data
     const capturesData = capturesView === 'day' 
-        ? chartData.map(d => ({ label: d.day, count: Math.floor(Math.random() * 5) }))
-        : [
-            { label: 'Out', count: 12 }, { label: 'Nov', count: 19 }, { label: 'Dez', count: 25 },
-            { label: 'Jan', count: 32 }, { label: 'Fev', count: 28 }, { label: 'Mar', count: 45 }
-        ];
+        ? Array.from({ length: 7 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            const dayStr = d.toISOString().slice(0, 10);
+            const count = captures.filter(c => {
+                const cDate = new Date(c.timestamp).toISOString().slice(0, 10);
+                return cDate === dayStr;
+            }).length;
+            
+            // Get day name (shortened)
+            const dayNames = t("dashboard.chart.days") as unknown as string[];
+            return { label: dayNames[d.getDay()], count };
+        })
+        : Array.from({ length: 6 }, (_, i) => {
+            const d = new Date();
+            d.setMonth(d.getMonth() - (5 - i));
+            const month = d.getMonth();
+            const year = d.getFullYear();
+            const count = captures.filter(c => {
+                const cDate = new Date(c.timestamp);
+                return cDate.getMonth() === month && cDate.getFullYear() === year;
+            }).length;
+            
+            const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            return { label: monthNames[month], count };
+        });
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://domvia.ai";
 
