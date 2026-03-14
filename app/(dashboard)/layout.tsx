@@ -42,8 +42,8 @@ function NotificationBell() {
 
             {isOpen && (
                 <>
-                    <div className="fixed inset-0 z-50" onClick={() => setIsOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="fixed inset-0 z-[90] bg-slate-900/5 backdrop-blur-[1px]" onClick={() => setIsOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 shadow-2xl rounded-2xl z-[110] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                             <h3 className="font-bold text-slate-800 text-sm">Notificações</h3>
                             {unreadCount > 0 && (
@@ -118,7 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Main content */}
                 <div className="flex-1 flex flex-col min-w-0">
                     {/* Topbar */}
-                    <header className="sticky top-0 z-40 glass border-b border-slate-200/60">
+                    <header className="sticky top-0 z-[100] glass border-b border-slate-200/60">
                         <div className="flex items-center h-16 px-2 sm:px-6 gap-1 sm:gap-4">
                             {/* Mobile hamburger & logo */}
                             <div className="flex lg:hidden items-center gap-1.5">
