@@ -90,6 +90,19 @@ const PLAN_DEFAULTS: Record<string, PlanConfig> = {
     },
 };
 
+interface TopUpConfig {
+    name: string;
+    credits: number;
+    price: number;
+    stripePriceId: string;
+}
+
+const TOPUP_DEFAULTS: Record<string, TopUpConfig> = {
+    topup_100: { name: "Pacote 100", credits: 100, price: 19.00, stripePriceId: "price_1topup_100_1900" },
+    topup_300: { name: "Pacote 300", credits: 300, price: 39.00, stripePriceId: "price_1topup_300_3900" },
+    topup_1000: { name: "Pacote 1000", credits: 1000, price: 97.00, stripePriceId: "price_1topup_1000_9700" },
+};
+
 const PLAN_ACCENT: Record<string, { gradient: string; badge: string; crown: string }> = {
     Trial: { gradient: "from-slate-500 to-slate-700", badge: "bg-slate-100 text-slate-600", crown: "text-slate-400" },
     Pro: { gradient: "from-blue-500 to-blue-700", badge: "bg-blue-50 text-blue-700", crown: "text-blue-500" },
@@ -105,40 +118,54 @@ function fmtLimit(n: number, label: string) {
 // ─── Component ───────────────────────────────────────────────────
 export default function AdminPlansPage() {
     const [plans, setPlans] = useState<Record<string, PlanConfig>>({ ...PLAN_DEFAULTS });
-    const [editing, setEditing] = useState<string | null>(null);
-    const [draft, setDraft] = useState<PlanConfig | null>(null);
+    const [topups, setTopups] = useState<Record<string, TopUpConfig>>(TOPUP_DEFAULTS);
+    const [editing, setEditing] = useState<string | null>(null); // key of plan or topup
+    const [editType, setEditType] = useState<'plan' | 'topup' | null>(null);
+    const [draft, setDraft] = useState<any>(null);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
     useEffect(() => {
-        const off = onValue(ref(rtdb, "config/plans"), (snap) => {
-            if (snap.exists()) {
-                const loaded = snap.val() as Record<string, PlanConfig>;
-                setPlans((prev) => ({ ...PLAN_DEFAULTS, ...loaded }));
-            }
+        // Load Plans
+        const offPlans = onValue(ref(rtdb, "config/plans"), (snap) => {
+            if (snap.exists()) setPlans({ ...PLAN_DEFAULTS, ...snap.val() });
         });
-        return off;
+        // Load Topups
+        const offTopups = onValue(ref(rtdb, "config/topups"), (snap) => {
+            if (snap.exists()) setTopups({ ...TOPUP_DEFAULTS, ...snap.val() });
+        });
+        return () => { offPlans(); offTopups(); };
     }, []);
 
-    const startEdit = (key: string) => {
+    const startEdit = (key: string, type: 'plan' | 'topup') => {
         setEditing(key);
-        setDraft({ ...plans[key] });
+        setEditType(type);
+        setDraft(type === 'plan' ? { ...plans[key] } : { ...topups[key] });
     };
 
-    const saveAll = async () => {
-        if (!editing || !draft) return;
+    const saveDraft = async () => {
+        if (!editing || !draft || !editType) return;
         setSaving(true);
-        const updated = { ...plans, [editing]: draft };
-        setPlans(updated);
-        await set(ref(rtdb, "config/plans"), updated);
+        try {
+            if (editType === 'plan') {
+                const updated = { ...plans, [editing]: draft };
+                await set(ref(rtdb, "config/plans"), updated);
+            } else {
+                const updated = { ...topups, [editing]: draft };
+                await set(ref(rtdb, "config/topups"), updated);
+            }
+            setSaved(true);
+            setEditing(null);
+            setEditType(null);
+            setDraft(null);
+            setTimeout(() => setSaved(false), 2000);
+        } catch (e) {
+            console.error(e);
+        }
         setSaving(false);
-        setSaved(true);
-        setEditing(null);
-        setDraft(null);
-        setTimeout(() => setSaved(false), 2000);
     };
 
-    const updateDraft = (field: keyof Omit<PlanConfig, "features">, val: string | number) => {
+    const updateDraft = (field: string, val: any) => {
         if (!draft) return;
         setDraft({ ...draft, [field]: val });
     };
@@ -167,7 +194,7 @@ export default function AdminPlansPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {Object.entries(plans).map(([key, plan]) => {
                     const accent = PLAN_ACCENT[key] ?? PLAN_ACCENT.Trial;
-                    const isEditing = editing === key;
+                    const isEditing = editing === key && editType === 'plan';
 
                     return (
                         <Card key={key} padding="none" className={`border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow ${isEditing ? "ring-2 ring-indigo-500" : ""}`}>
@@ -179,7 +206,7 @@ export default function AdminPlansPage() {
                                         <span className="font-display font-black text-lg tracking-tight">{plan.name}</span>
                                     </div>
                                     <button
-                                        onClick={() => isEditing ? setEditing(null) : startEdit(key)}
+                                        onClick={() => isEditing ? setEditing(null) : startEdit(key, 'plan')}
                                         className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
                                     >
                                         {isEditing ? <X className="h-4 w-4" /> : <Edit3 className="h-4 w-4" />}
@@ -277,7 +304,7 @@ export default function AdminPlansPage() {
                             {isEditing && (
                                 <div className="px-6 pb-6">
                                     <Button
-                                        onClick={saveAll}
+                                        onClick={saveDraft}
                                         loading={saving}
                                         leftIcon={<Save className="h-4 w-4" />}
                                         className="w-full bg-indigo-600 hover:bg-indigo-700"
@@ -289,6 +316,100 @@ export default function AdminPlansPage() {
                         </Card>
                     );
                 })}
+            </div>
+
+            <div className="pt-12 border-t border-slate-100">
+                <h2 className="font-display text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <ShoppingCart className="h-6 w-6 text-brand-600" />
+                    Créditos Avulsos (Top-ups)
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {Object.entries(topups).map(([key, pkg]) => {
+                        const isEditing = editing === key && editType === 'topup';
+
+                        return (
+                            <Card key={key} className={`relative border-slate-200 ${isEditing ? "ring-2 ring-indigo-500" : ""}`}>
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+                                        <CreditCard className="h-5 w-5" />
+                                    </div>
+                                    <button
+                                        onClick={() => isEditing ? setEditing(null) : startEdit(key, 'topup')}
+                                        className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                    >
+                                        {isEditing ? <X className="h-4 w-4" /> : <Edit3 className="h-4 w-4 text-slate-500" />}
+                                    </button>
+                                </div>
+
+                                {isEditing && draft ? (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Nome comercial</label>
+                                            <input
+                                                type="text"
+                                                value={draft.name}
+                                                onChange={(e) => updateDraft("name", e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold mt-1 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Créditos</label>
+                                                <input
+                                                    type="number"
+                                                    value={draft.credits}
+                                                    onChange={(e) => updateDraft("credits", +e.target.value)}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold mt-1 focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Preço R$</label>
+                                                <input
+                                                    type="number"
+                                                    value={draft.price}
+                                                    onChange={(e) => updateDraft("price", +e.target.value)}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold mt-1 focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic flex items-center gap-1">
+                                                Stripe Price ID <Link2 className="h-2.5 w-2.5" />
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={draft.stripePriceId}
+                                                onChange={(e) => updateDraft("stripePriceId", e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[10px] font-mono mt-1 focus:outline-none"
+                                            />
+                                        </div>
+                                        <Button
+                                            onClick={saveDraft}
+                                            loading={saving}
+                                            className="w-full bg-indigo-600 h-9 text-xs"
+                                        >
+                                            Salvar Pacote
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="font-display font-black text-slate-900 uppercase">{pkg.name}</h3>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{pkg.credits} Créditos</p>
+                                        </div>
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-xs font-bold text-slate-400">R$</span>
+                                            <span className="text-2xl font-black text-slate-900">{pkg.price.toFixed(2)}</span>
+                                        </div>
+                                        <div className="pt-3 border-t border-slate-50">
+                                            <code className="text-[9px] text-slate-300 block truncate">{pkg.stripePriceId}</code>
+                                        </div>
+                                    </div>
+                                )}
+                            </Card>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Info note */}

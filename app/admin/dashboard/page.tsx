@@ -44,9 +44,9 @@ interface UsageStats {
 // ─── Plan pricing (monthly R$) ──────────────────────────────────
 const PLAN_PRICE: Record<string, number> = {
     Trial: 0,
-    Starter: 49.9,
-    Pro: 97,
-    Elite: 197,
+    Pro: 39.9,
+    Max: 79.0,
+    Elite: 99.0,
     Lifetime: 0,
 };
 
