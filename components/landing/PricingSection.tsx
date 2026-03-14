@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { CheckCircle, X, Sparkles, CreditCard, ShoppingCart } from "lucide-react";
