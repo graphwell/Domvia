@@ -225,7 +225,7 @@ header {
 
 @media (max-width: 640px) {
   header.sticky {
-    max-height: 64px;
+    /* max-height: 64px; Removed to ensure no layout clipping */
   }
 }
 
