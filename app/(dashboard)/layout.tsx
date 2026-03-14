@@ -32,7 +32,7 @@ function NotificationBell() {
         <div className="relative">
             <button 
                 onClick={toggleOpen}
-                className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+                className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors z-[60]"
             >
                 <Bell className={cn("h-5 w-5", unreadCount > 0 && "animate-shake origin-top")} />
                 {unreadCount > 0 && (

@@ -85,6 +85,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 setNotifications(list);
                 setUnreadCount(list.filter(n => !n.read).length);
                 initialLoad.current = false;
+            } else {
+                setNotifications([]);
+                setUnreadCount(0);
+                initialLoad.current = false;
             }
         });
 

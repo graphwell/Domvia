@@ -18,6 +18,22 @@ export interface ToolUnlock {
 }
 
 /**
+ * Creates a notification for a user in RTDB.
+ */
+export async function createNotification(userId: string, title: string, message: string, type: 'credit' | 'system' | 'lead' | 'achievement' = 'system') {
+    const notifRef = ref(rtdb, `users/${userId}/notifications`);
+    const newNotifRef = push(notifRef);
+    
+    await set(newNotifRef, {
+        title,
+        message,
+        type,
+        timestamp: Date.now(),
+        read: false
+    });
+}
+
+/**
  * Adds credits to a user and logs the transaction.
  */
 export async function addCredits(userId: string, amount: number, description: string, type: 'earned' | 'purchase' | 'referral' | 'admin_adjustment', daysValid?: number) {
@@ -51,6 +67,15 @@ export async function addCredits(userId: string, amount: number, description: st
     updates[`credit_history/${userId}/${newHistoryRef.key}`] = transaction;
 
     await update(ref(rtdb), updates);
+
+    // 4. Create notification
+    await createNotification(
+        userId, 
+        "Créditos Adicionados!", 
+        `${description}: +${amount} créditos.`, 
+        'credit'
+    );
+
     return newCredits;
 }
 
@@ -98,6 +123,17 @@ export async function consumeCredits(userId: string, amount: number, description
     }
 
     await update(ref(rtdb), updates);
+
+    // 4. Create notification if substantial or for tool
+    if (amount > 0) {
+        await createNotification(
+            userId, 
+            "Ferramenta Ativada", 
+            `Você usou ${amount} créditos para: ${description}.`, 
+            'credit'
+        );
+    }
+
     return true;
 }
 
@@ -162,6 +198,15 @@ export async function removeCredits(userId: string, amount: number, description:
     updates[`credit_history/${userId}/${newHistoryRef.key}`] = transaction;
 
     await update(ref(rtdb), updates);
+
+    // 3. Create notification
+    await createNotification(
+        userId, 
+        "Ajuste de Saldo", 
+        `${description}: -${currentCredits - newCredits} créditos.`, 
+        'system'
+    );
+
     return newCredits;
 }
 
