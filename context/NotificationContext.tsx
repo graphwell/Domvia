@@ -4,11 +4,25 @@ import React, { createContext, useContext, useState, useEffect, useRef } from "r
 import { useAuth } from "@/hooks/auth-provider";
 import { CreditNotification } from "@/components/ui/CreditNotification";
 import { triggerHaptic, triggerCoinSound } from "@/lib/haptic";
+import { rtdb } from "@/lib/firebase";
+import { ref, onValue, limitToLast, query } from "firebase/database";
+
+export interface NotificationItem {
+    id: string;
+    title: string;
+    message: string;
+    type: 'credit' | 'system' | 'lead' | 'achievement';
+    timestamp: number;
+    read: boolean;
+    amount?: number;
+}
 
 interface NotificationContextType {
     showReward: (amount: number) => void;
     showBillingPopup: (type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached', data?: any) => void;
     unreadCount: number;
+    notifications: NotificationItem[];
+    markAsRead: (id: string) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -19,23 +33,68 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const { user } = useAuth();
     const [reward, setReward] = useState<{ amount: number; id: number } | null>(null);
     const [billingPopup, setBillingPopup] = useState<{ type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached'; data?: any } | null>(null);
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
     const lastCredits = useRef<number | null>(null);
+    const initialLoad = useRef(true);
 
     // Monitor credit changes
     useEffect(() => {
-        if (user && lastCredits.current !== null) {
-            // Check for credit changes specifically in RTDB to be more accurate?
-            // For now, let's keep the user object sync if it's reliable
-            const diff = (user as any).credits - lastCredits.current;
-            if (diff > 0) {
-                showReward(diff);
-            }
+        if (!user) {
+            lastCredits.current = null;
+            return;
+        }
+
+        const currentCredits = (user as any).credits || 0;
+        
+        if (lastCredits.current !== null && currentCredits > lastCredits.current) {
+            const diff = currentCredits - lastCredits.current;
+            showReward(diff);
         }
         
-        if (user) {
-            lastCredits.current = (user as any).credits;
-        }
+        lastCredits.current = currentCredits;
     }, [user?.credits]);
+
+    // Real-time notifications listener
+    useEffect(() => {
+        if (!user) {
+            setNotifications([]);
+            setUnreadCount(0);
+            return;
+        }
+
+        const notifRef = query(ref(rtdb, `users/${user.id}/notifications`), limitToLast(20));
+        
+        const unsubscribe = onValue(notifRef, (snap) => {
+            if (snap.exists()) {
+                const data = snap.val();
+                const list: NotificationItem[] = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).sort((a, b) => b.timestamp - a.timestamp);
+
+                // Check for new unread notifications since last load to trigger sensory feedback
+                if (!initialLoad.current) {
+                    const hasNew = list.some(n => !n.read && !notifications.find(old => old.id === n.id));
+                    if (hasNew) {
+                        triggerHaptic('success');
+                        triggerCoinSound();
+                    }
+                }
+
+                setNotifications(list);
+                setUnreadCount(list.filter(n => !n.read).length);
+                initialLoad.current = false;
+            }
+        });
+
+        return () => unsubscribe();
+    }, [user?.id]);
+
+    const markAsRead = async (id: string) => {
+        // Implementation for marking as read in RTDB would go here
+        console.log("Mark as read:", id);
+    };
 
     const showReward = (amount: number) => {
         setReward({ amount, id: Date.now() });
@@ -48,11 +107,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         triggerHaptic('warning');
     };
 
-    // For now, mock unreadCount as 0. In the future, this can be synced with real DB notifications.
-    const [unreadCount, setUnreadCount] = useState(0);
-
     return (
-        <NotificationContext.Provider value={{ showReward, showBillingPopup, unreadCount }}>
+        <NotificationContext.Provider value={{ showReward, showBillingPopup, unreadCount, notifications, markAsRead }}>
             {children}
             {reward && (
                 <CreditNotification 
