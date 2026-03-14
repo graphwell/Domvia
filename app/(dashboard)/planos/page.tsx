@@ -11,7 +11,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Check, Zap, Star, ShieldCheck, ArrowRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLAN_CONFIG } from "@/lib/billing";
+import { TOPUPS } from "@/lib/mock-data";
 import { toast } from "sonner";
+import { CreditCard, ShoppingCart } from "lucide-react";
 
 export default function PricingPage() {
     const { user } = useAuth();
@@ -74,6 +76,47 @@ export default function PricingPage() {
         }
     };
 
+    const handleBuy = async (pkg: { id: string, credits: number, price: number }) => {
+        if (!user) {
+            window.location.href = "/login";
+            return;
+        }
+        setLoading(pkg.id);
+        
+        try {
+            // Find priceId in config if possible, or use fallback
+            const TOPUP_KEYS: Record<string, string> = {
+                'credits_100': 'price_1topup_100_1900',
+                'credits_300': 'price_1topup_300_3900',
+                'credits_1000': 'price_1topup_1000_9700'
+            };
+            const priceId = TOPUP_KEYS[pkg.id] || `price_${pkg.id}`;
+
+            const response = await fetch("/api/billing/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: user.id,
+                    mode: "payment",
+                    priceId: priceId,
+                    metadata: { 
+                        credits: pkg.credits.toString(),
+                        package: pkg.id 
+                    }
+                }),
+            });
+
+            const { url, error } = await response.json();
+            if (error) throw new Error(error);
+            if (url) window.location.href = url;
+            else toast.error("Erro ao iniciar pagamento.");
+        } catch (error: any) {
+            console.error("Purchase error:", error);
+            toast.error(error.message || "Erro ao iniciar compra.");
+            setLoading(null);
+        }
+    };
+
     const plans = [
         {
             ...PLAN_CONFIG.trial,
@@ -99,7 +142,7 @@ export default function PricingPage() {
                 "50 documentos/mês",
                 "100 links de campanha",
                 "Landing Page do Imóvel (2 créditos)",
-                "IA especialista (100 sessões)",
+                "IA especialista (100 sessions)",
                 "Créditos do plano expiram no ciclo",
             ],
             cta: "Assinar Pro",
@@ -108,7 +151,7 @@ export default function PricingPage() {
         },
         {
             ...PLAN_CONFIG.max,
-            price: billingCycle === 'monthly' ? 79 : 59.25, // R$ 711/12
+            price: billingCycle === 'monthly' ? 79.00 : 59.25, // R$ 711/12
             description: "Para quem não para de vender",
             features: [
                 "Tudo ILIMITADO",
@@ -213,6 +256,56 @@ export default function PricingPage() {
                 ))}
             </div>
 
+            {/* Credit Packages Section */}
+            <div className="pt-20 space-y-8">
+                <div className="text-center space-y-2">
+                    <h2 className="text-2xl font-display font-black text-slate-900 uppercase italic">Precisa de Créditos Avulsos?</h2>
+                    <p className="text-slate-500 font-medium text-sm">Use apenas o necessário, sem compromisso mensal.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    {TOPUPS.map((pkg) => (
+                        <Card 
+                            key={pkg.id} 
+                            padding="lg"
+                            className={cn(
+                                "flex flex-col relative transition-all duration-300 bg-white",
+                                pkg.highlighted ? "border-brand-500 shadow-lg scale-105 z-10" : "hover:border-slate-300"
+                            )}
+                        >
+                            <div className="flex-1 space-y-4">
+                                <div className={cn(
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 overflow-hidden",
+                                    pkg.highlighted ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600"
+                                )}>
+                                    <CreditCard className="h-6 w-6" />
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="font-display font-black text-slate-900 uppercase tracking-tight">{pkg.credits} CRÉDITOS</h3>
+                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Recarga imediata</p>
+                                </div>
+                                
+                                <div className="text-center py-4 border-y border-slate-50">
+                                    <span className="text-sm font-bold text-slate-400">R$</span>
+                                    <span className="text-3xl font-black text-slate-900 ml-1">{formatPrice(pkg.price)}</span>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 italic">Uso sob demanda</p>
+                                </div>
+                            </div>
+
+                            <Button 
+                                className="w-full mt-8 h-12 text-xs font-black uppercase tracking-widest rounded-xl" 
+                                variant={pkg.highlighted ? 'primary' : 'outline'}
+                                loading={loading === pkg.id}
+                                onClick={() => handleBuy(pkg)}
+                                leftIcon={<ShoppingCart className="h-4 w-4" />}
+                            >
+                                Comprar
+                            </Button>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+
             {/* Comparison Table Section (Simplified for now) */}
             <div className="pt-10">
                 <Card padding="lg" className="bg-slate-50 border-none">
@@ -233,12 +326,6 @@ export default function PricingPage() {
                         </Link>
                     </div>
                 </Card>
-            </div>
-            {/* Footer context */}
-            <div className="text-center pt-8 border-t border-slate-100 italic font-medium">
-                <p className="text-sm text-slate-500">
-                    Precisa de créditos avulsos? <Link href="/creditos" className="text-brand-600 hover:underline">Veja nossos pacotes</Link>.
-                </p>
             </div>
         </div>
     );

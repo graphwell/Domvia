@@ -11,31 +11,31 @@ import { cn } from "@/lib/utils";
 const CREDIT_PACKAGES = [
     {
         id: 'starter',
-        name: 'Starter',
+        name: 'Pacote Inicial',
         credits: 100,
         price: 19,
         description: 'Ideal para experimentação pontual.',
         highlight: false,
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TOPUP_100 || 'price_1topup_100_1900'
     },
     {
         id: 'popular',
-        name: 'Popular',
+        name: 'Pacote Popular',
         credits: 300,
-        price: 49,
+        price: 39,
         description: 'Melhor custo-benefício para corretores ativos.',
         highlight: true,
         badge: 'Mais Vendido',
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_POPULAR
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TOPUP_300 || 'price_1topup_300_3900'
     },
     {
         id: 'professional',
-        name: 'Profissional',
+        name: 'Pacote Profissional',
         credits: 1000,
-        price: 129,
+        price: 97,
         description: 'Para imobiliárias e alta demanda.',
         highlight: false,
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TOPUP_1000 || 'price_1topup_1000_9700'
     }
 ];
 
