@@ -66,11 +66,7 @@ export function FloatingIntelligentButton() {
       onTouchEnd={handleTouchEnd}
     >
       <Link href="/tools/captacao" className="block">
-        <div className="relative flex items-center justify-center">
-          {/* Animated Halo - Multiple layers for a premium pulse */}
-          <div className="absolute inset-0 rounded-full bg-brand-500/20 animate-ping" />
-          <div className="absolute inset-0 rounded-full bg-brand-400/10 animate-pulse scale-150" />
-          
+        <div className="relative flex items-center justify-center animate-pulse-gentle">
           <div className="relative h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg shadow-brand-500/40 flex items-center justify-center active:scale-90 transition-transform duration-150">
             <Camera className="h-7 w-7" />
           </div>
