@@ -42,9 +42,9 @@ function NotificationBell() {
 
             {isOpen && (
                 <>
-                    <div className="fixed inset-0 z-[90] bg-slate-900/5 backdrop-blur-[1px]" onClick={() => setIsOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 shadow-2xl rounded-2xl z-[110] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                    <div className="fixed inset-0 z-[90] bg-slate-900/10" onClick={() => setIsOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-80 space-y-2 bg-white border border-slate-200 shadow-2xl rounded-2xl z-[110] overflow-hidden min-w-[320px] animate-fade-in">
+                        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
                             <h3 className="font-bold text-slate-800 text-sm">Notificações</h3>
                             {unreadCount > 0 && (
                                 <span className="bg-brand-50 text-brand-600 text-[10px] px-2 py-0.5 rounded-full font-bold">
@@ -79,18 +79,19 @@ function NotificationBell() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="p-8 text-center">
-                                    <div className="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <Bell className="h-6 w-6 text-slate-300" />
+                                <div className="p-8 text-center text-slate-500">
+                                    <div className="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-300">
+                                        <Bell className="h-6 w-6" />
                                     </div>
-                                    <p className="text-xs text-slate-500 font-medium">Você não tem notificações no momento.</p>
+                                    <p className="text-xs font-medium">Você não tem notificações no momento.</p>
                                 </div>
                             )}
                         </div>
 
                         <Link 
                             href="/notifications" 
-                            className="block p-3 text-center border-t border-slate-100 text-[11px] font-bold text-brand-600 hover:bg-brand-50 transition-colors uppercase tracking-wider"
+                            className="block p-3 text-center border-t border-slate-100 text-[11px] font-bold text-brand-600 hover:bg-brand-50 transition-colors uppercase tracking-wider bg-white"
+                            onClick={() => setIsOpen(false)}
                         >
                             Ver todas as notificações
                         </Link>
