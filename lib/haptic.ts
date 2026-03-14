@@ -1,13 +1,25 @@
 /**
  * Generates a very short, subtle "click" sound using the Web Audio API.
  */
-function triggerClickSound() {
-    if (typeof window === "undefined") return;
-    try {
+let audioCtx: any = null;
+
+function getAudioContext() {
+    if (typeof window === "undefined") return null;
+    if (!audioCtx) {
         const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-        if (!AudioContextClass) return;
+        if (!AudioContextClass) return null;
+        audioCtx = new AudioContextClass();
+    }
+    return audioCtx;
+}
+
+function triggerClickSound() {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    try {
+        if (ctx.state === 'suspended') ctx.resume();
         
-        const ctx = new AudioContextClass();
         const oscillator = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -56,12 +68,11 @@ export function triggerHaptic(type: 'light' | 'medium' | 'success' | 'warning' =
  * Generates a "coin" sound (Success/Reward)
  */
 export function triggerCoinSound() {
-    if (typeof window === 'undefined') return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
     
     try {
-        const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-        if (!AudioContextClass) return;
-        const ctx = new AudioContextClass();
+        if (ctx.state === 'suspended') ctx.resume();
         
         const playTone = (freq: number, start: number, duration: number, volume: number) => {
             const osc = ctx.createOscillator();

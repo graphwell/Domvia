@@ -526,7 +526,8 @@ function ManageCreditsModal({ user, onClose }: { user: UserRecord, onClose: () =
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
-        if (!amount || amount <= 0) return alert("Insira um valor maior que zero.");
+        const numAmount = Number(amount);
+        if (!amount || numAmount <= 0) return alert("Insira um valor maior que zero.");
         if (!reason.trim()) return alert("Insira um motivo para a transação.");
         setLoading(true);
         try {
