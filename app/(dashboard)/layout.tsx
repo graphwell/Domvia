@@ -36,14 +36,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <header className="sticky top-0 z-40 glass border-b border-slate-200/60">
                         <div className="flex items-center h-16 px-2 sm:px-6 gap-1.5 sm:gap-4">
                             {/* Mobile hamburger & logo */}
-                            <div className="flex lg:hidden items-center gap-3">
+                            <div className="flex lg:hidden items-center gap-1.5">
                                 <button 
                                     onClick={() => setIsMobileMenuOpen(true)}
                                     className="p-2 -ml-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
                                 >
                                     <Menu className="h-6 w-6" />
                                 </button>
-                                <DomviaLogo />
+                                <div className="-ml-1.5">
+                                    <DomviaLogo />
+                                </div>
                             </div>
 
                             {/* Search */}
