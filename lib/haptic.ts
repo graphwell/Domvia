@@ -52,3 +52,41 @@ export function triggerHaptic(type: 'light' | 'medium' | 'success' | 'warning' =
             navigator.vibrate(10);
     }
 }
+/**
+ * Generates a "coin" sound (Success/Reward)
+ */
+export function triggerCoinSound() {
+    if (typeof window === 'undefined') return;
+    
+    try {
+        const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+        if (!AudioContextClass) return;
+        const ctx = new AudioContextClass();
+        
+        const playTone = (freq: number, start: number, duration: number, volume: number) => {
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+            
+            g.gain.setValueAtTime(0, ctx.currentTime + start);
+            g.gain.linearRampToValueAtTime(volume, ctx.currentTime + start + 0.05);
+            g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + duration);
+            
+            osc.connect(g);
+            g.connect(ctx.destination);
+            
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + duration);
+        };
+
+        // Premium "Ting!" - Harmonious chords
+        playTone(987.77, 0, 0.4, 0.15); // B5
+        playTone(1318.51, 0.05, 0.4, 0.1); // E6
+        playTone(1975.53, 0.1, 0.5, 0.05); // B6
+        
+    } catch (e) {
+        console.warn('Audio check failed', e);
+    }
+}
