@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="flex-1 flex flex-col min-w-0">
                     {/* Topbar */}
                     <header className="sticky top-0 z-40 glass border-b border-slate-200/60">
-                        <div className="flex items-center h-16 px-4 sm:px-6 gap-2 sm:gap-4">
+                        <div className="flex items-center h-16 px-2 sm:px-6 gap-1.5 sm:gap-4">
                             {/* Mobile hamburger & logo */}
                             <div className="flex lg:hidden items-center gap-3">
                                 <button 
