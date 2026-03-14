@@ -113,6 +113,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
     // If there is an inviteFromParams, reward the referrer and the new user
     if (inviteFromParams) {
         try {
+            console.log(`[Referral] Checking code: ${inviteFromParams}`);
             // We need to look up who has this invite code
             const usersRef = ref(rtdb, "users");
             const snapAll = await get(usersRef);
@@ -120,9 +121,17 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
                 const usersVal = snapAll.val();
                 const referrerId = Object.keys(usersVal).find(uid => usersVal[uid]?.inviteCode === inviteFromParams);
                 if (referrerId && referrerId !== firebaseUser.uid) {
+                    console.log(`[Referral] Found referrer: ${referrerId}`);
                     // Use the new consolidated referral processing logic
                     const { processReferral } = require("@/lib/credits");
                     await processReferral(referrerId, firebaseUser.uid);
+                    
+                    // Clear the stored invite code so it's only used once
+                    if (typeof window !== 'undefined') {
+                        localStorage.removeItem("lb_pending_invite");
+                    }
+                } else {
+                    console.warn(`[Referral] Invalid referrer or self-referral: ${inviteFromParams}`);
                 }
             }
         } catch (e) {
@@ -139,9 +148,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     useEffect(() => {
+        // Capture pending invite code from URL
+        if (typeof window !== "undefined") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const invite = urlParams.get("invite");
+            if (invite) {
+                localStorage.setItem("lb_pending_invite", invite);
+                console.log(`[Auth] Saved pending invite: ${invite}`);
+            }
+        }
+
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-                const mappedUser = await fetchUserFromDB(firebaseUser);
+                // Get pending invite from storage if not already used
+                const pendingInvite = localStorage.getItem("lb_pending_invite") || undefined;
+                
+                const mappedUser = await fetchUserFromDB(firebaseUser, pendingInvite);
                 setUser(mappedUser);
                 localStorage.setItem("lb_user", JSON.stringify(mappedUser));
                 

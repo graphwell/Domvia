@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/auth-provider";
 import { CreditNotification } from "@/components/ui/CreditNotification";
-import { triggerHaptic } from "@/lib/haptic";
+import { triggerHaptic, triggerCoinSound } from "@/lib/haptic";
 
 interface NotificationContextType {
     showReward: (amount: number) => void;
@@ -40,6 +40,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const showReward = (amount: number) => {
         setReward({ amount, id: Date.now() });
         triggerHaptic('success');
+        triggerCoinSound();
     };
 
     const showBillingPopup = (type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached', data?: any) => {
