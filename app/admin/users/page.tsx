@@ -520,7 +520,7 @@ function Users2({ className }: { className?: string }) {
 }
 
 function ManageCreditsModal({ user, onClose }: { user: UserRecord, onClose: () => void }) {
-    const [amount, setAmount] = useState<number>(0);
+    const [amount, setAmount] = useState<string | number>("");
     const [type, setType] = useState<"add" | "remove">("add");
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
@@ -582,7 +582,8 @@ function ManageCreditsModal({ user, onClose }: { user: UserRecord, onClose: () =
                             type="number"
                             min="1"
                             value={amount}
-                            onChange={(e) => setAmount(Number(e.target.value))}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0"
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none"
                         />
                     </div>
