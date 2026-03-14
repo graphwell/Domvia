@@ -73,10 +73,10 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData }
                 <RotaryPhrases />
             </div>
 
-            {/* Compact Stat Cards - Horizontal Scroll on Mobile */}
-            <div className="flex overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 gap-3 no-scrollbar">
+            {/* Compact Stat Cards - 2x2 Grid on Mobile */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {statCards.map((s) => (
-                    <Link key={s.label} href={s.href} className="min-w-[140px] flex-1">
+                    <Link key={s.label} href={s.href} className="w-full">
                         <Card hover padding="none" className="h-full py-4 px-3 flex flex-col items-center justify-center text-center">
                             <div className={`inline-flex h-8 w-8 items-center justify-center rounded-lg mb-2 ${s.color}`}>
                                 <s.icon className="h-4 w-4" />

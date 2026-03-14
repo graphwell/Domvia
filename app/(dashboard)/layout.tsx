@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </div>
                             </div>
 
-                            <div className="ml-auto flex items-center gap-2">
+                            <div className="ml-auto flex items-center gap-1 sm:gap-2">
                                 {/* Credits Counter - Mobile & Desktop */}
                                 <CreditCounter />
 
@@ -118,7 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <div 
-                            className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300"
+                            className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex h-16 items-center px-4 border-b border-slate-200 justify-between">
