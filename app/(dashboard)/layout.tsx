@@ -118,8 +118,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Main content */}
                 <div className="flex-1 flex flex-col min-w-0">
                     {/* Topbar */}
-                    <header className="sticky top-0 z-40 glass border-b border-slate-200/60">
-                        <div className="flex items-center h-16 px-2 sm:px-6 gap-1.5 sm:gap-4">
+                    <header className="sticky top-0 z-40 glass border-b border-slate-200/60 overflow-hidden">
+                        <div className="flex items-center h-16 px-2 sm:px-6 gap-1 sm:gap-4">
                             {/* Mobile hamburger & logo */}
                             <div className="flex lg:hidden items-center gap-1.5">
                                 <button 
@@ -145,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </div>
                             </div>
 
-                            <div className="ml-auto flex items-center gap-1 sm:gap-2">
+                            <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
                                 {/* Credits Counter - Mobile & Desktop */}
                                 <CreditCounter />
 
@@ -157,7 +157,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 {user && (
                                     <Link 
                                         href="/convite" 
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 hover:bg-brand-100 transition-all shadow-sm active:scale-95 animate-pulse-gentle"
+                                        className="flex items-center gap-1 px-2 sm:gap-1.5 sm:px-3 py-1.5 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 hover:bg-brand-100 transition-all shadow-sm active:scale-95 animate-pulse-gentle"
                                     >
                                         <UserPlus className="h-4 w-4" />
                                         <span className="text-[10px] font-black uppercase tracking-tight hidden sm:inline">Convide</span>

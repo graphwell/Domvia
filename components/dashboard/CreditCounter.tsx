@@ -51,7 +51,7 @@ export function CreditCounter() {
             <button 
                 onClick={() => setShowPanel(!showPanel)}
                 className={cn(
-                    "flex items-center gap-1.5 transition-all px-2.5 py-1.5 rounded-xl border group active:scale-95 duration-150 shadow-sm",
+                    "flex items-center gap-1 sm:gap-1.5 transition-all px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border group active:scale-95 duration-150 shadow-sm",
                     isCritical 
                         ? "bg-red-50 border-red-200 animate-pulse shadow-red-100" 
                         : isLow 

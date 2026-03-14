@@ -14,13 +14,13 @@ export function UserAvatar() {
             <img
                 src={user.photoURL}
                 alt={user.name}
-                className="h-9 w-9 rounded-full shadow-glow cursor-pointer object-cover"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-glow cursor-pointer object-cover"
             />
         );
     }
 
     return (
-        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-glow cursor-pointer">
+        <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white text-[10px] sm:text-sm font-bold shadow-glow cursor-pointer">
             {initials}
         </div>
     );
