@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/auth-provider";
 import { CreditNotification } from "@/components/ui/CreditNotification";
 import { triggerHaptic, triggerCoinSound } from "@/lib/haptic";
 import { rtdb } from "@/lib/firebase";
-import { ref, onValue, limitToLast, query } from "firebase/database";
+import { ref, onValue, limitToLast, query, update } from "firebase/database";
 
 export interface NotificationItem {
     id: string;
@@ -23,6 +23,7 @@ interface NotificationContextType {
     unreadCount: number;
     notifications: NotificationItem[];
     markAsRead: (id: string) => void;
+    markAllAsRead: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -96,8 +97,22 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }, [user?.id]);
 
     const markAsRead = async (id: string) => {
-        // Implementation for marking as read in RTDB would go here
-        console.log("Mark as read:", id);
+        if (!user) return;
+        const notifRef = ref(rtdb, `users/${user.id}/notifications/${id}`);
+        await update(notifRef, { read: true });
+    };
+
+    const markAllAsRead = async () => {
+        if (!user || notifications.length === 0) return;
+        const updates: any = {};
+        notifications.forEach(n => {
+            if (!n.read) {
+                updates[`users/${user.id}/notifications/${n.id}/read`] = true;
+            }
+        });
+        if (Object.keys(updates).length > 0) {
+            await update(ref(rtdb), updates);
+        }
     };
 
     const showReward = (amount: number) => {
@@ -112,7 +127,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     };
 
     return (
-        <NotificationContext.Provider value={{ showReward, showBillingPopup, unreadCount, notifications, markAsRead }}>
+        <NotificationContext.Provider value={{ showReward, showBillingPopup, unreadCount, notifications, markAsRead, markAllAsRead }}>
             {children}
             {reward && (
                 <CreditNotification 

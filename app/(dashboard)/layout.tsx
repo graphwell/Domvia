@@ -20,7 +20,7 @@ import { triggerHaptic } from "@/lib/haptic";
 import { CreditCounter } from "@/components/dashboard/CreditCounter";
 
 function NotificationBell() {
-    const { unreadCount, notifications } = useNotifications();
+    const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications();
     const [isOpen, setIsOpen] = useState(false);
     
     const toggleOpen = () => {
@@ -45,11 +45,21 @@ function NotificationBell() {
                     <div className="fixed inset-0 z-[90] bg-slate-900/10" onClick={() => setIsOpen(false)} />
                     <div className="absolute right-0 top-full mt-2 w-80 space-y-2 bg-white border border-slate-200 shadow-2xl rounded-2xl z-[110] overflow-hidden min-w-[320px] animate-fade-in">
                         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                            <h3 className="font-bold text-slate-800 text-sm">Notificações</h3>
+                            <div>
+                                <h3 className="font-bold text-slate-800 text-sm">Notificações</h3>
+                                {unreadCount > 0 && (
+                                    <span className="text-[10px] text-brand-600 font-bold">
+                                        {unreadCount} novas
+                                    </span>
+                                )}
+                            </div>
                             {unreadCount > 0 && (
-                                <span className="bg-brand-50 text-brand-600 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                                    {unreadCount} novas
-                                </span>
+                                <button 
+                                    onClick={() => markAllAsRead()}
+                                    className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-lg font-bold transition-colors"
+                                >
+                                    Ler todas
+                                </button>
                             )}
                         </div>
 
@@ -57,7 +67,11 @@ function NotificationBell() {
                             {notifications.length > 0 ? (
                                 <div className="divide-y divide-slate-50">
                                     {notifications.slice(0, 5).map((n) => (
-                                        <div key={n.id} className={cn("p-4 hover:bg-slate-50 transition-colors cursor-pointer", !n.read && "bg-brand-50/30")}>
+                                        <div 
+                                            key={n.id} 
+                                            className={cn("p-4 hover:bg-slate-50 transition-colors cursor-pointer border-l-4", n.read ? "border-transparent opacity-60" : "bg-brand-50/30 border-brand-500")}
+                                            onClick={() => markAsRead(n.id)}
+                                        >
                                             <div className="flex gap-3">
                                                 <div className={cn(
                                                     "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
