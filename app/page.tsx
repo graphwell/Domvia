@@ -37,7 +37,7 @@ import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { ToolsSection } from "@/components/landing/ToolsSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { CTASection } from "@/components/landing/CTASection";
-import { PLANS } from "@/lib/mock-data";
+import { PLANS, TOPUPS } from "@/lib/mock-data";
 
 export const metadata: Metadata = {
   title: "Domvia — Plataforma de IA para Corretores de Imóveis",
@@ -55,6 +55,7 @@ export default function Home() {
         <BenefitsSection />
         <HowItWorksSection />
         <ToolsSection />
+        <PricingSection plans={PLANS} topups={TOPUPS} />
         <CTASection />
       </main>
       <Footer />

@@ -79,12 +79,11 @@ const PERM_LABELS: { key: keyof UserPerms; label: string; icon: React.ElementTyp
     { key: "social_gen", label: "Texto para Redes Sociais", icon: BarChart2 },
 ];
 
-const PLANS = ["Trial", "Corretor Pró", "Imobiliária Start", "Imobiliária Pró", "Elite", "Lifetime"];
+const PLANS = ["Trial", "Pro", "Max", "Elite", "Lifetime"];
 const PLAN_COLOR: Record<string, string> = {
     Trial: "text-slate-500",
-    "Corretor Pró": "text-blue-600",
-    "Imobiliária Start": "text-indigo-600",
-    "Imobiliária Pró": "text-violet-600",
+    Pro: "text-blue-600",
+    Max: "text-brand-600",
     Elite: "text-amber-500",
     Lifetime: "text-emerald-600",
 };

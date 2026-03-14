@@ -1,7 +1,7 @@
 import { rtdb } from "./firebase";
 import { ref, get, update, runTransaction, serverTimestamp, push } from "firebase/database";
 
-export type PlanType = 'trial' | 'corretor_pro' | 'imobiliaria_start' | 'imobiliaria_pro' | 'max';
+export type PlanType = 'trial' | 'pro' | 'max';
 
 export interface PlanLimit {
     monthlyLimit: number;
@@ -12,65 +12,48 @@ export const PLAN_CONFIG = {
     trial: {
         id: 'trial',
         name: 'Trial',
-        creditsInbound: 10,
-        durationDays: 7,
+        creditsInbound: 100,
+        durationDays: 14,
         limits: {
             'captacao': 15,
-            'doc_gen': 2,
-            'description_gen': 5,
-            'title_gen': 5,
-            'social_gen': 5,
+            'doc_gen': 5,
+            'description_gen': 20,
+            'title_gen': 20,
+            'social_gen': 20,
             'tour_360': 0,
             'ai_chat': 10,
-            'link_gen': 5,
+            'link_gen': 10,
         }
     },
-    corretor_pro: {
-        id: 'corretor_pro',
-        name: 'Corretor Pró',
-        creditsInbound: 50,
-        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'price_1corretor_pro',
+    pro: {
+        id: 'pro',
+        name: 'Pro',
+        creditsInbound: 500,
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'price_1pro_monthly_3990',
         limits: {
             'captacao': 150,
             'doc_gen': 50,
-            'description_gen': 100,
-            'title_gen': 100,
-            'social_gen': 100,
+            'description_gen': 200,
+            'title_gen': 200,
+            'social_gen': 200,
             'tour_360': 0,
-            'ai_chat': 200,
-            'link_gen': 50,
+            'ai_chat': 100,
+            'link_gen': 100,
         }
-    },
-    imobiliaria_start: {
-        id: 'imobiliaria_start',
-        name: 'Imobiliária Start',
-        creditsInbound: 200,
-        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_AGENCY_MONTHLY || 'price_1imobiliaria_start',
-        limits: {
-            'captacao': 500,
-            'doc_gen': 200,
-            'description_gen': 500,
-            'title_gen': 500,
-            'social_gen': 500,
-            'tour_360': 10,
-            'ai_chat': 1000,
-            'link_gen': 150,
-        }
-    },
-    imobiliaria_pro: {
-        id: 'imobiliaria_pro',
-        name: 'Imobiliária Pró',
-        creditsInbound: -1,
-        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_AGENCY_PRO_MONTHLY || 'price_1imobiliaria_pro',
-        limits: {} // Unlimited
     },
     max: {
         id: 'max',
-        name: 'Elite / Lifetime',
+        name: 'Max',
         creditsInbound: 999999,
-        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'price_1max',
+        stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'price_1max_monthly_7900',
         limits: {} // Unlimited
     }
+} as const;
+
+export const TOPUP_CONFIG = {
+    'credits_100': { id: 'credits_100', credits: 100, price: 19.00, stripePriceId: 'price_1topup_100_1900' },
+    'credits_300': { id: 'credits_300', credits: 300, price: 39.00, stripePriceId: 'price_1topup_300_3900' },
+    'credits_1000': { id: 'credits_1000', credits: 1000, price: 97.00, stripePriceId: 'price_1topup_1000_9700' },
 } as const;
 
 export const TOOL_CREDIT_COSTS: Record<string, number> = {

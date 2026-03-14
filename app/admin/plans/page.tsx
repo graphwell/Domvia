@@ -46,33 +46,24 @@ const PLAN_DEFAULTS: Record<string, PlanConfig> = {
     Trial: {
         name: "Trial",
         price: 0,
-        durationDays: 7,
-        maxLinks: 5,
-        maxLeadsPerMonth: 20,
-        maxAiMessages: 30,
-        features: { ai_chat: true, links: true, docs: false, simulator: true, tours: false, description_gen: false, title_gen: false, social_gen: false },
+        durationDays: 14,
+        maxLinks: 10,
+        maxLeadsPerMonth: 50,
+        maxAiMessages: 100,
+        features: { ai_chat: true, links: true, docs: true, simulator: true, tours: false, description_gen: true, title_gen: true, social_gen: false },
     },
-    "Corretor Pró": {
-        name: "Corretor Pró",
-        price: 97,
+    Pro: {
+        name: "Pro",
+        price: 39.90,
         durationDays: 30,
-        maxLinks: 50,
-        maxLeadsPerMonth: 200,
-        maxAiMessages: 1000,
+        maxLinks: 100,
+        maxLeadsPerMonth: 500,
+        maxAiMessages: 2000,
         features: { ai_chat: true, links: true, docs: true, simulator: true, tours: false, description_gen: true, title_gen: true, social_gen: true },
     },
-    "Imobiliária Start": {
-        name: "Imobiliária Start",
-        price: 297,
-        durationDays: 30,
-        maxLinks: 150,
-        maxLeadsPerMonth: 500,
-        maxAiMessages: 2500,
-        features: { ai_chat: true, links: true, docs: true, simulator: true, tours: true, description_gen: true, title_gen: true, social_gen: true },
-    },
-    "Imobiliária Pró": {
-        name: "Imobiliária Pró",
-        price: 497,
+    Max: {
+        name: "Max",
+        price: 79.00,
         durationDays: 30,
         maxLinks: -1,
         maxLeadsPerMonth: -1,
@@ -81,7 +72,7 @@ const PLAN_DEFAULTS: Record<string, PlanConfig> = {
     },
     Elite: {
         name: "Elite",
-        price: 997,
+        price: 99.00,
         durationDays: 30,
         maxLinks: -1,
         maxLeadsPerMonth: -1,
@@ -101,9 +92,8 @@ const PLAN_DEFAULTS: Record<string, PlanConfig> = {
 
 const PLAN_ACCENT: Record<string, { gradient: string; badge: string; crown: string }> = {
     Trial: { gradient: "from-slate-500 to-slate-700", badge: "bg-slate-100 text-slate-600", crown: "text-slate-400" },
-    "Corretor Pró": { gradient: "from-blue-500 to-blue-700", badge: "bg-blue-50 text-blue-700", crown: "text-blue-500" },
-    "Imobiliária Start": { gradient: "from-indigo-500 to-indigo-700", badge: "bg-indigo-50 text-indigo-700", crown: "text-indigo-500" },
-    "Imobiliária Pró": { gradient: "from-violet-500 to-violet-700", badge: "bg-violet-50 text-violet-700", crown: "text-violet-500" },
+    Pro: { gradient: "from-blue-500 to-blue-700", badge: "bg-blue-50 text-blue-700", crown: "text-blue-500" },
+    Max: { gradient: "from-brand-500 to-brand-700", badge: "bg-brand-50 text-brand-700", crown: "text-brand-500" },
     Elite: { gradient: "from-amber-500 to-orange-600", badge: "bg-amber-50 text-amber-700", crown: "text-amber-500" },
     Lifetime: { gradient: "from-emerald-500 to-teal-700", badge: "bg-emerald-50 text-emerald-700", crown: "text-emerald-500" },
 };

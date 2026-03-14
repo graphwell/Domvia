@@ -128,6 +128,15 @@ export interface Plan {
     maxMembers?: number;
     features: PlanFeature[];
     highlighted: boolean;
+    description?: string; // Adicionado para melhor controle no landing
+}
+
+export interface TopUp {
+    id: string;
+    name: string;
+    credits: number;
+    price: number;
+    highlighted?: boolean;
 }
 
 // ── Créditos ──────────────────────────────────
