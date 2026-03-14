@@ -19,6 +19,7 @@ import { rtdb } from "@/lib/firebase";
 import { ref, push, set } from "firebase/database";
 import { notFound } from "next/navigation";
 import { triggerHaptic } from "@/lib/haptic";
+import { trackUsage } from "@/lib/usage-tracking";
 
 function toTitleCase(str: string) {
     if (!str) return "";
@@ -295,6 +296,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             };
 
             await html2pdf().set(opt).from(element).save();
+            if (user?.id) trackUsage(user.id, "doc_form_generate", { templateId });
             toast.dismiss();
             toast.success("PDF baixado com sucesso!");
         } catch (err) {

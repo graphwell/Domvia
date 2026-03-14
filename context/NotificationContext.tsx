@@ -11,7 +11,7 @@ export interface NotificationItem {
     id: string;
     title: string;
     message: string;
-    type: 'credit' | 'system' | 'lead' | 'achievement';
+    type: 'credit' | 'system' | 'lead' | 'achievement' | 'engagement';
     timestamp: number;
     read: boolean;
     amount?: number;
@@ -29,6 +29,7 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 import { BillingPopups } from "@/components/ui/BillingPopups";
+import { checkEngagement } from "@/lib/engagement";
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
     const { user } = useAuth();
@@ -94,6 +95,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         });
 
         return () => unsubscribe();
+    }, [user?.id]);
+
+    // Engagement triggers
+    useEffect(() => {
+        if (user) {
+            checkEngagement(user);
+        }
     }, [user?.id]);
 
     const markAsRead = async (id: string) => {

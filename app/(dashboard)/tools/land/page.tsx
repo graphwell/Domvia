@@ -5,6 +5,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ArrowLeft, Ruler, Copy, CheckCheck, Info } from "lucide-react";
+import { useAuth } from "@/hooks/auth-provider";
+import { trackUsage } from "@/lib/usage-tracking";
+import { useEffect } from "react";
 
 // ── Helpers ──────────────────────────────────────────────
 function calcRetangle(w: number, l: number) { return w * l; }
@@ -143,6 +146,14 @@ export default function LandCalculatorPage() {
         if (shape === "irregular") return calcIrregular(points);
         return 0;
     })();
+
+    const { user } = useAuth();
+
+    useEffect(() => {
+        if (area > 0 && user?.id) {
+            trackUsage(user.id, "calculator_land", { area, shape });
+        }
+    }, [area, shape, user?.id]);
 
     return (
         <div className="max-w-2xl mx-auto space-y-6 pb-20">

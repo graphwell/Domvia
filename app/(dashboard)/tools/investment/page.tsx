@@ -5,6 +5,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ArrowLeft, TrendingUp, Info, Share2 } from "lucide-react";
+import { useAuth } from "@/hooks/auth-provider";
+import { trackUsage } from "@/lib/usage-tracking";
+import { useEffect } from "react";
 
 const fmt = (v: number, style: "currency" | "percent" | "decimal" = "currency") =>
     v.toLocaleString("pt-BR", {
@@ -115,6 +118,14 @@ export default function InvestmentSimulatorPage() {
             return { totalCost, netSale, profit, roi, irpf, netProfit };
         }
     }, [mode, propertyValue, monthlyRent, condoFee, iptu, vacancyRate, maintenanceRate, administrationFee, appreciationRate, years, purchasePrice, salePrice, purchaseCost, saleCost]);
+
+    const { user } = useAuth();
+
+    useEffect(() => {
+        if (user?.id) {
+            trackUsage(user.id, "calculator_investment", { mode });
+        }
+    }, [mode, user?.id]);
 
     const handleShare = () => {
         let text = "";

@@ -25,6 +25,7 @@ const NAV_ITEMS = [
     { name: "Planos & Preços", href: "/admin/plans", icon: CreditCard },
     { name: "Métricas Globais", href: "/admin/metrics", icon: Activity },
     { name: "Sugestões", href: "/admin/suggestions", icon: MessageSquare },
+    { name: "Inteligência", href: "/admin/engagement", icon: Bot },
 ];
 
 // ── Breadcrumb helper ─────────────────────────────────────────────
@@ -36,6 +37,7 @@ const ROUTE_LABELS: Record<string, string> = {
     "/admin/plans": "Planos & Preços",
     "/admin/metrics": "Métricas Globais",
     "/admin/suggestions": "Sugestões",
+    "/admin/engagement": "Inteligência",
 };
 
 function Breadcrumb({ pathname }: { pathname: string }) {

@@ -17,6 +17,7 @@ import Link from "next/link";
 import { analyzeCaptureImage } from "@/lib/ai";
 import { toast } from "sonner";
 import { triggerHaptic } from "@/lib/haptic";
+import { trackUsage } from "@/lib/usage-tracking";
 
 // ── Compression Helper ──
 function compressImage(base64Str: string, maxWidth = 1200, quality = 0.7): Promise<string> {
@@ -222,6 +223,7 @@ export function CaptacaoClient() {
                     });
 
                     await Promise.all(savePromises);
+                    trackUsage(user.id, "lead_captured", { source: "smart_capture", count: validCaptures.length });
                     toast.success(`${validCaptures.length} captaç${validCaptures.length > 1 ? 'ões' : 'ão'} salva${validCaptures.length > 1 ? 's' : ''} com sucesso!`);
                     resetCapture();
                     return;
