@@ -128,7 +128,8 @@ export interface Plan {
     maxMembers?: number;
     features: PlanFeature[];
     highlighted: boolean;
-    description?: string; // Adicionado para melhor controle no landing
+    description?: string;
+    badge?: string;
 }
 
 export interface TopUp {

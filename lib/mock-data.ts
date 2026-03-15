@@ -9,6 +9,7 @@ export const PLANS: Plan[] = [
         creditsPerMonth: 100,
         maxLinks: 10,
         highlighted: false,
+        badge: "TRIAL",
         description: "Grátis por 14 dias — sem cartão",
         features: [
             { label: "100 créditos para começar", included: true },
@@ -26,6 +27,7 @@ export const PLANS: Plan[] = [
         creditsPerMonth: 500,
         maxLinks: 100,
         highlighted: true,
+        badge: "PRO",
         description: "Para corretores em crescimento",
         features: [
             { label: "500 créditos mensais", included: true },
@@ -33,8 +35,8 @@ export const PLANS: Plan[] = [
             { label: "50 documentos/mês", included: true },
             { label: "100 links de campanha", included: true },
             { label: "Landing Page do Imóvel (2 créditos)", included: true },
-            { label: "IA especialista (100 sessões)", included: true },
-            { label: "Créditos expiram no ciclo", included: true },
+            { label: "IA especialista (100 sessions)", included: true },
+            { label: "Créditos do plano expiram no ciclo", included: true },
         ],
     },
     {
@@ -42,13 +44,14 @@ export const PLANS: Plan[] = [
         name: "Max",
         type: "individual",
         price: 79.00,
-        creditsPerMonth: 999999,
+        creditsPerMonth: 10000,
         maxLinks: -1,
         highlighted: false,
+        badge: "ELITE",
         description: "Para quem não para de vender",
         features: [
             { label: "Tudo ILIMITADO", included: true },
-            { label: "Landing Page (Sem custo)", included: true },
+            { label: "Landing Page do Imóvel (Sem custo)", included: true },
             { label: "Sem cobrança de créditos", included: true },
             { label: "Prioridade no suporte", included: true },
             { label: "Acesso antecipado a novas IAs", included: true },

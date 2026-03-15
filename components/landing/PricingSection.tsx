@@ -61,10 +61,10 @@ export function PricingSection({ plans, topups }: { plans: Plan[], topups: TopUp
                                         : "border-slate-200 bg-white/80 backdrop-blur-sm"
                                 }`}
                             >
-                                {plan.highlighted && (
+                                {plan.badge && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                                         <Badge variant="brand" className="px-5 py-1.5 text-[10px] uppercase font-black bg-brand-600 text-white shadow-lg ring-2 ring-white">
-                                            Mais Popular
+                                            {plan.highlighted ? "Mais Popular" : plan.badge}
                                         </Badge>
                                     </div>
                                 )}
