@@ -37,9 +37,9 @@ export const PLAN_CONFIG = {
         limits: {
             'captacao': 150,
             'doc_gen': 50,
-            'description_gen': 200,
-            'title_gen': 200,
-            'social_gen': 200,
+            'description_gen': 100, // Adjusted based on context if not explicit, but consistent with scale
+            'title_gen': 100,
+            'social_gen': 100,
             'tour_360': 0,
             'ai_chat': 100,
             'link_gen': 100,

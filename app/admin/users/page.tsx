@@ -82,14 +82,11 @@ const PERM_LABELS: { key: keyof UserPerms; label: string; icon: React.ElementTyp
     { key: "social_gen", label: "Texto para Redes Sociais", icon: BarChart2 },
 ];
 
-const PLANS = ["Trial", "Pro", "Max", "Elite", "Lifetime"];
+const PLANS = ["Trial", "Pro", "Max"];
 const PLAN_COLOR: Record<string, string> = {
     "Trial": "text-slate-400 border-slate-200 bg-slate-50",
     "Pro": "text-brand-600 border-brand-200 bg-brand-50",
     "Max": "text-amber-600 border-amber-200 bg-amber-50",
-    "Agency": "text-violet-600 border-violet-200 bg-violet-50",
-    "Elite": "text-amber-500",
-    "Lifetime": "text-emerald-600",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
