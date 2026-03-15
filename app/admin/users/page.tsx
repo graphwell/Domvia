@@ -13,7 +13,7 @@ import {
     Mail, Calendar, BarChart2, Clock, ShieldCheck,
     ChevronRight, Gift, AlertTriangle, TrendingUp, MessageSquare,
     FileText, Calculator, Link2, Camera, Copy, CheckCircle, Coins, Users,
-    Sparkles
+    Sparkles, Send
 } from "lucide-react";
 import { forceEngagement } from "@/lib/engagement";
 
@@ -457,6 +457,27 @@ export default function AdminUsersPage() {
                                                     className="p-1.5 rounded-lg text-slate-400 hover:bg-violet-50 hover:text-violet-600 transition-colors"
                                                 >
                                                     <Sparkles className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={async () => {
+                                                        const res = await fetch('/api/admin/push', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                userId: u.id,
+                                                                title: "Domvia Intelligence ✨",
+                                                                body: "Ei, percebemos que você está sumido! Que tal revisar seus leads hoje?",
+                                                                data: { url: '/notifications' }
+                                                            })
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.success) alert("Push de FUNDO (App Fechado) enviado!");
+                                                        else alert("Erro: " + data.error);
+                                                    }}
+                                                    title="Enviar Push Real (App Fechado/Fundo)"
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                                                >
+                                                    <Send className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => { setSelected(u); setModal("edit"); }}
