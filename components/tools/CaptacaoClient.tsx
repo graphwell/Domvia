@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useLanguage } from "@/hooks/use-language";
 import { 
     Loader2, CheckCircle2, History, ChevronLeft, Save, Edit2, Play, Pause, Camera,
-    MapPin, Phone, MessageSquare, Trash2, Download
+    MapPin, Phone, MessageSquare, Trash2, Download, Printer
 } from "lucide-react";
 import Link from "next/link";
 import { analyzeCaptureImage } from "@/lib/ai";
@@ -322,6 +322,11 @@ export function CaptacaoClient() {
         }, 1500);
     };
 
+    const handlePrint = () => {
+        triggerHaptic('light');
+        window.print();
+    };
+
     const handleExportCSV = async () => {
         if (!user?.id || captures.length === 0) return;
 
@@ -523,67 +528,71 @@ export function CaptacaoClient() {
                             </div>
                             <div className="flex items-center gap-1.5 text-xs font-bold bg-white/10 px-3 py-1.5 rounded-full">
                                 <MapPin className="h-3.5 w-3.5" /> Auto GPS
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* History */}
-                    <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <h3 className="font-display font-bold text-slate-800 flex items-center gap-2">
-                                <History className="h-5 w-5 text-slate-400" />
-                                Minhas Captações
-                                <Badge variant="outline" className="bg-slate-50 ml-2">{captures.length}/20</Badge>
-                            </h3>
-                            
-                            <div className="flex items-center gap-2">
-                                {/* Filter Bar */}
-                                {captures.length > 0 && (
-                                    <div className="flex bg-slate-100 p-1 rounded-xl shrink-0 w-full sm:w-auto overflow-x-auto scrollbar-hide">
-                                        <button
-                                            onClick={() => setFilterIntent("todos")}
-                                            className={`flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filterIntent === "todos" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                                        >
-                                            Todos
-                                        </button>
-                                        <button
-                                            onClick={() => setFilterIntent("vende")}
-                                            className={`flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filterIntent === "vende" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                                        >
-                                            Venda
-                                        </button>
-                                        <button
-                                            onClick={() => setFilterIntent("aluga")}
-                                            className={`flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filterIntent === "aluga" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                                        >
-                                            Aluguel
-                                        </button>
-                                    </div>
-                                )}
-
-                                {/* Export Button */}
-                                {captures.length > 0 && (
-                                    <Button size="sm" variant="outline" onClick={handleExportCSV} className="hidden sm:flex shrink-0 border-brand-200 text-brand-700 hover:bg-brand-50" leftIcon={<Download className="h-4 w-4" />}>
-                                        Exportar CSV
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Mobile Export Button */}
+                            </            {/* History */}
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
+                    <h3 className="font-display font-bold text-slate-800 flex items-center gap-2">
+                        <History className="h-5 w-5 text-slate-400" />
+                        Minhas Captações
+                        <Badge variant="outline" className="bg-slate-50 ml-2">{captures.length}/20</Badge>
+                    </h3>
+                    
+                    <div className="flex flex-wrap items-center gap-2">
+                        {/* Filter Bar */}
                         {captures.length > 0 && (
-                            <Button size="sm" variant="outline" onClick={handleExportCSV} className="w-full sm:hidden flex border-brand-200 text-brand-700 hover:bg-brand-50" leftIcon={<Download className="h-4 w-4" />}>
+                            <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto scrollbar-hide">
+                                <button
+                                    onClick={() => setFilterIntent("todos")}
+                                    className={`flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filterIntent === "todos" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                                >
+                                    Todos
+                                </button>
+                                <button
+                                    onClick={() => setFilterIntent("vende")}
+                                    className={`flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filterIntent === "vende" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                                >
+                                    Venda
+                                </button>
+                                <button
+                                    onClick={() => setFilterIntent("aluga")}
+                                    className={`flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filterIntent === "aluga" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                                >
+                                    Aluguel
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        {captures.length > 0 && (
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <Button size="sm" variant="outline" onClick={handlePrint} className="flex-1 sm:flex-none" leftIcon={<Printer className="h-4 w-4" />}>
+                                    PDF
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={handleExportCSV} className="flex-1 sm:flex-none border-brand-200 text-brand-700 hover:bg-brand-50" leftIcon={<Download className="h-4 w-4" />}>
+                                    Planilha
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                            </div>
+                        </div>
+
+                        {/* Mobile Export Button - Hide in print as we have unified buttons above */}
+                        {captures.length > 0 && (
+                            <Button size="sm" variant="outline" onClick={handleExportCSV} className="w-full sm:hidden flex border-brand-200 text-brand-700 hover:bg-brand-50 print:hidden">
                                 Exportar para Planilha (CSV)
                             </Button>
                         )}
 
                         {historyLoading ? (
-                            <div className="flex flex-col items-center py-12 gap-3">
+                            <div className="flex flex-col items-center py-12 gap-3 print:hidden">
                                 <Loader2 className="h-8 w-8 text-brand-500 animate-spin" />
                                 <p className="text-slate-500 text-sm">Carregando histórico...</p>
                             </div>
                         ) : captures.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-4">
+                            <div className="grid grid-cols-1 gap-4 print:grid-cols-2">
                                 {captures.filter(c => {
                                     if (filterIntent === "todos") return true;
                                     if (!c.intent) return false;
@@ -592,12 +601,12 @@ export function CaptacaoClient() {
                                     if (filterIntent === "aluga" && rawIntent.includes("alug")) return true;
                                     return false;
                                 }).map((cap) => (
-                                    <Card key={cap.id} padding="none" className="overflow-hidden group hover:shadow-md transition-shadow border-slate-200">
+                                    <Card key={cap.id} padding="none" className="overflow-hidden group hover:shadow-md transition-shadow border-slate-200 print:shadow-none">
                                         <div className="flex flex-col sm:flex-row">
                                             {/* Thumbnail */}
-                                            <div className="w-full sm:w-48 aspect-video sm:aspect-square relative overflow-hidden bg-slate-100 shrink-0">
+                                            <div className="w-full sm:w-48 aspect-video sm:aspect-square relative overflow-hidden bg-slate-100 shrink-0 print:w-32 print:h-32">
                                                 <img src={cap.imageUrl} alt="Capture" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                                                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors print:hidden" />
                                             </div>
                                             
                                             {/* Content */}
@@ -623,7 +632,7 @@ export function CaptacaoClient() {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="flex gap-1 shrink-0">
+                                                        <div className="flex gap-1 shrink-0 print:hidden">
                                                             <button onClick={() => handleDelete(cap.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                                                                 <Trash2 className="h-4 w-4" />
                                                             </button>
@@ -649,7 +658,7 @@ export function CaptacaoClient() {
                                                     {/* Notes */}
                                                     <div className="mt-2 text-sm text-slate-600 bg-slate-50 rounded-xl p-3 border border-slate-100">
                                                         {editingNoteId === cap.id ? (
-                                                            <div className="space-y-2">
+                                                            <div className="space-y-2 print:hidden">
                                                                 <textarea
                                                                     className="w-full text-sm border-slate-200 rounded-lg p-2 focus:ring-brand-500"
                                                                     value={tempNote}
@@ -668,7 +677,7 @@ export function CaptacaoClient() {
                                                                 </p>
                                                                 <button
                                                                     onClick={() => handleStartEditNote(cap)}
-                                                                    className="absolute top-0 right-0 p-1 opacity-0 group-hover/note:opacity-100 text-brand-600 hover:bg-brand-50 rounded transition-all"
+                                                                    className="absolute top-0 right-0 p-1 opacity-0 group-hover/note:opacity-100 text-brand-600 hover:bg-brand-50 rounded transition-all print:hidden"
                                                                 >
                                                                     <Edit2 className="h-3 w-3" />
                                                                 </button>
@@ -678,7 +687,7 @@ export function CaptacaoClient() {
                                                 </div>
 
                                                 {/* Actions */}
-                                                <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                                                <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100 print:hidden">
                                                     {cap.phones[0] ? (
                                                         <>
                                                             <Button size="sm" variant="secondary" onClick={() => handleWhatsApp(cap.phones[0], cap.id)} className="flex-1 gap-1.5 h-9 bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100">

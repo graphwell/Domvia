@@ -9,14 +9,30 @@ import { formatCurrency } from "@/lib/utils";
 import {
     Plus, Link2, Copy, Eye, Users, MessageSquare,
     Calculator, ExternalLink, MoreVertical, Search, CheckCheck, 
-    MousePointer2, LayoutTemplate
+    MousePointer2, LayoutTemplate, Trash2, Printer, Download
 } from "lucide-react";
 import Link from "next/link";
 import { triggerHaptic } from "@/lib/haptic";
+import { rtdb } from "@/lib/firebase";
+import { ref, remove } from "firebase/database";
+import { toast } from "sonner";
 
 export function LinksList({ links }: { links: CampaignLink[] }) {
     const [search, setSearch] = useState("");
     const [copied, setCopied] = useState<string | null>(null);
+
+    const handleDeleteLink = async (id: string, title: string) => {
+        if (!confirm(`Tem certeza que deseja excluir o link "${title}"? Esta ação não pode ser desfeita.`)) return;
+        
+        triggerHaptic('medium');
+        try {
+            await remove(ref(rtdb, `links/${id}`));
+            toast.success("Link excluído com sucesso.");
+        } catch (err) {
+            toast.error("Erro ao excluir link.");
+            console.error(err);
+        }
+    };
 
     const filtered = links.filter((l) =>
         l.title.toLowerCase().includes(search.toLowerCase())
@@ -31,27 +47,68 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
         setTimeout(() => setCopied(null), 2000);
     };
 
+    const handlePrint = () => {
+        triggerHaptic('light');
+        window.print();
+    };
+
+    const handleExportCSV = () => {
+        if (links.length === 0) return;
+        triggerHaptic('light');
+
+        const headers = ["Título", "Preço", "Slug", "IA Visitas", "IA Perguntas", "Status", "LP Ativa", "LP Visitas", "LP Cliques"];
+        const rows = filtered.map(l => [
+            `"${l.title.replace(/"/g, '""')}"`,
+            l.price || 0,
+            l.slug,
+            l.visits || 0,
+            l.aiQuestions || 0,
+            l.status === 'active' ? 'Ativo' : 'Pausado',
+            l.landing_enabled ? 'Sim' : 'Não',
+            l.landing_views || 0,
+            l.landing_cta_clicks || 0
+        ].join(","));
+
+        const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `meus_links_domvia_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Planilha exportada com sucesso!");
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between print:hidden">
                 <div>
                     <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">Meus Links</h1>
                     <p className="text-slate-500 text-sm mt-1">{links.length} link(s) ativo(s)</p>
                 </div>
-                <Link href="/links/new" onClick={() => triggerHaptic('light')}>
-                    <Button leftIcon={<Plus className="h-4 w-4" />}>Criar Novo Link</Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={handlePrint} className="hidden sm:flex" leftIcon={<Printer className="h-4 w-4" />}>
+                        Imprimir / PDF
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExportCSV} className="hidden sm:flex" leftIcon={<Download className="h-4 w-4" />}>
+                        Exportar CSV
+                    </Button>
+                    <Link href="/links/new" onClick={() => triggerHaptic('light')}>
+                        <Button leftIcon={<Plus className="h-4 w-4" />}>Criar Novo Link</Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Instrução */}
-            <div className="rounded-2xl bg-brand-50 border border-brand-200 p-4 text-sm text-brand-800">
+            <div className="rounded-2xl bg-brand-50 border border-brand-200 p-4 text-sm text-brand-800 print:hidden">
                 <p className="font-semibold mb-1">💡 Como funciona</p>
                 <p className="text-brand-700">Crie um link para cada anúncio e compartilhe no Instagram, WhatsApp ou qualquer rede social. Quando o cliente acessar, verá a IA especialista + calculadora + botão de contato.</p>
             </div>
 
             {/* Search */}
-            <div className="relative">
+            <div className="relative print:hidden">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                     type="search"
@@ -160,10 +217,21 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
                             {/* Actions */}
                             <div className="flex items-center gap-1 sm:ml-2">
                                 <Link href={`/lead/${link.slug}`} target="_blank">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-brand-600">
                                         <ExternalLink className="h-3.5 w-3.5" />
                                     </Button>
                                 </Link>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleDeleteLink(link.id, link.title);
+                                    }}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
                             </div>
                         </div>
                     </Card>

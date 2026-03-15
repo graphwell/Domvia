@@ -3,9 +3,13 @@
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import type { Lead } from "@/types";
-import { Users, MessageSquare, Calculator, Clock, Phone } from "lucide-react";
+import { Users, MessageSquare, Calculator, Clock, Phone, Trash2, Printer, Download } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 import { triggerHaptic } from "@/lib/haptic";
+import { rtdb } from "@/lib/firebase";
+import { ref, set } from "firebase/database";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
 
 export function LeadsList({ leads }: { leads: Lead[] }) {
     const totalLeads = leads.length;
@@ -20,11 +24,71 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
         { label: "Tempo Médio", value: `${avgTime}s`, icon: Clock, color: "text-gold-600 bg-gold-50" },
     ];
 
+    const handleDeleteLead = async (id: string, name: string) => {
+        if (!confirm(`Tem certeza que deseja excluir o lead "${name || 'Visitante'}"?`)) return;
+        
+        triggerHaptic('medium');
+        try {
+            await set(ref(rtdb, `leads/${id}`), null);
+            toast.success("Lead excluído com sucesso.");
+        } catch (err) {
+            toast.error("Erro ao excluir lead.");
+            console.error(err);
+        }
+    };
+
+    const handlePrint = () => {
+        triggerHaptic('light');
+        window.print();
+    };
+
+    const handleExportCSV = () => {
+        if (leads.length === 0) return;
+        triggerHaptic('light');
+
+        const headers = ["Nome", "WhatsApp", "Anúncio", "Status", "Interações", "Data"];
+        const rows = leads.map(l => {
+            const interactions = [
+                l.usedChat ? 'IA' : '',
+                l.usedCalculator ? 'Simulador' : ''
+            ].filter(Boolean).join(" | ");
+
+            return [
+                `"${(l.name ?? 'Visitante') + ' ' + (l.lastName ?? '')}"`,
+                l.phone ?? "N/I",
+                `"${(l.linkTitle ?? '').replace(/"/g, '""')}"`,
+                l.status === 'new' ? 'Novo' : l.status === 'qualified' ? 'Qualificado' : 'Contatado',
+                `"${interactions}"`,
+                new Date(l.createdAt).toLocaleString('pt-BR')
+            ].join(",");
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `leads_domvia_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Lista de leads exportada!");
+    };
+
     return (
         <div className="space-y-6">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">Leads</h1>
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between print:hidden">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">Leads</h1>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={handlePrint} className="hidden sm:flex" leftIcon={<Printer className="h-4 w-4" />}>
+                        Imprimir / PDF
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExportCSV} className="hidden sm:flex" leftIcon={<Download className="h-4 w-4" />}>
+                        Exportar CSV
+                    </Button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-4">
                 {stats.map((s) => (
                     <Card key={s.label} padding="md">
                         <div className={`inline-flex h-9 w-9 items-center justify-center rounded-xl mb-2 ${s.color}`}>
@@ -47,6 +111,7 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
                                 <th className="text-left px-4 py-3 font-medium text-slate-600 hidden md:table-cell">Status</th>
                                 <th className="text-left px-4 py-3 font-medium text-slate-600 hidden lg:table-cell">Interações</th>
                                 <th className="text-left px-4 py-3 font-medium text-slate-600">Data</th>
+                                <th className="text-center px-4 py-3 font-medium text-slate-600 print:hidden">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,7 +119,7 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
                                 <tr 
                                     key={lead.id} 
                                     onClick={() => triggerHaptic('light')}
-                                    className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                                    className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group"
                                 >
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
@@ -89,6 +154,19 @@ export function LeadsList({ leads }: { leads: Lead[] }) {
                                     </td>
                                     <td className="px-4 py-3 text-xs text-slate-400">
                                         {formatRelativeDate(lead.createdAt)}
+                                    </td>
+                                    <td className="px-4 py-3 text-center print:hidden">
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteLead(lead.id, `${lead.name ?? ''} ${lead.lastName ?? ''}`.trim());
+                                            }}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
