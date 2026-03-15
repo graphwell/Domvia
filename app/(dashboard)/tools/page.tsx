@@ -1,14 +1,18 @@
-import type { Metadata } from "next";
+"use client";
+
+import { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { FileText, Type, Instagram, Calculator, Camera, ArrowRight, Key, Ruler, TrendingUp, FolderOpen, Bot } from "lucide-react";
-
-export const metadata: Metadata = { title: "Ferramentas de IA" };
+import { FileText, Type, Instagram, Calculator, Camera, ArrowRight, Key, Ruler, TrendingUp, FolderOpen, Bot, Coins } from "lucide-react";
+import { useAuth } from "@/hooks/auth-provider";
+import { useState, useEffect } from "react";
+import { getToolCostDynamic } from "@/lib/billing";
 
 const tools = [
     {
+        id: "doc_gen",
         icon: FolderOpen,
         name: "Gerador de Documentos",
         description: "10 documentos imobiliários pré-prontos: recibos, autorizações, propostas, fichas e mais. Via formulário ou Inteligência Artificial.",
@@ -18,6 +22,7 @@ const tools = [
         color: "text-brand-600 bg-brand-50",
     },
     {
+        id: "description_gen",
         icon: FileText,
         name: "Gerador de Descrição",
         description: "IA gera uma descrição profissional e persuasiva para o seu imóvel com base nas características principais.",
@@ -27,6 +32,7 @@ const tools = [
         color: "text-brand-600 bg-brand-50",
     },
     {
+        id: "title_gen",
         icon: Type,
         name: "Sugestão de Títulos",
         description: "Gere títulos de alto impacto para anúncios no Zap, VivaReal, Instagram e outros portais.",
@@ -36,6 +42,7 @@ const tools = [
         color: "text-purple-600 bg-purple-50",
     },
     {
+        id: "social_gen",
         icon: Instagram,
         name: "Texto para Redes Sociais",
         description: "Crie captions completos para Instagram, Facebook e WhatsApp, com hashtags e emojis incluídos.",
@@ -45,6 +52,7 @@ const tools = [
         color: "text-pink-600 bg-pink-50",
     },
     {
+        id: "finance",
         icon: Calculator,
         name: "Simulador de Financiamento",
         description: "Calcule parcelas e cenários de financiamento. Perfeito para enviar para clientes via WhatsApp.",
@@ -54,6 +62,7 @@ const tools = [
         color: "text-emerald-600 bg-emerald-50",
     },
     {
+        id: "tour_360",
         icon: Camera,
         name: "Tour Virtual 360°",
         description: "Crie tours virtuais imersivos por ambiente. Clientes visitam o imóvel sem sair de casa.",
@@ -63,6 +72,7 @@ const tools = [
         color: "text-gold-600 bg-gold-50",
     },
     {
+        id: "terrain",
         icon: Ruler,
         name: "Calculadora de Terreno",
         description: "Calcule a área de terrenos em qualquer formato: retangular, triangular, trapézio ou irregular (fórmula de Gauss). Converte para hectares, alqueires e pés quadrados.",
@@ -72,6 +82,7 @@ const tools = [
         color: "text-lime-600 bg-lime-50",
     },
     {
+        id: "captacao",
         icon: Camera,
         name: "Captação Inteligente",
         description: "Capture fotos de placas e a IA identifica telefones e cria registros automáticos com localização.",
@@ -81,6 +92,7 @@ const tools = [
         color: "text-brand-600 bg-brand-50",
     },
     {
+        id: "rentability",
         icon: TrendingUp,
         name: "Rentabilidade do Imóvel",
         description: "Simule o retorno real de um imóvel para aluguel (yield, payback, valorização) ou compra e venda (ROI, IRPF, lucro líquido).",
@@ -90,6 +102,27 @@ const tools = [
         color: "text-teal-600 bg-teal-50",
     },
 ];
+
+function ToolBadge({ toolId, fallbackBadge, fallbackVariant }: { toolId: string, fallbackBadge: string, fallbackVariant: any }) {
+    const { user } = useAuth();
+    const [cost, setCost] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (user?.planId) {
+            getToolCostDynamic(toolId, user.planId).then(setCost);
+        }
+    }, [toolId, user?.planId]);
+
+    if (cost === null) return <Badge variant={fallbackVariant}>{fallbackBadge}</Badge>;
+    if (cost === 0) return <Badge variant="success">Grátis</Badge>;
+
+    return (
+        <Badge variant="gold" className="flex items-center gap-1">
+            <Coins className="h-3 w-3" />
+            {cost} {cost === 1 ? 'Crédito' : 'Créditos'}
+        </Badge>
+    );
+}
 
 export default function ToolsPage() {
     return (
@@ -107,7 +140,11 @@ export default function ToolsPage() {
                                 <div className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${tool.color}`}>
                                     <tool.icon className="h-6 w-6" />
                                 </div>
-                                <Badge variant={tool.badgeVariant}>{tool.badge}</Badge>
+                                <ToolBadge 
+                                    toolId={tool.id} 
+                                    fallbackBadge={tool.badge} 
+                                    fallbackVariant={tool.badgeVariant} 
+                                />
                             </div>
                             <h2 className="font-display text-lg font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
                                 {tool.name}
