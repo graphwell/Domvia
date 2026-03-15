@@ -8,11 +8,12 @@ import { ref, push, set } from "firebase/database";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowLeft, Save, Link2, Sparkles, Plus, Trash2, Image as ImageIcon, Info, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Link2, Sparkles, Plus, Trash2, Image as ImageIcon, Info, Loader2, Eye, MapPin, CheckCircle2, ChevronRight, Home } from "lucide-react";
 import Link from "next/link";
 import { triggerHaptic } from "@/lib/haptic";
 import { useToolAccess } from "@/hooks/use-tool-access";
 import { toast } from "sonner";
+import { Modal } from "@/components/ui/Modal";
 
 function generateSlug(title: string): string {
     return title
@@ -44,6 +45,8 @@ export default function NewLinkPage() {
     const [landingBullets, setLandingBullets] = useState<string[]>(["", "", ""]);
     const [landingShowLogo, setLandingShowLogo] = useState(true);
     const [generatingCopy, setGeneratingCopy] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+    const [activePhoto, setActivePhoto] = useState(0);
 
     const planId = (user?.planId || user?.plan || "").toLowerCase();
     const isProOrMax = planId === "pro" || planId === "max";
@@ -273,6 +276,18 @@ export default function NewLinkPage() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <h2 className="font-display font-bold text-slate-800">Página de Destino (Landing Page)</h2>
+                            {landingEnabled && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        triggerHaptic('light');
+                                        setShowPreview(true);
+                                    }}
+                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors text-[10px] font-black uppercase tracking-widest border border-slate-200"
+                                >
+                                    <Eye className="h-3 w-3" /> Pré-visualizar
+                                </button>
+                            )}
                             {!isProOrMax && (
                                 <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-amber-100">
                                     <Info className="h-3 w-3" /> PRO/MAX
@@ -419,15 +434,134 @@ export default function NewLinkPage() {
                     )}
                 </Card>
 
-                <div className="flex gap-3 justify-end">
-                    <Link href="/links">
-                        <Button variant="outline" type="button">Cancelar</Button>
-                    </Link>
-                    <Button type="submit" loading={loading} leftIcon={<Save className="h-4 w-4" />}>
-                        Criar Link
-                    </Button>
-                </div>
             </form>
+
+            <Modal 
+                isOpen={showPreview} 
+                onClose={() => setShowPreview(false)} 
+                className="max-w-md p-0 overflow-hidden bg-slate-50"
+                showClose={false}
+            >
+                <div className="relative h-screen max-h-[85vh] overflow-y-auto scrollbar-hide pb-32">
+                    {/* Header / Navigation Overlay */}
+                    <div className="absolute top-0 inset-x-0 z-50 p-4 flex items-center justify-between pointer-events-none">
+                        <button 
+                             onClick={() => setShowPreview(false)}
+                             className="w-10 h-10 rounded-full bg-slate-900/20 backdrop-blur-md flex items-center justify-center text-white border border-white/10 pointer-events-auto"
+                        >
+                            <ArrowLeft className="h-5 w-5" />
+                        </button>
+                    </div>
+
+                    {/* Hero / Cover Photo */}
+                    <div className="relative h-[55vh] w-full bg-slate-200">
+                        {landingPhotos.length > 0 ? (
+                            <img 
+                                src={landingPhotos[activePhoto]} 
+                                className="w-full h-full object-cover" 
+                                alt="Preview" 
+                            />
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-slate-100">
+                                <ImageIcon className="h-8 w-8 opacity-20" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Sem fotos</span>
+                            </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+                        
+                        <div className="absolute bottom-8 left-0 right-0 px-6 space-y-2">
+                            <Badge className="bg-brand-600 border-none px-3 py-1 text-white">Oportunidade</Badge>
+                            <h1 className="text-2xl font-black text-white font-display leading-tight">{form.title || "Título do Imóvel"}</h1>
+                            <div className="flex items-center gap-2 text-white/80 text-xs">
+                                <MapPin className="h-3.5 w-3.5" />
+                                <span>Excelente localização</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Photo Gallery (Carousel) */}
+                    {landingPhotos.length > 0 && (
+                        <div className="px-4 -mt-6 relative z-10 flex gap-2 overflow-x-auto pb-4 pt-2 scrollbar-hide snap-x">
+                            {landingPhotos.map((photo, i) => (
+                                <button 
+                                    key={i} 
+                                    onClick={() => setActivePhoto(i)}
+                                    className={`relative w-20 aspect-video rounded-xl overflow-hidden shrink-0 border-2 transition-all snap-start ${activePhoto === i ? "border-brand-500 scale-105" : "border-white"}`}
+                                >
+                                    <img src={photo} className="w-full h-full object-cover" alt={`Miniatura ${i}`} />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Content Section */}
+                    <main className="px-6 space-y-6 mt-4">
+                        {/* Price & Badge */}
+                        <div className="flex items-center justify-between">
+                            {form.price ? (
+                                <div>
+                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Investimento</p>
+                                    <p className="text-xl font-black text-brand-600">R$ {Number(form.price).toLocaleString("pt-BR")}</p>
+                                </div>
+                            ) : (
+                                <div className="h-10" />
+                            )}
+                            <div className="flex flex-col items-end">
+                                <p className="text-[9px] text-slate-400 font-medium tracking-tight">Anunciado por</p>
+                                <p className="font-bold text-slate-800 text-xs">{user?.name || "Corretor"}</p>
+                            </div>
+                        </div>
+
+                        {/* IA Description */}
+                        <div className="space-y-3">
+                            <h2 className="text-lg font-black text-slate-900 leading-tight uppercase italic tracking-tighter">{landingHeadline || "Headline do Imóvel"}</h2>
+                            <p className="text-slate-500 leading-relaxed text-xs font-medium">{landingDescription || "Descrição persuasiva gerada pela IA..."}</p>
+                        </div>
+
+                        {/* Bullets */}
+                        <div className="grid grid-cols-1 gap-2.5">
+                            {landingBullets.filter(b => b.trim() !== "").map((bullet, i) => (
+                                <div key={i} className="flex items-start gap-3 bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm">
+                                    <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                    </div>
+                                    <span className="text-slate-700 font-bold text-xs leading-snug">{bullet}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Broker Info Card */}
+                        <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
+                                <Home className="h-5 w-5 text-slate-400" />
+                            </div>
+                            <div>
+                                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-widest">Fale com o corretor</p>
+                                <p className="font-bold text-slate-900 text-sm tracking-tight">{user?.name || "Seu Nome"}</p>
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* Sticky Bottom CTA */}
+                    <div className="absolute bottom-0 inset-x-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50">
+                        <Button 
+                            className="w-full h-12 text-sm font-black rounded-xl shadow-xl shadow-brand-500/10 uppercase tracking-widest"
+                        >
+                            {landingCTA === "Personalizado" ? customCTA : (landingCTA || "Quero saber mais")}
+                            <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
+                        <p className="text-center text-[9px] text-slate-400 mt-3 font-bold uppercase tracking-widest">
+                            Respondemos em segundos por IA
+                        </p>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setShowPreview(false); }}
+                            className="w-full mt-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600"
+                        >
+                            Fechar Prévia
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
