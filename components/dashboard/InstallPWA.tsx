@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Share, PlusSquare, Download, smartphone, Monitor, Smartphone } from "lucide-react";
+import { X, Share, PlusSquare, Download, Monitor, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { triggerHaptic } from "@/lib/haptic";
