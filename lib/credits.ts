@@ -213,38 +213,68 @@ export async function removeCredits(userId: string, amount: number, description:
 
 /**
  * Processes a referral, rewarding both the referrer and the new user.
+ * Rules:
+ * - Both receive 5 credits.
+ * - Referrer has a limit of 5 successful referrals (max 25 credits).
+ * - Referral credits expire in 30 days.
  */
 export async function processReferral(referrerId: string, newUserId: string) {
     try {
-        // 1. Reward referrer (10 credits)
-        await addCredits(
-            referrerId, 
-            10, 
-            "Bônus de indicação (Novo usuário)", 
-            'referral'
-        );
+        // 0. Fetch referral rules from settings
+        const rulesRef = ref(rtdb, "settings/referral_rules");
+        const rulesSnap = await get(rulesRef);
+        const rules = rulesSnap.exists() ? rulesSnap.val() : {
+            reward_referrer: 5,
+            reward_referred: 5,
+            limit_per_user: 5,
+            expiration_days: 30
+        };
 
-        // 2. Increment referrer's invite count
         const referrerRef = ref(rtdb, `users/${referrerId}`);
         const snap = await get(referrerRef);
-        if (snap.exists()) {
-            const currentCount = snap.val().inviteCount || 0;
-            await update(referrerRef, { inviteCount: currentCount + 1 });
+        
+        if (!snap.exists()) return;
+
+        const currentCount = snap.val().inviteCount || 0;
+        
+        // 1. Check referral limit
+        if (currentCount >= (rules.limit_per_user || 5)) {
+            console.log(`[Credits] Referrer ${referrerId} reached referral limit.`);
+            // Still log the connection for audit, but no credits
+            const referralLogRef = ref(rtdb, `referrals/${referrerId}/${newUserId}`);
+            await set(referralLogRef, {
+                acceptedAt: Date.now(),
+                status: 'limit_reached'
+            });
+            return;
         }
 
-        // 3. Mark the referral connection specifically for audit
+        // 2. Reward referrer
+        await addCredits(
+            referrerId, 
+            rules.reward_referrer || 5, 
+            "Bônus de indicação (Novo usuário)", 
+            'referral',
+            rules.expiration_days || 30
+        );
+
+        // 3. Increment referrer's invite count
+        await update(referrerRef, { inviteCount: currentCount + 1 });
+
+        // 4. Mark the referral connection specifically for audit
         const referralLogRef = ref(rtdb, `referrals/${referrerId}/${newUserId}`);
         await set(referralLogRef, {
             acceptedAt: Date.now(),
             status: 'accepted'
         });
 
-        // 4. Reward new user (5 credits)
+        // 5. Reward new user
         await addCredits(
             newUserId, 
-            5, 
+            rules.reward_referred || 5, 
             "Bem-vindo! Bônus de indicação", 
-            'referral'
+            'referral',
+            rules.expiration_days || 30
         );
 
         console.log(`[Credits] Referral processed: ${referrerId} referred ${newUserId}`);

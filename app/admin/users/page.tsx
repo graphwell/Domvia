@@ -591,6 +591,19 @@ function ManageCreditsModal({ user, onClose }: { user: UserRecord, onClose: () =
     const [type, setType] = useState<"add" | "remove">("add");
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
+    const [history, setHistory] = useState<any[]>([]);
+
+    useEffect(() => {
+        const historyRef = ref(rtdb, `credit_history/${user.id}`);
+        return onValue(historyRef, (snap) => {
+            const data = snap.val() ?? {};
+            const list = Object.entries(data)
+                .map(([id, t]: [string, any]) => ({ id, ...t }))
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, 5);
+            setHistory(list);
+        });
+    }, [user.id]);
 
     const handleSubmit = async () => {
         const numAmount = Number(amount);
@@ -678,6 +691,25 @@ function ManageCreditsModal({ user, onClose }: { user: UserRecord, onClose: () =
                         Confirmar
                     </Button>
                 </div>
+
+                {history.length > 0 && (
+                    <div className="mt-8 border-t border-slate-100 pt-6">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Últimas Transações</label>
+                        <div className="space-y-3">
+                            {history.map((tx) => (
+                                <div key={tx.id} className="flex items-center justify-between group">
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-bold text-slate-700 truncate">{tx.description}</p>
+                                        <p className="text-[10px] text-slate-400">{new Date(tx.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
+                                    <span className={`text-xs font-black px-2 py-0.5 rounded-lg shrink-0 ${tx.amount > 0 ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"}`}>
+                                        {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </Card>
         </div>
     );

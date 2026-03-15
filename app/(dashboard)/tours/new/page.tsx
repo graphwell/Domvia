@@ -29,7 +29,7 @@ interface RoomForm {
 export default function NewTourPage() {
     const router = useRouter();
     const { user } = useAuth();
-    const { canAccess, useTool, cost } = useToolAccess("TOUR_360"); // Custo dinâmico 
+    const { useTool, cost, ConfirmationModal } = useToolAccess("TOUR_360"); 
 
     const [title, setTitle] = useState("");
     const [rooms, setRooms] = useState<RoomForm[]>([
@@ -106,10 +106,9 @@ export default function NewTourPage() {
             return;
         }
 
-        // Validação de Créditos
-        const hasAccess = await canAccess();
-        if (!hasAccess) {
-            setError("Você não possui créditos suficientes para criar um tour profissional.");
+        // Check for basic validation before proceeding
+        if (!rooms.some(r => r.imageUrl || r.imageFile)) {
+            setError("Selecione pelo menos um ambiente.");
             return;
         }
 
@@ -379,6 +378,7 @@ export default function NewTourPage() {
                     </Button>
                 </div>
             </form>
+            {ConfirmationModal}
         </div>
     );
 }

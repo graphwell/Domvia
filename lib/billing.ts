@@ -82,17 +82,47 @@ export const TOPUP_CONFIG = {
 export const DEFAULT_TOOL_CREDIT_COSTS: Record<string, number> = {
     'captacao': 3,
     'doc_gen': 2,
-    'description_gen': 1,
+    'description_gen': 2,
     'title_gen': 1,
-    'social_gen': 1,
-    'tour_360': 5,
-    'ai_chat': 2,
+    'social_gen': 2,
+    'tour_360': 4,
+    'ai_chat': 1,
     'link_gen': 1,
-    'finance': 0,
-    'terrain': 0,
-    'rentability': 0,
+    'finance': 2,
+    'terrain': 1,
+    'rentability': 2,
     'landing_page': 2,
 };
+
+/**
+ * Returns document cost based on complexity.
+ * Documents: 
+ * - simple: 1
+ * - medium: 2
+ * - complex: 3
+ * - terrain: 2
+ */
+export function getDocumentCost(docType: string, planId: string): number {
+    const isPro = (planId || 'trial').toLowerCase() === 'pro';
+    const isMax = ['max', 'elite', 'lifetime'].includes((planId || 'trial').toLowerCase());
+
+    const costs: Record<string, number> = {
+        'recibo': 1,
+        'declaracao': 1,
+        'proposta': 2,
+        'autorizacao': 2,
+        'contrato': 3,
+        'terreno': 2
+    };
+
+    const baseCost = costs[docType] || 2;
+    
+    // Apply plan discounts if any (e.g. Pro pays 1 credit less for medium/complex, but min 1)
+    if (isMax) return 0; // Or significantly reduced
+    if (isPro && baseCost > 1) return baseCost - 1;
+
+    return baseCost;
+}
 
 /**
  * Replaced by dynamic cost fetcher from DB settings.
@@ -102,15 +132,27 @@ export async function getToolCostDynamic(toolId: string, planId: string): Promis
     const snap = await get(costRef);
     
     const pId = (planId || 'trial').toLowerCase();
+    const isPro = pId === 'pro';
+    const isMaxPlus = ['max', 'elite', 'lifetime'].includes(pId);
 
     if (snap.exists()) {
         const costs = snap.val();
-        // planId might be 'trial', 'pro', 'max' (normalizing here too for safety)
         const tier = pId === 'trial' ? 'free' : pId;
-        return costs[tier] ?? costs['free'] ?? DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
+        const baseCost = costs[tier] ?? costs['free'] ?? DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
+        
+        // Apply strategic discounts if not already set specifically for plan
+        if (!costs[pId]) {
+            if (isMaxPlus) return 0; // Or very low
+        }
+        
+        return baseCost;
     }
     
-    return DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
+    const baseDefault = DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
+    if (isMaxPlus) return 0;
+    if (isPro && baseDefault > 1) return baseDefault - 1;
+
+    return baseDefault;
 }
 
 /**

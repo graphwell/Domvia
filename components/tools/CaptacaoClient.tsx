@@ -156,15 +156,6 @@ export function CaptacaoClient() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check tool access before heavy lifting
-        const canUse = await toolAccess.canAccess();
-        if (!canUse) {
-            toast.error("Limite Atingido ou Sem Saldo", {
-                description: "Você esgotou suas captações gratuitas ou não possui saldo. Faça o upgrade do plano.",
-            });
-            return;
-        }
-
         setIsProcessing(true);
         setIsCapturing(true);
 
@@ -724,6 +715,7 @@ export function CaptacaoClient() {
                     </div>
                 </div>
             )}
+            {toolAccess.ConfirmationModal}
         </div>
     );
 }

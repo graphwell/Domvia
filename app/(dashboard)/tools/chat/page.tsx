@@ -13,6 +13,7 @@ import { getToolCostDynamic } from "@/lib/billing";
 import { useLanguage } from "@/hooks/use-language";
 import { triggerHaptic } from "@/lib/haptic";
 import { reportToolError } from "@/lib/admin-alerts";
+import { useToolAccess } from "@/hooks/use-tool-access";
 
 interface Message {
     role: "assistant" | "user";
@@ -23,19 +24,13 @@ interface Message {
 export default function ChatPage() {
     const { user } = useAuth();
     const { t, language } = useLanguage();
+    const { useTool, cost: toolCost, ConfirmationModal } = useToolAccess('ai_chat');
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
-    const [toolCost, setToolCost] = useState<number | null>(null);
-
-    useEffect(() => {
-        if (user?.planId) {
-            getToolCostDynamic('ai_chat', user.planId).then(setToolCost);
-        }
-    }, [user?.planId]);
 
     // Initial message
     useEffect(() => {
@@ -58,6 +53,13 @@ export default function ChatPage() {
 
     const send = async (text: string) => {
         if (!text.trim() || loading) return;
+
+        // NEW: Demand credit confirmation/usage before proceeding
+        // Only if it's the first message or if you want to charge per message?
+        // User says: "IA Conversacional - Custo: 1 crédito por interação"
+        const canProceed = await useTool(`Interação no Chat: ${text.substring(0, 30)}...`);
+        if (!canProceed) return;
+
         const userMsg: Message = { role: "user", content: text.trim(), ts: Date.now() };
         setMessages((prev) => [...prev, userMsg]);
         setInput("");
@@ -299,6 +301,7 @@ export default function ChatPage() {
                     )}
                 </div>
             </div>
+            {ConfirmationModal}
         </div>
     );
 }
