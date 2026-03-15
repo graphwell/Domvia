@@ -92,7 +92,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         role: "CORRETOR",
         planId: "trial",
         plan: "Trial",
-        credits: 0,
+        credits: 20,
         inviteCode: newInviteCode,
     };
 
@@ -106,7 +106,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         status: "active",
         createdAt: Date.now(),
         simulatorLevel: "basic",
-        credits: 0,
+        credits: 20,
         inviteCode: newInviteCode,
         referredBy: inviteFromParams || null,
     };

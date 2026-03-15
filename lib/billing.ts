@@ -12,19 +12,19 @@ export const PLAN_CONFIG = {
     trial: {
         id: 'trial',
         name: 'Trial',
-        creditsInbound: 100,
+        creditsInbound: 20,
         durationDays: 14,
         badge: 'TRIAL',
         color: 'slate',
         limits: {
-            'captacao': 15,
-            'doc_gen': 5,
-            'description_gen': 20,
-            'title_gen': 20,
-            'social_gen': 20,
+            'captacao': 5,
+            'doc_gen': 2,
+            'description_gen': 5,
+            'title_gen': 5,
+            'social_gen': 5,
             'tour_360': 0,
-            'ai_chat': 10,
-            'link_gen': 10,
+            'ai_chat': 5,
+            'link_gen': 5,
         }
     },
     pro: {
