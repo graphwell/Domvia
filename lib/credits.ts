@@ -224,7 +224,7 @@ export async function processReferral(referrerId: string, newUserId: string) {
         const rulesRef = ref(rtdb, "settings/referral_rules");
         const rulesSnap = await get(rulesRef);
         const rules = rulesSnap.exists() ? rulesSnap.val() : {
-            reward_referrer: 5,
+            reward_referrer: 10,
             reward_referred: 5,
             limit_per_user: 5,
             expiration_days: 30

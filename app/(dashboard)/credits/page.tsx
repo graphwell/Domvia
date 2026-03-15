@@ -90,7 +90,7 @@ export default function CreditsPage() {
                         <div>
                             <h2 className="font-display font-bold text-lg text-slate-900">Indique e Ganhe</h2>
                             <p className="text-slate-500 text-sm mt-1 max-w-md">
-                                Compartilhe seu link exclusivo com outros corretores e ajude a comunidade MarketLens a crescer.
+                                Aproveite as vantagens de indicar o Domvia! Ganhe bônus por cada novo corretor que começar a usar o sistema.
                                 <ul className="mt-2 space-y-1 text-xs">
                                     <li className="flex items-center gap-2 font-bold text-emerald-600"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> **Você ganha 10 créditos** por cada indicação.</li>
                                     <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> **Seu amigo ganha 5 créditos** imediatos para começar.</li>

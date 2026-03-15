@@ -40,7 +40,7 @@ const TOOL_DEFINITIONS = [
 export default function CreditSettingsPage() {
     const [costs, setCosts] = useState<Record<string, { free: number, pro: number, max: number }>>({});
     const [referralRules, setReferralRules] = useState({
-        reward_referrer: 5,
+        reward_referrer: 10,
         reward_referred: 5,
         limit_per_user: 5,
         expiration_days: 30
