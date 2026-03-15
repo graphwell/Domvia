@@ -145,8 +145,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 >
                                     <Menu className="h-6 w-6" />
                                 </button>
-                                <div className="-ml-1.5">
-                                    <DomviaLogo collapsed />
+                                <div className="-ml-1.5 shrink-0">
+                                    <DomviaLogo />
                                 </div>
                             </div>
 

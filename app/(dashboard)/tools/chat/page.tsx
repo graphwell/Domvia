@@ -170,7 +170,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-[calc(100vh-7rem)] sm:h-[calc(100vh-4rem)] max-w-3xl mx-auto">
+        <div className="flex flex-col h-full sm:h-[calc(100vh-4rem)] max-w-3xl mx-auto">
             {/* Header */}
             <div className="flex items-center justify-between py-4 px-1 shrink-0">
                 <div>

@@ -14,12 +14,12 @@ import { useAuth } from "@/hooks/auth-provider";
 // ─────────────────────────────────────────────────────────────────
 //  Domvia Logo — Image Version
 // ─────────────────────────────────────────────────────────────────
-export function DomviaLogo({ collapsed = false, dark = false }: { collapsed?: boolean; dark?: boolean }) {
+export function DomviaLogo({ collapsed = false, dark = false, className }: { collapsed?: boolean; dark?: boolean; className?: string }) {
     const timestamp = "202603092100"; // Novo timestamp pós-crop
 
     if (collapsed) {
         return (
-            <Link href="/" className="flex items-center group select-none relative h-8 w-8">
+            <Link href="/" className={cn("flex items-center group select-none relative h-8 w-8 sm:h-9 sm:w-9", className)}>
                 <Image
                     src={`/icon.png?v=${timestamp}`}
                     alt="Domvia Icon"
@@ -32,7 +32,7 @@ export function DomviaLogo({ collapsed = false, dark = false }: { collapsed?: bo
     }
 
     return (
-        <Link href="/" className="flex items-center group select-none relative h-14 w-52 md:h-14 md:w-56">
+        <Link href="/" className={cn("flex items-center group select-none relative h-10 w-40 sm:h-14 sm:w-52 md:h-14 md:w-56", className)}>
             <Image
                 src={`/logo-domvia.png?v=${timestamp}`}
                 alt="Domvia Logo"
