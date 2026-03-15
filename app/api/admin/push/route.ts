@@ -1,18 +1,40 @@
 import { NextResponse } from "next/server";
 import * as admin from "firebase-admin";
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-        databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-    });
-}
+const initAdmin = () => {
+    if (!admin.apps.length) {
+        const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+        const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+        if (!projectId || !clientEmail || !privateKey) {
+            console.warn("[Push API] Missing Firebase Admin credentials. Route will return 500 if called.");
+            return false;
+        }
+
+        try {
+            admin.initializeApp({
+                credential: admin.credential.cert({
+                    projectId,
+                    clientEmail,
+                    privateKey: privateKey.replace(/\\n/g, '\n'),
+                }),
+                databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+            });
+            return true;
+        } catch (error) {
+            console.error("[Push API] Firebase Admin init error:", error);
+            return false;
+        }
+    }
+    return true;
+};
 
 export async function POST(req: Request) {
+    if (!initAdmin()) {
+        return NextResponse.json({ error: "Firebase Admin is not configured on the server. Please check environment variables (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY)." }, { status: 500 });
+    }
+
     try {
         const { userId, title, body, data } = await req.json();
 
