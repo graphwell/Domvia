@@ -57,7 +57,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
 
     if (snap.exists()) {
         const data = snap.val();
-        const rawPlan = data.planId ?? data.plan ?? "starter";
+        const rawPlan = data.planId ?? data.plan ?? "trial";
         const normalizedPlanId = rawPlan.toLowerCase();
         
         return {
@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 dbUnsubscribe = onValue(userRef, (snap) => {
                     if (snap.exists()) {
                         const data = snap.val();
-                        const rawPlan = data.planId ?? data.plan ?? initialUser.planId;
+                        const rawPlan = data.planId ?? data.plan ?? "trial";
                         const normalizedPlanId = rawPlan.toLowerCase();
                         
                         const updatedUser: User = {

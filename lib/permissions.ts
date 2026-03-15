@@ -36,7 +36,23 @@ const PERMISSIONS_BY_PLAN: Record<string, PlanPermissions> = {
         canUseTitleSuggestions: true,
         maxActiveLinks: 999,
     },
-    elite: { // hypothetical elite plan for professional simulator
+    max: {
+        simulatorLevel: "professional",
+        canUseTour360: true,
+        canUseCustomDescription: true,
+        canUseSocialCaption: true,
+        canUseTitleSuggestions: true,
+        maxActiveLinks: 999,
+    },
+    elite: {
+        simulatorLevel: "professional",
+        canUseTour360: true,
+        canUseCustomDescription: true,
+        canUseSocialCaption: true,
+        canUseTitleSuggestions: true,
+        maxActiveLinks: 999,
+    },
+    lifetime: {
         simulatorLevel: "professional",
         canUseTour360: true,
         canUseCustomDescription: true,

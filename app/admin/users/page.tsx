@@ -35,6 +35,7 @@ interface UserRecord {
     email: string;
     role: string;
     plan: string;
+    planId?: string;
     status: "active" | "inactive" | "suspended";
     createdAt: number;
     planExpiresAt?: number;
@@ -136,6 +137,7 @@ export default function AdminUsersPage() {
                 email: u.email ?? "",
                 role: u.role ?? "CORRETOR",
                 plan: u.plan ?? "Trial",
+                planId: u.planId ?? (u.plan ? u.plan.toLowerCase() : "trial"),
                 status: u.status ?? "active",
                 createdAt: u.createdAt ?? Date.now(),
                 planExpiresAt: u.planExpiresAt,

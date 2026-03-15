@@ -1,7 +1,7 @@
 import { rtdb } from "./firebase";
 import { ref, get, update, runTransaction, serverTimestamp, push } from "firebase/database";
 
-export type PlanType = 'trial' | 'pro' | 'max';
+export type PlanType = 'trial' | 'pro' | 'max' | 'elite' | 'lifetime';
 
 export interface PlanLimit {
     monthlyLimit: number;
@@ -53,6 +53,22 @@ export const PLAN_CONFIG = {
         color: 'amber',
         stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'price_1max_monthly_7900',
         limits: {} // Unlimited
+    },
+    elite: {
+        id: 'elite',
+        name: 'Elite',
+        creditsInbound: 10000,
+        badge: 'ELITE',
+        color: 'amber',
+        limits: {} // Unlimited
+    },
+    lifetime: {
+        id: 'lifetime',
+        name: 'Lifetime',
+        creditsInbound: 10000,
+        badge: 'LIFETIME',
+        color: 'emerald',
+        limits: {} // Unlimited
     }
 } as const;
 
@@ -85,10 +101,11 @@ export async function getToolCostDynamic(toolId: string, planId: string): Promis
     const costRef = ref(rtdb, `settings/tool_costs/${toolId}`);
     const snap = await get(costRef);
     
+    const pId = (planId || 'trial').toLowerCase();
+
     if (snap.exists()) {
         const costs = snap.val();
         // planId might be 'trial', 'pro', 'max' (normalizing here too for safety)
-        const pId = planId.toLowerCase();
         const tier = pId === 'trial' ? 'free' : pId;
         return costs[tier] ?? costs['free'] ?? DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
     }
@@ -117,8 +134,8 @@ export async function checkAndConsumeCredits(userId: string, tool: string): Prom
     const userData = snap.val();
     const planType = ((userData.planId || userData.plan || 'trial').toLowerCase()) as PlanType;
     
-    // 2. Max plan is unlimited (if not specifically configured to cost credits)
-    if (planType === 'max') return { success: true };
+    // 2. Max/Elite/Lifetime plans are unlimited (if not specifically configured to cost credits)
+    if (planType === 'max' || planType === 'elite' || planType === 'lifetime') return { success: true };
 
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -128,7 +145,9 @@ export async function checkAndConsumeCredits(userId: string, tool: string): Prom
     const usageSnap = await get(usageRef);
     const currentUsage = usageSnap.val() || 0;
     
-    const planLimits = PLAN_CONFIG[planType].limits as any;
+    // Safety check for plan config
+    const config = PLAN_CONFIG[planType as keyof typeof PLAN_CONFIG] || PLAN_CONFIG.trial;
+    const planLimits = (config.limits || {}) as any;
     const toolLimit = planLimits[tool] || 0;
 
     if (currentUsage < toolLimit) {
@@ -140,47 +159,32 @@ export async function checkAndConsumeCredits(userId: string, tool: string): Prom
     // 4. Exceeded monthly limit, try to consume credits
     const cost = await getToolCostDynamic(tool, planType);
     if (cost === 0) return { success: true };
-    const creditsRef = ref(rtdb, `user_credits/${userId}`);
-    const creditsSnap = await get(creditsRef);
-    const creditsData = creditsSnap.val() || { plan_credits: 0, bonus_credits: 0 };
     
-    const totalAvailable = (creditsData.plan_credits || 0) + (creditsData.bonus_credits || 0);
+    // In this app, credits are stored in users/${userId}/credits (verified in lib/credits.ts and Admin)
+    // There was a discrepancy using user_credits/${userId} here.
+    const creditsFromUserNode = userData.credits || 0;
 
-    if (totalAvailable < cost) {
+    if (creditsFromUserNode < cost) {
         return { success: false, reason: 'insufficient_credits' };
     }
 
     // Execute credit consumption
-    let remainingToConsume = cost;
-    let newPlanCredits = creditsData.plan_credits || 0;
-    let newBonusCredits = creditsData.bonus_credits || 0;
-
-    // Plan credits consumed first
-    if (newPlanCredits >= remainingToConsume) {
-        newPlanCredits -= remainingToConsume;
-        remainingToConsume = 0;
-    } else {
-        remainingToConsume -= newPlanCredits;
-        newPlanCredits = 0;
-        newBonusCredits -= remainingToConsume;
-    }
+    const newTotalCredits = creditsFromUserNode - cost;
 
     const updates: any = {};
-    updates[`user_credits/${userId}/plan_credits`] = newPlanCredits;
-    updates[`user_credits/${userId}/bonus_credits`] = newBonusCredits;
-    updates[`user_credits/${userId}/total_credits`] = newPlanCredits + newBonusCredits;
-    updates[`user_credits/${userId}/updated_at`] = serverTimestamp();
+    updates[`users/${userId}/credits`] = newTotalCredits;
+    updates[`users/${userId}/updated_at`] = serverTimestamp();
 
     // Transaction log
-    const txRef = ref(rtdb, `credit_transactions/${userId}`);
+    const txRef = ref(rtdb, `credit_history/${userId}`);
     const newTxKey = push(txRef).key;
-    updates[`credit_transactions/${userId}/${newTxKey}`] = {
-        type: 'consume',
+    updates[`credit_history/${userId}/${newTxKey}`] = {
+        type: 'spent',
         tool,
         amount: -cost,
-        balance_after: newPlanCredits + newBonusCredits,
+        balance_after: newTotalCredits,
         description: `Uso de ${tool} (excedente plano)`,
-        created_at: serverTimestamp()
+        timestamp: Date.now()
     };
 
     // Also record as usage for stats
