@@ -4,7 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/hooks/auth-provider";
+import Link from "next/link";
 import { 
     LifeBuoy, MessageSquare, Send, Loader2, Bot, User, 
     Lightbulb, HelpCircle, CheckCircle2, ChevronRight,
@@ -22,25 +24,29 @@ const QUICK_TIPS = [
         title: "Captar Imóveis com Placas",
         desc: "Use a câmera do celular para fotografar placas de venda. Nossa IA extrai o telefone automaticamente.",
         icon: Camera,
-        color: "text-blue-600 bg-blue-50"
+        color: "text-blue-600 bg-blue-50",
+        href: "/tools/captacao"
     },
     {
         title: "Gerar Leads com Links",
         desc: "Crie links inteligentes para seus imóveis e compartilhe. Quando o cliente clica, você recebe o contato.",
         icon: Link2,
-        color: "text-emerald-600 bg-emerald-50"
+        color: "text-emerald-600 bg-emerald-50",
+        href: "/tools"
     },
     {
         title: "Usar o Assistente IA",
         desc: "Tire dúvidas sobre contratos, mercado imobiliário ou peça ajuda para descrever um imóvel.",
         icon: Bot,
-        color: "text-brand-600 bg-brand-50"
+        color: "text-brand-600 bg-brand-50",
+        href: "/tools/chat"
     },
     {
         title: "Organizar Captações",
         desc: "Mantenha o histórico de todas as placas fotografadas e o status de cada abordagem.",
         icon: CheckCircle2,
-        color: "text-purple-600 bg-purple-50"
+        color: "text-purple-600 bg-purple-50",
+        href: "/tools/captacao"
     }
 ];
 
@@ -52,6 +58,7 @@ export default function HelpCenterPage() {
     ]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -106,15 +113,17 @@ export default function HelpCenterPage() {
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {QUICK_TIPS.map((tip, i) => (
-                                <Card key={i} hover padding="md" className="flex flex-col gap-3">
-                                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${tip.color}`}>
-                                        <tip.icon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-slate-900">{tip.title}</h4>
-                                        <p className="text-sm text-slate-500 mt-1 leading-relaxed">{tip.desc}</p>
-                                    </div>
-                                </Card>
+                                <Link key={i} href={tip.href}>
+                                    <Card hover padding="md" className="flex flex-col gap-3 h-full cursor-pointer">
+                                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${tip.color}`}>
+                                            <tip.icon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-slate-900">{tip.title}</h4>
+                                            <p className="text-sm text-slate-500 mt-1 leading-relaxed">{tip.desc}</p>
+                                        </div>
+                                    </Card>
+                                </Link>
                             ))}
                         </div>
                     </section>
@@ -123,11 +132,39 @@ export default function HelpCenterPage() {
                     <Card className="bg-brand-600 text-white border-none p-6 relative overflow-hidden">
                         <div className="relative z-10">
                             <h3 className="text-xl font-bold mb-2">Novo por aqui?</h3>
-                            <p className="text-brand-100 text-sm mb-4 max-w-md">Assista ao nosso guia rápido de 2 minutos e aprenda a captar seu primeiro imóvel hoje mesmo.</p>
-                            <Button variant="gold" size="sm">Ver Tutorial</Button>
+                            <p className="text-brand-100 text-sm mb-4 max-w-md">Descubra como transformar sua rotina com IA. Assista ao nosso guia rápido e aprenda a captar seu primeiro imóvel hoje.</p>
+                            <Button variant="gold" size="sm" onClick={() => setShowTutorial(true)}>Ver Tutorial Completo</Button>
                         </div>
                         <HelpCircle className="absolute -right-4 -bottom-4 h-32 w-32 text-brand-500/20 rotate-12" />
                     </Card>
+
+                    <Modal 
+                        isOpen={showTutorial} 
+                        onClose={() => setShowTutorial(false)}
+                        title="Guia Rápido Domvia"
+                        className="max-w-2xl"
+                    >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+                            {[
+                                { step: "01", title: "Capte com Placas", desc: "Fotografe placas de venda. Nossa IA extrai o telefone e cria o contato automaticamente." },
+                                { step: "02", title: "Gere o Link", desc: "Crie um link exclusivo para o imóvel em segundos. Ele funciona para todos os canais." },
+                                { step: "03", title: "IA Atende 24h", desc: "Seu cliente tira dúvidas, calcula financiamento e é qualificado pela nossa IA." },
+                                { step: "04", title: "Feche o Negócio", desc: "Receba o lead qualificado no seu WhatsApp com o histórico completo da conversa." }
+                            ].map((s, i) => (
+                                <div key={i} className="flex gap-4">
+                                    <div className="h-10 w-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold shrink-0">{s.step}</div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900">{s.title}</h4>
+                                        <p className="text-xs text-slate-500 mt-1 leading-relaxed">{s.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                            <p className="text-sm font-medium text-slate-600">Pronto para começar?</p>
+                            <Button size="sm" onClick={() => setShowTutorial(false)}>Vamos lá!</Button>
+                        </div>
+                    </Modal>
                 </div>
 
                 {/* Right: AI Support Chat */}
