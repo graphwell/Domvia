@@ -183,6 +183,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     };
 
     const showBillingPopup = (type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached', data?: any) => {
+        // Guard: Don't show trial expiring if user has credits remaining even if trial duration is low
+        if (type === 'trial_expiring' && (user?.credits || 0) > 100) {
+            return;
+        }
+
         setBillingPopup({ type, data });
         triggerHaptic('warning');
     };

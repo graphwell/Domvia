@@ -114,9 +114,9 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
                             <div 
                                 className={cn(
                                     "h-full transition-all duration-1000",
-                                    user.planId?.toLowerCase() === 'max' ? "bg-amber-500" : user.planId?.toLowerCase() === 'pro' ? "bg-brand-500" : "bg-slate-400"
+                                    user.planId?.toLowerCase() === 'max' ? "bg-amber-500" : user.planId?.toLowerCase() === 'pro' ? "bg-brand-500" : (user.credits || 0) > 500 ? "bg-emerald-500" : "bg-slate-400"
                                 )}
-                                style={{ width: `${Math.min(100, ((user.credits || 0) / 500) * 100)}%` }}
+                                style={{ width: `${Math.min(100, ((user.credits || 0) / Math.max(500, user.credits || 0)) * 100)}%` }}
                              />
                         </div>
                     </div>

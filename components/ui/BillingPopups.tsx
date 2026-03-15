@@ -4,6 +4,7 @@ import { Modal } from "./Modal";
 import { Button } from "./Button";
 import { Zap, AlertTriangle, Clock, Rocket, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/auth-provider";
 
 interface BillingPopupProps {
     type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached';
@@ -13,6 +14,13 @@ interface BillingPopupProps {
 }
 
 export function BillingPopups({ type, isOpen, onClose, data }: BillingPopupProps) {
+    const { user } = useAuth();
+
+    // Bypass trial expiration popup if user has significant credits
+    if (type === 'trial_expiring' && (user?.credits || 0) > 100) {
+        return null;
+    }
+
     if (type === 'credits_exhausted') {
         return (
             <Modal isOpen={isOpen} onClose={onClose} className="max-w-md">
