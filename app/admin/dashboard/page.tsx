@@ -20,9 +20,11 @@ interface UserRecord {
     name?: string;
     email?: string;
     plan?: string;
+    planId?: string;
     status?: string;
     createdAt?: number;
     role?: string;
+    stripeSubscriptionId?: string;
 }
 interface LeadRecord {
     name?: string;
@@ -41,13 +43,14 @@ interface UsageStats {
     last_seen?: number;
 }
 
-// ─── Plan pricing (monthly R$) ──────────────────────────────────
 const PLAN_PRICE: Record<string, number> = {
-    Trial: 0,
-    Pro: 39.9,
-    Max: 79.0,
-    Elite: 99.0,
-    Lifetime: 0,
+    trial: 0,
+    pro: 39.9,
+    max: 79.0,
+    elite: 99.0,
+    lifetime: 0,
+    // Support capitalized for legacy data
+    Trial: 0, Pro: 39.9, Max: 79.0, Elite: 99.0, Lifetime: 0
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -74,6 +77,7 @@ export default function AdminDashboard() {
     const [leads, setLeads] = useState<Record<string, LeadRecord>>({});
     const [links, setLinks] = useState<Record<string, LinkRecord>>({});
     const [usage, setUsage] = useState<Record<string, UsageStats>>({});
+    const [finMetrics, setFinMetrics] = useState<any>(null);
 
     useEffect(() => {
         const off1 = onValue(ref(rtdb, "users"), (s) => setUsers(s.val() ?? {}));
@@ -98,7 +102,12 @@ export default function AdminDashboard() {
             setLinks(flat);
         });
         const off4 = onValue(ref(rtdb, "usage_stats"), (s) => setUsage(s.val() ?? {}));
-        return () => { off1(); off2(); off3(); off4(); };
+
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        const off5 = onValue(ref(rtdb, `financial_metrics/${monthKey}`), (s) => setFinMetrics(s.val()));
+
+        return () => { off1(); off2(); off3(); off4(); off5(); };
     }, []);
 
     // ── Derivadas ─────────────────────────────────────────────────
@@ -111,7 +120,18 @@ export default function AdminDashboard() {
     const totalLeads = leadList.length;
     const totalLinks = linkList.length;
     const totalAiMsgs = Object.values(usage).reduce((s, u) => s + (u.ai_chat_message ?? 0), 0);
-    const monthlyRevenue = userList.reduce((s, [, u]) => s + (PLAN_PRICE[u.plan ?? "Trial"] ?? 0), 0);
+    
+    // MRR: Estimated monthly revenue from PAID subscriptions only
+    const monthlyMRR = userList.reduce((s, [, u]) => {
+        // Only count as MRR if it's a paid plan AND has a stripe subscription
+        if (u.stripeSubscriptionId && (u.planId || u.plan)) {
+            const planKey = (u.planId || u.plan || "trial").toLowerCase();
+            return s + (PLAN_PRICE[planKey] ?? 0);
+        }
+        return s;
+    }, 0);
+
+    const actualMonthlySales = finMetrics?.total_sales ?? 0;
 
     // ── Gráfico: usuários por mês (últimos 6 meses) ───────────────
     const now = Date.now();
@@ -164,8 +184,8 @@ export default function AdminDashboard() {
     // ── Stats cards ────────────────────────────────────────────────
     const stats = [
         { label: "Total de Usuários", value: totalUsers, icon: Users, sub: `${activeUsers} ativos`, trend: "up" },
-        { label: "Receita Mensal Est.", value: fmtBRL(monthlyRevenue), icon: HandCoins, sub: "por planos ativos", trend: "up" },
-        { label: "Consultas à IA (total)", value: totalAiMsgs.toLocaleString("pt-BR"), icon: Bot, sub: "msgs acumuladas", trend: "up" },
+        { label: "MRR Estimado", value: fmtBRL(monthlyMRR), icon: TrendingUp, sub: "de assinaturas pagas", trend: "up" },
+        { label: "Vendas do Mês", value: fmtBRL(actualMonthlySales), icon: HandCoins, sub: "receita real faturada", trend: "up" },
         { label: "Links Ativos", value: totalLinks, icon: Globe, sub: `${totalLeads} leads captados`, trend: "up" },
     ];
 
