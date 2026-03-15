@@ -532,9 +532,6 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
                     </div>
                 </div>
             </div>
-
-                </div>
-            </div>
             {ConfirmationModal}
         </>
     );
