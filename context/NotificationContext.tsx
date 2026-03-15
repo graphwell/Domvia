@@ -4,8 +4,9 @@ import React, { createContext, useContext, useState, useEffect, useRef } from "r
 import { useAuth } from "@/hooks/auth-provider";
 import { CreditNotification } from "@/components/ui/CreditNotification";
 import { triggerHaptic, triggerCoinSound } from "@/lib/haptic";
-import { rtdb } from "@/lib/firebase";
-import { ref, onValue, limitToLast, query, update } from "firebase/database";
+import { rtdb, messaging } from "@/lib/firebase";
+import { ref, onValue, limitToLast, query, update, set } from "firebase/database";
+import { getToken, onMessage } from "firebase/messaging";
 
 export interface NotificationItem {
     id: string;
@@ -114,12 +115,47 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         return () => unsubscribe();
     }, [user?.id]);
 
-    // Engagement triggers
+    // Engagement & Push triggers
     useEffect(() => {
         if (user) {
             checkEngagement(user);
+            setupPushNotifications(user.id);
         }
     }, [user?.id]);
+
+    const setupPushNotifications = async (userId: string) => {
+        if (!messaging || Notification.permission !== 'granted') return;
+
+        try {
+            const token = await getToken(messaging, {
+                vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+            });
+
+            if (token) {
+                // Store token in RTDB for server-side push
+                await set(ref(rtdb, `users/${userId}/fcmToken`), token);
+                
+                // Foreground listener
+                onMessage(messaging, (payload) => {
+                    const { title, body } = payload.notification || {};
+                    if (title && body) {
+                        // We already have a notification in RTDB usually, 
+                        // but this handles messages sent directly via push
+                        showNativeNotification({
+                            id: Date.now().toString(),
+                            title,
+                            message: body,
+                            type: 'system',
+                            timestamp: Date.now(),
+                            read: false
+                        });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("[FCM] Error setting up push:", error);
+        }
+    };
 
     const markAsRead = async (id: string) => {
         if (!user) return;

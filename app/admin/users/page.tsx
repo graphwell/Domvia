@@ -452,6 +452,13 @@ export default function AdminUsersPage() {
                                                     <Sparkles className="h-4 w-4" />
                                                 </button>
                                                 <button
+                                                    onClick={() => { forceEngagement(u); alert("Notificação de teste enviada!"); }}
+                                                    title="Enviar Notificação de Engajamento de Teste"
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                                                >
+                                                    <Sparkles className="h-4 w-4" />
+                                                </button>
+                                                <button
                                                     onClick={() => { setSelected(u); setModal("edit"); }}
                                                     title="Editar"
                                                     className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
