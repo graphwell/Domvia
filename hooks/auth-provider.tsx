@@ -17,6 +17,7 @@ import {
 } from "firebase/auth";
 import { auth, rtdb } from "@/lib/firebase";
 import { ref, get, set, onValue } from "firebase/database";
+import { toast } from "sonner";
 
 export type UserRole = "ADMIN_MASTER" | "ADMIN" | "CORRETOR" | "AGENCY_ADMIN" | "AGENCY_MEMBER";
 
@@ -178,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
                         router.push("/admin/dashboard");
                     } else {
+                        toast.success("Bem-vindo ao Domvia! ✨");
                         router.push("/dashboard");
                     }
                 }
@@ -275,6 +277,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
                 router.push("/admin/dashboard");
             } else {
+                toast.success("Bem-vindo ao Domvia! ✨");
                 router.push("/dashboard");
             }
         } catch (error) {
@@ -293,6 +296,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
                 router.push("/admin/dashboard");
             } else {
+                toast.success("Bem-vindo ao Domvia! ✨");
                 router.push("/dashboard");
             }
         } catch (error) {
@@ -312,6 +316,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             setUser(mappedUser);
             localStorage.setItem("lb_user", JSON.stringify(mappedUser));
+            toast.success("Bem-vindo ao Domvia! ✨");
             router.push("/dashboard");
         } catch (error) {
             console.error("Register failed:", error);

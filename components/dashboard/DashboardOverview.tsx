@@ -85,7 +85,7 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
         { label: t("dashboard.stats.links"), value: stats.totalLinks, icon: Link2, color: "text-brand-600 bg-brand-50", href: "/links" },
         { label: t("dashboard.stats.leads"), value: stats.totalLeads, icon: Users, color: "text-emerald-600 bg-emerald-50", href: "/leads" },
         { label: t("dashboard.stats.simulations"), value: stats.totalSimulations, icon: Calculator, color: "text-purple-600 bg-purple-50", href: "/leads" },
-        { label: "Captações", value: stats.totalCaptures || 0, icon: Camera, color: "text-blue-600 bg-blue-50", href: "/tools/captacao" },
+        { label: t("dashboard.stats.captures"), value: stats.totalCaptures || 0, icon: Camera, color: "text-blue-600 bg-blue-50", href: "/tools/captacao" },
     ];
 
     return (
@@ -94,6 +94,28 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
             <div className="text-center pt-2">
                 <RotaryPhrases />
             </div>
+
+            {/* Welcome Banner for New Users */}
+            {stats.totalLinks === 0 && (
+                <Card className="bg-gradient-to-br from-brand-600 to-indigo-700 border-none shadow-xl shadow-brand-500/20 overflow-hidden relative" padding="lg">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Gift className="h-32 w-32 -rotate-12" />
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center sm:items-start text-center sm:text-left gap-4">
+                        <div className="space-y-1">
+                            <h2 className="text-xl sm:text-2xl font-display font-black text-white italic">Bem-vindo ao Domvia! 🚀</h2>
+                            <p className="text-brand-100 text-sm font-medium max-w-md">
+                                Estamos muito felizes em ter você aqui. Que tal começar criando seu primeiro link inteligente para captar leads?
+                            </p>
+                        </div>
+                        <Link href="/links">
+                            <Button variant="secondary" className="font-black uppercase tracking-widest text-xs h-11 px-6 shadow-lg shadow-black/10">
+                                Criar meu primeiro link
+                            </Button>
+                        </Link>
+                    </div>
+                </Card>
+            )}
 
             {/* Compact Stat Cards - 2x2 Grid on Mobile */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -109,6 +131,24 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
                     </Link>
                 ))}
             </div>
+
+            {/* Referral Banner */}
+            <Card hover padding="none" className="overflow-hidden border-brand-100 bg-gradient-to-r from-brand-600/5 to-transparent">
+                <div className="flex flex-col sm:flex-row items-center gap-4 p-4">
+                    <div className="h-12 w-12 rounded-2xl bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                        <Gift className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-center sm:text-left">
+                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{t("dashboard.referral_banner.title")}</h4>
+                        <p className="text-xs text-slate-500">{t("dashboard.referral_banner.desc")}</p>
+                    </div>
+                    <Link href="/referrals">
+                        <Button size="sm" variant="primary" className="font-black uppercase tracking-widest text-[10px] h-9 px-4">
+                            {t("dashboard.referral_banner.cta")}
+                        </Button>
+                    </Link>
+                </div>
+            </Card>
 
             {/* Smart Suggestions */}
             <SmartSuggestions />

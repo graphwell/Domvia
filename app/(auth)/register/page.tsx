@@ -70,7 +70,7 @@ export default function RegisterPage() {
             {/* Logo */}
             <div className="text-center mb-8">
                 <Link href="/" className="inline-block group mb-6">
-                    <div className="relative h-16 w-52 md:h-20 md:w-64 mx-auto">
+                    <div className="relative h-14 w-52 md:h-20 md:w-64 mx-auto">
                         <Image
                             src="/logo-domvia.png?v=202603092100"
                             alt="Domvia Logo"

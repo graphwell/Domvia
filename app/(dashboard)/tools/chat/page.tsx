@@ -170,7 +170,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto">
+        <div className="flex flex-col min-h-[calc(100vh-7rem)] sm:h-[calc(100vh-4rem)] max-w-3xl mx-auto">
             {/* Header */}
             <div className="flex items-center justify-between py-4 px-1 shrink-0">
                 <div>
@@ -196,7 +196,7 @@ export default function ChatPage() {
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto space-y-4 pb-4 px-1">
+            <div className={cn("overflow-y-auto space-y-4 pb-4 px-1 transition-all", messages.length <= 2 ? "flex-initial min-h-[100px]" : "flex-1")}>
                 {messages.map((msg, i) => (
                     <div key={i} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                         {/* Avatar */}

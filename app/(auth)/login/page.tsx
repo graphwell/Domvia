@@ -69,7 +69,7 @@ export default function LoginPage() {
         <div className="glass-dark rounded-3xl p-8 border border-white/10 shadow-2xl w-full max-w-md animate-fade-in">
             <div className="text-center mb-8">
                 <Link href="/" className="inline-block group mb-6">
-                    <div className="relative h-16 w-52 md:h-20 md:w-64 mx-auto">
+                    <div className="relative h-14 w-52 md:h-20 md:w-64 mx-auto">
                         <Image
                             src="/logo-domvia.png?v=202603092100"
                             alt="Domvia"

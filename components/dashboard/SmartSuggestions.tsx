@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ref, get } from "firebase/database";
 import { rtdb } from "@/lib/firebase";
+import { cn } from "@/lib/utils";
 
 export function SmartSuggestions() {
     const { user } = useAuth();
@@ -79,6 +80,3 @@ export function SmartSuggestions() {
     );
 }
 
-function cn(...classes: any[]) {
-    return classes.filter(Boolean).join(" ");
-}

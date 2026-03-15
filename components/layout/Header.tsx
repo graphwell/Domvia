@@ -32,7 +32,7 @@ export function DomviaLogo({ collapsed = false, dark = false }: { collapsed?: bo
     }
 
     return (
-        <Link href="/" className="flex items-center group select-none relative h-10 w-40 md:h-14 md:w-56">
+        <Link href="/" className="flex items-center group select-none relative h-14 w-52 md:h-14 md:w-56">
             <Image
                 src={`/logo-domvia.png?v=${timestamp}`}
                 alt="Domvia Logo"

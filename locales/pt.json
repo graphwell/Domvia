@@ -333,7 +333,13 @@
             "leads": "Total de Leads",
             "week_leads": "Leads (Semana)",
             "simulations": "Simulações",
-            "ai_questions": "Dúvidas IA"
+            "ai_questions": "Dúvidas IA",
+            "captures": "Captações"
+        },
+        "referral_banner": {
+            "title": "Indique e Ganhe! 🎁",
+            "desc": "Ganhe 10 créditos por cada colega corretor que se cadastrar com seu código.",
+            "cta": "Copiar link de convite"
         },
         "chart": {
             "title": "Atividade Semanal",

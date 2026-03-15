@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Share, PlusSquare, Download, Monitor, Smartphone } from "lucide-react";
+import { X, Share, PlusSquare, Download, Monitor, Smartphone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { triggerHaptic } from "@/lib/haptic";
@@ -94,8 +94,11 @@ export function InstallPWA() {
                     </div>
 
                     {/* Content */}
-                    <div className="space-y-2">
-                        <h2 className="text-2xl font-display font-black text-slate-900 tracking-tight">Instale o Domvia no seu celular</h2>
+                    <div className="space-y-3">
+                        <div className="inline-flex px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-[10px] font-black uppercase tracking-widest">
+                            Bem-vindo ao Domvia! 🚀
+                        </div>
+                        <h2 className="text-2xl font-display font-black text-slate-900 tracking-tight leading-tight">Instale o Domvia no seu celular</h2>
                         <p className="text-slate-500 text-sm font-medium leading-relaxed">
                             Acesse o Domvia mais rápido diretamente da tela inicial do seu celular e tenha uma experiência semelhante a um aplicativo.
                         </p>
@@ -154,10 +157,3 @@ export function InstallPWA() {
     );
 }
 
-function ArrowRight({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-        </svg>
-    );
-}
