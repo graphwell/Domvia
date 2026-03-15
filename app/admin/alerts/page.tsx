@@ -70,10 +70,10 @@ export default function AdminAlertsPage() {
 
     const getSeverityBadge = (sev: string) => {
         switch (sev) {
-            case 'critical': return <Badge variant="destructive">Crítico</Badge>;
+            case 'critical': return <Badge variant="danger">Crítico</Badge>;
             case 'error': return <Badge className="bg-orange-100 text-orange-700 border-orange-200">Erro</Badge>;
             case 'warning': return <Badge className="bg-amber-100 text-amber-700 border-amber-200">Aviso</Badge>;
-            default: return <Badge variant="secondary">Info</Badge>;
+            default: return <Badge variant="default">Info</Badge>;
         }
     };
 
