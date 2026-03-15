@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -20,6 +20,8 @@ import { ref, push, set } from "firebase/database";
 import { notFound } from "next/navigation";
 import { triggerHaptic } from "@/lib/haptic";
 import { trackUsage } from "@/lib/usage-tracking";
+import { getToolCostDynamic } from "@/lib/billing";
+import { Coins, AlertCircle } from "lucide-react";
 
 function toTitleCase(str: string) {
     if (!str) return "";
@@ -229,6 +231,14 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState<Record<string, boolean>>({});
     const [showWitness2, setShowWitness2] = useState(false);
+    const [toolCost, setToolCost] = useState<number | null>(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+    useEffect(() => {
+        if (user?.planId) {
+            getToolCostDynamic(templateId, user.planId).then(setToolCost);
+        }
+    }, [user?.planId, templateId]);
 
     const brokerRef = useRef<SignaturePadRef>(null);
     const clientRef = useRef<SignaturePadRef>(null);
@@ -254,8 +264,19 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             firstErrorField?.scrollIntoView({ behavior: "smooth", block: "center" });
             return;
         }
+        
+        // Show confirmation if there is a cost
+        if (toolCost && toolCost > 0) {
+            setShowConfirmModal(true);
+        } else {
+            proceedToSign();
+        }
+    };
+
+    const proceedToSign = () => {
         triggerHaptic('medium');
         setStep(1);
+        setShowConfirmModal(false);
     };
 
     const brokerData = {
@@ -513,6 +534,41 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Credit Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <Card className="w-full max-w-sm border-slate-200 shadow-2xl animate-in zoom-in-95 duration-200" padding="lg">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center border-4 border-white shadow-sm">
+                                <Coins className="h-8 w-8 text-brand-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-display font-black text-slate-900">Confirmar Documento</h3>
+                                <p className="text-sm text-slate-500 mt-2">
+                                    Este documento consumirá <span className="font-bold text-brand-600">{toolCost} créditos</span> do seu saldo. Deseja continuar?
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-col w-full gap-2 pt-2">
+                                <Button onClick={proceedToSign} className="w-full bg-brand-600 hover:bg-brand-700">
+                                    Sim, Continuar
+                                </Button>
+                                <Button variant="ghost" onClick={() => setShowConfirmModal(false)} className="w-full text-slate-500 hover:bg-slate-50">
+                                    Agora não
+                                </Button>
+                            </div>
+                            
+                            <div className="flex items-start gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 text-left">
+                                <AlertCircle className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                                <p className="text-[10px] text-slate-400 italic">
+                                    Créditos são deduzidos apenas ao prosseguir para a fase de assinatura e exportação deste documento.
+                                </p>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </>
     );
 }

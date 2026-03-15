@@ -83,11 +83,12 @@ const PERM_LABELS: { key: keyof UserPerms; label: string; icon: React.ElementTyp
 
 const PLANS = ["Trial", "Pro", "Max", "Elite", "Lifetime"];
 const PLAN_COLOR: Record<string, string> = {
-    Trial: "text-slate-500",
-    Pro: "text-blue-600",
-    Max: "text-brand-600",
-    Elite: "text-amber-500",
-    Lifetime: "text-emerald-600",
+    "Trial": "text-slate-400 border-slate-200 bg-slate-50",
+    "Pro": "text-brand-600 border-brand-200 bg-brand-50",
+    "Max": "text-amber-600 border-amber-200 bg-amber-50",
+    "Agency": "text-violet-600 border-violet-200 bg-violet-50",
+    "Elite": "text-amber-500",
+    "Lifetime": "text-emerald-600",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -365,9 +366,9 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="space-y-1">
-                                                <div className="flex items-center gap-1.5">
-                                                    <Crown className={`h-3 w-3 ${PLAN_COLOR[u.plan] ?? "text-slate-400"}`} />
-                                                    <span className={`text-xs font-bold ${PLAN_COLOR[u.plan] ?? "text-slate-600"}`}>{u.plan}</span>
+                                                <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-black w-fit uppercase tracking-tight ${PLAN_COLOR[u.plan] ?? "text-slate-400 border-slate-200 bg-slate-50"}`}>
+                                                    <Crown className="h-3 w-3" />
+                                                    {u.plan}
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${u.status === "active" ? "bg-emerald-50 text-emerald-700" :

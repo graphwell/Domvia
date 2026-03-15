@@ -1,16 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { Type, ArrowLeft, Copy, CheckCheck, Sparkles, Coins } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/auth-provider";
+import { getToolCostDynamic } from "@/lib/billing";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Type, ArrowLeft, Copy, CheckCheck, Sparkles } from "lucide-react";
-import Link from "next/link";
 
 export default function TitlePage() {
     const [title, setTitle] = useState("");
     const [results, setResults] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+    const { user } = useAuth();
+    const [toolCost, setToolCost] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (user?.planId) {
+            getToolCostDynamic('title_gen', user.planId).then(setToolCost);
+        }
+    }, [user?.planId]);
 
     const generate = async () => {
         setLoading(true);
@@ -72,6 +82,12 @@ export default function TitlePage() {
                         >
                             Gerar Sugestões
                         </Button>
+                        {toolCost !== null && toolCost > 0 && (
+                            <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-brand-600 animate-pulse">
+                                <Coins className="h-2.5 w-2.5" />
+                                Custará {toolCost} créditos
+                            </div>
+                        )}
                     </div>
                 </Card>
 

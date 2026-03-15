@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     LayoutDashboard, Users, CreditCard,
     LogOut, Menu, X,
-    Activity, Bot, UserCheck, ChevronRight, MessageSquare
+    Activity, Bot, UserCheck, ChevronRight, MessageSquare, Coins
 } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
     { name: "Usuários", href: "/admin/users", icon: Users },
     { name: "Leads Globais", href: "/admin/leads", icon: UserCheck },
     { name: "Gestão de IA", href: "/admin/ai", icon: Bot },
+    { name: "Custo de Créditos", href: "/admin/settings/credits", icon: Coins },
     { name: "Planos & Preços", href: "/admin/plans", icon: CreditCard },
     { name: "Métricas Globais", href: "/admin/metrics", icon: Activity },
     { name: "Sugestões", href: "/admin/suggestions", icon: MessageSquare },
@@ -34,6 +35,7 @@ const ROUTE_LABELS: Record<string, string> = {
     "/admin/users": "Usuários",
     "/admin/leads": "Leads Globais",
     "/admin/ai": "Gestão de IA",
+    "/admin/settings/credits": "Custo de Créditos",
     "/admin/plans": "Planos & Preços",
     "/admin/metrics": "Métricas Globais",
     "/admin/suggestions": "Sugestões",

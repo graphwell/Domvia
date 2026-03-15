@@ -210,8 +210,9 @@ async function addBonusCredits(userId: string, amount: number, description: stri
  */
 export async function checkAndConsumeCreditsAdmin(userId: string, tool: string): Promise<{ success: boolean; reason?: 'insufficient_credits' | 'limit_reached' }> {
     // 1. Free tools
-    const { TOOL_CREDIT_COSTS, PLAN_CONFIG } = require('./billing');
-    if (TOOL_CREDIT_COSTS[tool] === 0) return { success: true };
+    const { DEFAULT_TOOL_CREDIT_COSTS, PLAN_CONFIG } = require('./billing');
+    const toolCostDefault = DEFAULT_TOOL_CREDIT_COSTS[tool] ?? 1;
+    if (toolCostDefault === 0) return { success: true };
 
     const userRef = adminDb.ref(`users/${userId}`);
     const snap = await userRef.get();
@@ -240,8 +241,16 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
         return { success: true };
     }
 
-    // 4. Exceeded monthly limit, try to consume credits
-    const cost = TOOL_CREDIT_COSTS[tool];
+    // 4. Exceeded monthly limit, try to consume credits from settings
+    const costRef = adminDb.ref(`settings/tool_costs/${tool}`);
+    const costSnap = await costRef.get();
+    let cost = toolCostDefault;
+    if (costSnap.exists()) {
+        const tier = planType === 'trial' ? 'free' : planType;
+        cost = costSnap.val()[tier] ?? costSnap.val()['free'] ?? toolCostDefault;
+    }
+
+    if (cost === 0) return { success: true };
     const creditsRef = adminDb.ref(`user_credits/${userId}`);
     const creditsSnap = await creditsRef.get();
     const creditsData = creditsSnap.val() || { plan_credits: 0, bonus_credits: 0 };

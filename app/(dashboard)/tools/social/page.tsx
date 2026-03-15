@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Instagram, ArrowLeft, Copy, CheckCheck, Sparkles, Send, Coins } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/auth-provider";
+import { getToolCostDynamic } from "@/lib/billing";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Instagram, ArrowLeft, Copy, CheckCheck, Sparkles, Send } from "lucide-react";
-import Link from "next/link";
 
 export default function SocialPage() {
     const [title, setTitle] = useState("");
@@ -14,6 +16,14 @@ export default function SocialPage() {
     const [result, setResult] = useState("");
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
+    const { user } = useAuth();
+    const [toolCost, setToolCost] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (user?.planId) {
+            getToolCostDynamic('social_gen', user.planId).then(setToolCost);
+        }
+    }, [user?.planId]);
 
     const generate = async () => {
         setLoading(true);
@@ -112,6 +122,12 @@ export default function SocialPage() {
                         >
                             Gerar Legenda para {platform}
                         </Button>
+                        {toolCost !== null && toolCost > 0 && (
+                            <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-brand-600 animate-pulse">
+                                <Coins className="h-2.5 w-2.5" />
+                                Custará {toolCost} créditos
+                            </div>
+                        )}
                     </div>
                 </Card>
 

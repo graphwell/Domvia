@@ -9,6 +9,7 @@ export interface CreditTransaction {
     timestamp: number;
     expiresAt?: number | null; // 90 days validity for some operations
     toolId?: string;
+    targetUserId?: string; // For tracking who was referred
 }
 
 export interface ToolUnlock {
@@ -223,7 +224,22 @@ export async function processReferral(referrerId: string, newUserId: string) {
             'referral'
         );
 
-        // 2. Reward new user (5 credits)
+        // 2. Increment referrer's invite count
+        const referrerRef = ref(rtdb, `users/${referrerId}`);
+        const snap = await get(referrerRef);
+        if (snap.exists()) {
+            const currentCount = snap.val().inviteCount || 0;
+            await update(referrerRef, { inviteCount: currentCount + 1 });
+        }
+
+        // 3. Mark the referral connection specifically for audit
+        const referralLogRef = ref(rtdb, `referrals/${referrerId}/${newUserId}`);
+        await set(referralLogRef, {
+            acceptedAt: Date.now(),
+            status: 'accepted'
+        });
+
+        // 4. Reward new user (5 credits)
         await addCredits(
             newUserId, 
             5, 

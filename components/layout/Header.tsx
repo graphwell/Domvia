@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Coins } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -69,6 +69,24 @@ export function Header() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                     <DomviaLogo />
+                    {user && (
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
+                            <Link href="/admin/settings/credits" className="flex items-center gap-1.5 focus:outline-none">
+                                <Coins className="h-3.5 w-3.5 text-brand-600" />
+                                <span className="text-sm font-bold text-slate-700">{(user && user.credits) ? user.credits : 0}</span>
+                                {user?.plan && (
+                                    <span className={`ml-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${
+                                        user.plan === "Pro" ? "bg-brand-600 text-white" :
+                                        user.plan === "Max" ? "bg-amber-500 text-white" :
+                                        "bg-slate-500 text-white"
+                                    }`}>
+                                        {user.plan}
+                                    </span>
+                                )}
+                            </Link>
+                            <div className="h-3 w-[1px] bg-slate-300 mx-1" />
+                        </div>
+                    )}
 
                     <nav className="hidden md:flex items-center gap-6">
                         {navLinks.map((link) => (

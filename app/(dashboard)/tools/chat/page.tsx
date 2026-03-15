@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/auth-provider";
 import { trackUsage } from "@/lib/usage-tracking";
-import { Send, Loader2, Bot, User, Sparkles, RefreshCw, Share2 } from "lucide-react";
+import { Send, Loader2, Bot, User, Sparkles, RefreshCw, Share2, Coins } from "lucide-react";
+import { getToolCostDynamic } from "@/lib/billing";
 import { useLanguage } from "@/hooks/use-language";
 import { triggerHaptic } from "@/lib/haptic";
 
@@ -27,6 +28,13 @@ export default function ChatPage() {
     const [loading, setLoading] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const [toolCost, setToolCost] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (user?.planId) {
+            getToolCostDynamic('ai_chat', user.planId).then(setToolCost);
+        }
+    }, [user?.planId]);
 
     // Initial message
     useEffect(() => {
@@ -276,7 +284,15 @@ export default function ChatPage() {
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </Button>
                 </Card>
-                <p className="text-[10px] text-center text-slate-400 mt-1">{t("common.ia_trained")}</p>
+                <div className="flex items-center justify-between mt-1 px-2">
+                    <p className="text-[10px] text-slate-400">{t("common.ia_trained")}</p>
+                    {toolCost !== null && toolCost > 0 && (
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-brand-600 animate-pulse">
+                            <Coins className="h-2.5 w-2.5" />
+                            {toolCost} créditos por mensagem
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

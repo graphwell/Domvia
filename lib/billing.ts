@@ -14,6 +14,8 @@ export const PLAN_CONFIG = {
         name: 'Trial',
         creditsInbound: 100,
         durationDays: 14,
+        badge: 'TRIAL',
+        color: 'slate',
         limits: {
             'captacao': 15,
             'doc_gen': 5,
@@ -29,6 +31,8 @@ export const PLAN_CONFIG = {
         id: 'pro',
         name: 'Pro',
         creditsInbound: 500,
+        badge: 'PRO',
+        color: 'brand',
         stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'price_1pro_monthly_3990',
         limits: {
             'captacao': 150,
@@ -44,7 +48,9 @@ export const PLAN_CONFIG = {
     max: {
         id: 'max',
         name: 'Max',
-        creditsInbound: 999999,
+        creditsInbound: 10000,
+        badge: 'MAX',
+        color: 'amber',
         stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MAX_MONTHLY || 'price_1max_monthly_7900',
         limits: {} // Unlimited
     }
@@ -56,7 +62,8 @@ export const TOPUP_CONFIG = {
     'credits_1000': { id: 'credits_1000', credits: 1000, price: 97.00, stripePriceId: 'price_1topup_1000_9700' },
 } as const;
 
-export const TOOL_CREDIT_COSTS: Record<string, number> = {
+// Default costs if DB is empty
+export const DEFAULT_TOOL_CREDIT_COSTS: Record<string, number> = {
     'captacao': 3,
     'doc_gen': 2,
     'description_gen': 1,
@@ -72,6 +79,23 @@ export const TOOL_CREDIT_COSTS: Record<string, number> = {
 };
 
 /**
+ * Replaced by dynamic cost fetcher from DB settings.
+ */
+export async function getToolCostDynamic(toolId: string, planId: string): Promise<number> {
+    const costRef = ref(rtdb, `settings/tool_costs/${toolId}`);
+    const snap = await get(costRef);
+    
+    if (snap.exists()) {
+        const costs = snap.val();
+        // planId might be 'trial', 'pro', 'max'
+        const tier = planId === 'trial' ? 'free' : (planId as any);
+        return costs[tier] ?? costs['free'] ?? DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
+    }
+    
+    return DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
+}
+
+/**
  * Core function to check and consume credits/usage.
  * Logic:
  * 1. Free tool? Return true.
@@ -82,7 +106,8 @@ export const TOOL_CREDIT_COSTS: Record<string, number> = {
  */
 export async function checkAndConsumeCredits(userId: string, tool: string): Promise<{ success: boolean; reason?: 'insufficient_credits' | 'limit_reached' }> {
     // 1. Free tools
-    if (TOOL_CREDIT_COSTS[tool] === 0) return { success: true };
+    const toolCostDefault = DEFAULT_TOOL_CREDIT_COSTS[tool] ?? 1;
+    if (toolCostDefault === 0) return { success: true };
 
     const userRef = ref(rtdb, `users/${userId}`);
     const snap = await get(userRef);
@@ -91,7 +116,7 @@ export async function checkAndConsumeCredits(userId: string, tool: string): Prom
     const userData = snap.val();
     const planType = (userData.planId || 'trial') as PlanType;
     
-    // 2. Max plan is unlimited
+    // 2. Max plan is unlimited (if not specifically configured to cost credits)
     if (planType === 'max') return { success: true };
 
     const now = new Date();
@@ -112,7 +137,8 @@ export async function checkAndConsumeCredits(userId: string, tool: string): Prom
     }
 
     // 4. Exceeded monthly limit, try to consume credits
-    const cost = TOOL_CREDIT_COSTS[tool];
+    const cost = await getToolCostDynamic(tool, planType);
+    if (cost === 0) return { success: true };
     const creditsRef = ref(rtdb, `user_credits/${userId}`);
     const creditsSnap = await get(creditsRef);
     const creditsData = creditsSnap.val() || { plan_credits: 0, bonus_credits: 0 };

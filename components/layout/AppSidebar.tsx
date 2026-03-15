@@ -96,13 +96,29 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
 
             {/* Footer */}
             <div className="px-2 pb-4 space-y-0.5 border-t border-slate-200 pt-3">
-                {!actualCollapsed && (
-                    <div className="px-3 py-2 mb-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Coins className="h-4 w-4 text-brand-600" />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Créditos</span>
+                {!actualCollapsed && user && (
+                    <div className="px-3 py-3 mb-2 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className={cn(
+                                    "h-4 w-4",
+                                    user.planId === 'max' ? "text-amber-500" : user.planId === 'pro' ? "text-brand-600" : "text-slate-400"
+                                )} />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1.5 py-0.5 rounded-md border border-slate-200 bg-white">
+                                    {user.planId?.toUpperCase() || 'TRIAL'}
+                                </span>
+                            </div>
+                            <span className="text-xs font-black text-slate-700">{user.credits || 0}</span>
                         </div>
-                        <span className="text-sm font-black text-slate-700 tracking-tighter">{user?.credits || 0}</span>
+                        <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                            <div 
+                                className={cn(
+                                    "h-full transition-all duration-1000",
+                                    user.planId === 'max' ? "bg-amber-500" : user.planId === 'pro' ? "bg-brand-500" : "bg-slate-400"
+                                )}
+                                style={{ width: `${Math.min(100, ((user.credits || 0) / 500) * 100)}%` }}
+                             />
+                        </div>
                     </div>
                 )}
 
