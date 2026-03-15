@@ -288,7 +288,9 @@ export default function ChatPage() {
                     </Button>
                 </Card>
                 <div className="flex items-center justify-between mt-1 px-2">
-                    <p className="text-[10px] text-slate-400">{t("common.ia_trained")}</p>
+                    <p className="text-[10px] text-slate-400">
+                        IA treinada pela Domvia. Pode cometer erros. Revise informações críticas.
+                    </p>
                     {toolCost !== null && toolCost > 0 && (
                         <div className="flex items-center gap-1 text-[10px] font-bold text-brand-600 animate-pulse">
                             <Coins className="h-2.5 w-2.5" />

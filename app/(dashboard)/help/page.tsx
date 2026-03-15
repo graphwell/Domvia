@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/auth-provider";
 import { 
     LifeBuoy, MessageSquare, Send, Loader2, Bot, User, 
     Lightbulb, HelpCircle, CheckCircle2, ChevronRight,
-    Camera, Link2, Calculator, Zap
+    Camera, Link2, Calculator, Zap, Trash2, AlertCircle
 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -188,11 +188,103 @@ export default function HelpCenterPage() {
                                     <Send className="h-4 w-4" />
                                 </button>
                             </div>
-                            <p className="text-[10px] text-center text-slate-400 mt-3 font-medium">IA treinada em funcionalidades do Domvia</p>
+                            <p className="text-[10px] text-center text-slate-400 mt-3 leading-relaxed">
+                                IA treinada em funcionalidades do Domvia.<br/>
+                                Como toda IA, posso cometer erros. Revise informações críticas.
+                            </p>
                         </div>
                     </Card>
                 </div>
             </div>
+
+            {/* Account Deletion - Discrete at footer */}
+            <div className="pt-12 border-t border-slate-100 flex justify-center">
+                <AccountDeletionFlow />
+            </div>
         </div>
+    );
+}
+
+function AccountDeletionFlow() {
+    const [step, setStep] = useState(0); // 0: Idle, 1: Warning, 2: Final Confirmation
+    const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
+
+    const handleDelete = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch("/api/user/delete-account", {
+                method: "POST",
+                headers: { "x-user-id": user?.id || "" }
+            });
+            if (res.ok) {
+                window.location.href = "/";
+            } else {
+                alert("Erro ao excluir conta. Tente novamente.");
+            }
+        } catch (e) {
+            alert("Erro de conexão.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (step === 0) {
+        return (
+            <button 
+                onClick={() => setStep(1)}
+                className="text-[11px] text-slate-400 hover:text-red-400 transition-colors uppercase tracking-widest font-bold"
+            >
+                Excluir minha conta e dados
+            </button>
+        );
+    }
+
+    return (
+        <Card className="max-w-md w-full border-red-100 bg-red-50/30 animate-in fade-in zoom-in duration-300">
+            <div className="flex flex-col items-center text-center p-2">
+                <div className="h-12 w-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4">
+                    <Trash2 className="h-6 w-6" />
+                </div>
+                
+                {step === 1 ? (
+                    <>
+                        <h3 className="font-bold text-slate-900">Tem certeza que deseja sair?</h3>
+                        <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Esta ação é **permanente**. Você perderá acesso a todos os seus leads, 
+                            captações, documentos e créditos restantes.
+                        </p>
+                        <div className="flex gap-3 w-full mt-6">
+                            <Button variant="outline" className="flex-1" onClick={() => setStep(0)}>Cancelar</Button>
+                            <Button variant="danger" className="flex-1" onClick={() => setStep(2)}>Entendi, prosseguir</Button>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="flex items-center gap-2 text-red-600 mb-2">
+                            <AlertCircle className="h-4 w-4" />
+                            <h3 className="font-bold">Confirmação Final</h3>
+                        </div>
+                        <p className="text-sm text-slate-600">
+                            Ao clicar no botão abaixo, sua conta e **todos os seus dados** serão apagados 
+                            imediatamente do nosso banco de dados.
+                        </p>
+                        <div className="flex flex-col gap-2 w-full mt-6">
+                            <Button 
+                                variant="danger" 
+                                className="w-full" 
+                                loading={loading}
+                                onClick={handleDelete}
+                            >
+                                Sim, desejo apagar todos os meus dados
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => setStep(0)} disabled={loading}>
+                                Desistir e Voltar
+                            </Button>
+                        </div>
+                    </>
+                )}
+            </div>
+        </Card>
     );
 }
