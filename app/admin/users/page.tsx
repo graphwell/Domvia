@@ -12,8 +12,10 @@ import {
     Search, UserPlus, Edit2, Trash2, Power, X, Crown,
     Mail, Calendar, BarChart2, Clock, ShieldCheck,
     ChevronRight, Gift, AlertTriangle, TrendingUp, MessageSquare,
-    FileText, Calculator, Link2, Camera, Copy, CheckCircle, Coins, Users
+    FileText, Calculator, Link2, Camera, Copy, CheckCircle, Coins, Users,
+    Sparkles
 } from "lucide-react";
+import { forceEngagement } from "@/lib/engagement";
 
 // ─── Types ──────────────────────────────────────────────────────
 interface UserPerms {
@@ -441,6 +443,13 @@ export default function AdminUsersPage() {
                                                     className="p-1.5 rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-colors"
                                                 >
                                                     <Calendar className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => { forceEngagement(u); alert("Notificação de teste enviada!"); }}
+                                                    title="Enviar Notificação de Engajamento de Teste"
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                                                >
+                                                    <Sparkles className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => { setSelected(u); setModal("edit"); }}

@@ -147,7 +147,7 @@ async function evaluateTriggers(
         console.warn("[Engagement] Using default messages fallback");
     }
 
-    // Logic to select message
+    // Select a message
     const message = selectMessage(user, data, messages, category);
     if (!message) return;
 
@@ -158,6 +158,25 @@ async function evaluateTriggers(
     await set(ref(rtdb, `users/${user.id}/engagement/lastNotificationSent`), now);
     await set(ref(rtdb, `users/${user.id}/engagement/monthlyCount`), monthlyCount + 1);
     await set(ref(rtdb, `users/${user.id}/engagement/weeklyCount`), (data.weeklyCount || 0) + 1);
+}
+
+/**
+ * FOR TESTING ONLY: Bypasses all cooldowns and triggers a notification immediately.
+ */
+export async function forceEngagement(user: User | { id: string }): Promise<void> {
+    if (!user?.id) return;
+    
+    let messages = DEFAULT_MESSAGES;
+    try {
+        const msgSnap = await get(ref(rtdb, "engagement_messages"));
+        if (msgSnap.exists()) {
+            const rtdbMsgs = msgSnap.val();
+            messages = Object.keys(rtdbMsgs).map(k => ({ ...rtdbMsgs[k], id: k }));
+        }
+    } catch (e) {}
+
+    const message = messages[Math.floor(Math.random() * messages.length)];
+    await triggerNotification(user as any, message);
 }
 
 function selectMessage(
