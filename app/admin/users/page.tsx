@@ -767,7 +767,14 @@ function EditUserModal({ user, onSave, onClose }: {
         simulatorLevel: user?.simulatorLevel ?? "",
     });
     const f = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setForm((p) => ({ ...p, [k]: e.target.value === "" ? null : e.target.value }));
+        const value = e.target.value === "" ? null : e.target.value;
+        setForm((p) => ({ ...p, [k]: value }));
+    };
+
+    const handleSave = () => {
+        const payload: any = { ...form };
+        if (payload.plan) payload.planId = payload.plan.toLowerCase();
+        onSave(payload);
     };
 
     return (
@@ -826,7 +833,7 @@ function EditUserModal({ user, onSave, onClose }: {
                 </div>
                 <div className="flex gap-3 px-6 pb-6">
                     <Button variant="ghost" onClick={onClose} className="flex-1">Cancelar</Button>
-                    <Button onClick={() => onSave({ ...form, simulatorLevel: form.simulatorLevel === "" ? undefined : form.simulatorLevel as any })} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
+                    <Button onClick={handleSave} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
                         {user ? "Salvar" : "Criar Usuário"}
                     </Button>
                 </div>

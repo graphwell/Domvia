@@ -57,14 +57,17 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
 
     if (snap.exists()) {
         const data = snap.val();
+        const rawPlan = data.planId ?? data.plan ?? "starter";
+        const normalizedPlanId = rawPlan.toLowerCase();
+        
         return {
             id: firebaseUser.uid,
             name: data.name ?? firebaseUser.displayName ?? "Usuário",
             email: data.email ?? firebaseUser.email ?? "",
             photoURL: data.photoURL ?? firebaseUser.photoURL ?? "",
             role: (data.role as UserRole) ?? "CORRETOR",
-            planId: data.planId ?? data.plan ?? "starter",
-            plan: data.plan ?? "Trial",
+            planId: normalizedPlanId,
+            plan: data.plan ?? (normalizedPlanId.charAt(0).toUpperCase() + normalizedPlanId.slice(1)),
             simulatorLevel: data.simulatorLevel,
             credits: data.credits ?? 0,
             bonusCredits: data.bonusCredits ?? 0,
@@ -173,14 +176,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 dbUnsubscribe = onValue(userRef, (snap) => {
                     if (snap.exists()) {
                         const data = snap.val();
+                        const rawPlan = data.planId ?? data.plan ?? initialUser.planId;
+                        const normalizedPlanId = rawPlan.toLowerCase();
+                        
                         const updatedUser: User = {
                             id: firebaseUser.uid,
                             name: data.name ?? firebaseUser.displayName ?? initialUser.name,
                             email: data.email ?? firebaseUser.email ?? initialUser.email,
                             photoURL: data.photoURL ?? firebaseUser.photoURL ?? initialUser.photoURL,
                             role: (data.role as UserRole) ?? initialUser.role,
-                            planId: data.planId ?? data.plan ?? initialUser.planId,
-                            plan: data.plan ?? initialUser.plan,
+                            planId: normalizedPlanId,
+                            plan: data.plan ?? (normalizedPlanId.charAt(0).toUpperCase() + normalizedPlanId.slice(1)),
                             credits: data.credits ?? 0,
                             bonusCredits: data.bonusCredits ?? 0,
                             phone: data.phone,

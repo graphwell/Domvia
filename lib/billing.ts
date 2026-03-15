@@ -87,8 +87,9 @@ export async function getToolCostDynamic(toolId: string, planId: string): Promis
     
     if (snap.exists()) {
         const costs = snap.val();
-        // planId might be 'trial', 'pro', 'max'
-        const tier = planId === 'trial' ? 'free' : (planId as any);
+        // planId might be 'trial', 'pro', 'max' (normalizing here too for safety)
+        const pId = planId.toLowerCase();
+        const tier = pId === 'trial' ? 'free' : pId;
         return costs[tier] ?? costs['free'] ?? DEFAULT_TOOL_CREDIT_COSTS[toolId] ?? 1;
     }
     
@@ -114,7 +115,7 @@ export async function checkAndConsumeCredits(userId: string, tool: string): Prom
     if (!snap.exists()) return { success: false };
 
     const userData = snap.val();
-    const planType = (userData.planId || 'trial') as PlanType;
+    const planType = ((userData.planId || userData.plan || 'trial').toLowerCase()) as PlanType;
     
     // 2. Max plan is unlimited (if not specifically configured to cost credits)
     if (planType === 'max') return { success: true };

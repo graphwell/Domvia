@@ -102,10 +102,10 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
                             <div className="flex items-center gap-2">
                                 <Sparkles className={cn(
                                     "h-4 w-4",
-                                    user.planId === 'max' ? "text-amber-500" : user.planId === 'pro' ? "text-brand-600" : "text-slate-400"
+                                    user.planId?.toLowerCase() === 'max' ? "text-amber-500" : user.planId?.toLowerCase() === 'pro' ? "text-brand-600" : "text-slate-400"
                                 )} />
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1.5 py-0.5 rounded-md border border-slate-200 bg-white">
-                                    {user.planId?.toUpperCase() || 'TRIAL'}
+                                    {(user.planId || user.plan || 'TRIAL').toUpperCase()}
                                 </span>
                             </div>
                             <span className="text-xs font-black text-slate-700">{user.credits || 0}</span>
@@ -114,7 +114,7 @@ export function AppSidebar({ mobileMode = false, onClose }: { mobileMode?: boole
                             <div 
                                 className={cn(
                                     "h-full transition-all duration-1000",
-                                    user.planId === 'max' ? "bg-amber-500" : user.planId === 'pro' ? "bg-brand-500" : "bg-slate-400"
+                                    user.planId?.toLowerCase() === 'max' ? "bg-amber-500" : user.planId?.toLowerCase() === 'pro' ? "bg-brand-500" : "bg-slate-400"
                                 )}
                                 style={{ width: `${Math.min(100, ((user.credits || 0) / 500) * 100)}%` }}
                              />

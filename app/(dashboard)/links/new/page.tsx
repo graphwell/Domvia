@@ -45,7 +45,8 @@ export default function NewLinkPage() {
     const [landingShowLogo, setLandingShowLogo] = useState(true);
     const [generatingCopy, setGeneratingCopy] = useState(false);
 
-    const isProOrMax = user?.planId === "pro" || user?.planId === "max";
+    const planId = (user?.planId || user?.plan || "").toLowerCase();
+    const isProOrMax = planId === "pro" || planId === "max";
     const toolAccess = useToolAccess("landing_page");
 
     const setField = (k: string, v: string) => {
