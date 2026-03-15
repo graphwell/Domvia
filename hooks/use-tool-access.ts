@@ -1,12 +1,13 @@
 "use client";
 
 import { useAuth } from "@/hooks/auth-provider";
-import { checkAndConsumeCredits, TOOL_CREDIT_COSTS, PLAN_CONFIG } from "@/lib/billing";
-import { useState } from "react";
+import { checkAndConsumeCredits, DEFAULT_TOOL_CREDIT_COSTS as TOOL_CREDIT_COSTS, getToolCostDynamic } from "@/lib/billing";
+import { useState, useEffect } from "react";
 
 export function useToolAccess(toolId: string) {
     const { user } = useAuth();
     const [isChecking, setIsChecking] = useState(false);
+    const [dynamicCost, setDynamicCost] = useState<number | null>(null);
 
     // Map legacy toolIds to new ones if needed
     const toolMap: any = {
@@ -20,7 +21,14 @@ export function useToolAccess(toolId: string) {
     };
 
     const mappedToolId = toolMap[toolId] || toolId;
-    const cost = TOOL_CREDIT_COSTS[mappedToolId] || 1;
+    
+    useEffect(() => {
+        if (user?.planId) {
+            getToolCostDynamic(mappedToolId, user.planId).then(setDynamicCost);
+        }
+    }, [user?.planId, mappedToolId]);
+
+    const cost = dynamicCost ?? (TOOL_CREDIT_COSTS[mappedToolId] || 1);
 
     const canAccess = async () => {
         if (!user) return false;

@@ -15,7 +15,6 @@ import { optimizeImage } from "@/lib/image-optimizer";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
 import { useToolAccess } from "@/hooks/use-tool-access";
-import { TOOL_CREDIT_COSTS } from "@/lib/billing";
 
 interface RoomForm {
     id: string;
@@ -30,7 +29,7 @@ interface RoomForm {
 export default function NewTourPage() {
     const router = useRouter();
     const { user } = useAuth();
-    const { canAccess, useTool } = useToolAccess("TOUR_360"); // Custo: 1 CRÉDITO 
+    const { canAccess, useTool, cost } = useToolAccess("TOUR_360"); // Custo dinâmico 
 
     const [title, setTitle] = useState("");
     const [rooms, setRooms] = useState<RoomForm[]>([
@@ -225,7 +224,7 @@ export default function NewTourPage() {
                     </div>
                     <Badge variant="gold" className="py-2 px-4 text-sm h-fit">
                         <Coins className="h-4 w-4 mr-2" />
-                        Custo: {TOOL_CREDIT_COSTS['tour_360']} créditos
+                        Custo: {cost} créditos
                     </Badge>
                 </div>
             </div>
