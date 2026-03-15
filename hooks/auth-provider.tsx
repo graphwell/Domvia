@@ -170,7 +170,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 const result = await getRedirectResult(auth);
                 if (result) {
-                    const mappedUser = await fetchUserFromDB(result.user);
+                    const pendingInvite = localStorage.getItem("lb_pending_invite") || undefined;
+                    const mappedUser = await fetchUserFromDB(result.user, pendingInvite);
                     setUser(mappedUser);
                     localStorage.setItem("lb_user", JSON.stringify(mappedUser));
                     
@@ -250,6 +251,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteParam = urlParams.get("invite");
+
         try {
             // Check if mobile
             const ua = window.navigator.userAgent.toLowerCase();
