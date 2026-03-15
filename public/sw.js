@@ -14,10 +14,26 @@ self.addEventListener('install', (event: any) => {
     );
 });
 
-self.addEventListener('fetch', (event: any) => {
+self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((response) => {
             return response || fetch(event.request);
+        })
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    
+    // Focus or open the app
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            const client = clientList.find(c => c.visibilityState === 'visible') || clientList[0];
+            if (client) {
+                client.focus();
+                if ('navigate' in client) return client.navigate('/notifications');
+            }
+            return clients.openWindow('/notifications');
         })
     );
 });

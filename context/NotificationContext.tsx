@@ -39,6 +39,20 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const [unreadCount, setUnreadCount] = useState(0);
     const lastCredits = useRef<number | null>(null);
     const initialLoad = useRef(true);
+    const swRegistration = useRef<ServiceWorkerRegistration | null>(null);
+
+    // Request permissions and get SW registration
+    useEffect(() => {
+        if ('serviceWorker' in navigator && 'Notification' in window) {
+            navigator.serviceWorker.ready.then(reg => {
+                swRegistration.current = reg;
+            });
+
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+    }, []);
 
     // Monitor credit changes
     useEffect(() => {
@@ -77,10 +91,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
                 // Check for new unread notifications since last load to trigger sensory feedback
                 if (!initialLoad.current) {
-                    const hasNew = list.some(n => !n.read && !notifications.find(old => old.id === n.id));
-                    if (hasNew) {
+                    const newUnread = list.filter(n => !n.read && !notifications.find(old => old.id === n.id));
+                    if (newUnread.length > 0) {
                         triggerHaptic('success');
                         triggerCoinSound();
+                        
+                        // Native PWA/OS Notification
+                        newUnread.forEach(n => showNativeNotification(n));
                     }
                 }
 
@@ -132,6 +149,24 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const showBillingPopup = (type: 'credits_exhausted' | 'trial_expiring' | 'limit_reached', data?: any) => {
         setBillingPopup({ type, data });
         triggerHaptic('warning');
+    };
+
+    const showNativeNotification = (n: NotificationItem) => {
+        if (Notification.permission !== 'granted') return;
+
+        const options: NotificationOptions = {
+            body: n.message,
+            icon: '/icon-512x512.png',
+            badge: '/favicon.png',
+            tag: n.id,
+            data: { url: '/notifications' }
+        };
+
+        if (swRegistration.current) {
+            swRegistration.current.showNotification(n.title || "Domvia ✨", options);
+        } else {
+            new Notification(n.title || "Domvia ✨", options);
+        }
     };
 
     return (
