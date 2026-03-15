@@ -175,7 +175,7 @@ export function MobileNav({ onClose }: { onClose?: () => void }) {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-slate-200/60 lg:hidden">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-slate-200/60 lg:hidden max-w-full overflow-hidden">
             <div className="flex items-center px-4 py-2 overflow-x-auto gap-4 w-full justify-start snap-x [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-brand-500 [&::-webkit-scrollbar-thumb]:rounded-full pb-2">
                 {MOBILE_NAV.map((item, index) => {
                     const active = pathname === item.href || pathname.startsWith(item.href + "/");

@@ -126,7 +126,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
         <NotificationProvider>
             <div className={cn(
-                "flex min-h-screen bg-surface-50",
+                "flex min-h-screen bg-surface-50 max-w-[100vw] overflow-x-hidden",
                 user?.planId === 'pro' ? 'theme-pro' : user?.planId === 'elite' ? 'theme-elite' : ''
             )}>
                 {/* Sidebar - Desktop */}
@@ -146,7 +146,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     <Menu className="h-6 w-6" />
                                 </button>
                                 <div className="-ml-1.5">
-                                    <DomviaLogo />
+                                    <DomviaLogo collapsed />
                                 </div>
                             </div>
 
@@ -162,7 +162,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </div>
                             </div>
 
-                            <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
+                            <div className="ml-auto flex items-center gap-1 sm:gap-2">
                                 {/* Credits Counter - Mobile & Desktop */}
                                 <CreditCounter />
 
@@ -191,7 +191,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </header>
 
                     {/* Page content */}
-                    <main className="flex-1 p-4 sm:p-6 pb-24 lg:pb-6 overflow-x-hidden w-full max-w-full">
+                    <main className="flex-1 p-3 sm:p-6 pb-24 lg:pb-6 overflow-x-hidden w-full max-w-[100vw]">
                         {children}
                     </main>
 

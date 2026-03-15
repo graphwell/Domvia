@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import {
     onAuthStateChanged,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     GoogleAuthProvider,
     signOut,
     User as FirebaseUser,
@@ -163,6 +165,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         let dbUnsubscribe: (() => void) | null = null;
 
+        // 0. Handle Redirect Result (from Google Login on Mobile)
+        const handleRedirect = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result) {
+                    const mappedUser = await fetchUserFromDB(result.user);
+                    setUser(mappedUser);
+                    localStorage.setItem("lb_user", JSON.stringify(mappedUser));
+                    
+                    if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
+                        router.push("/admin/dashboard");
+                    } else {
+                        router.push("/dashboard");
+                    }
+                }
+            } catch (error) {
+                console.error("Error handling redirect result:", error);
+            }
+        };
+        handleRedirect();
+
         const authUnsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
                 // 1. Initial manual fetch (for registration/metadata)
@@ -226,10 +249,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
         try {
-            // Check if there is an ?invite= in URL before signing in
-            const urlParams = new URLSearchParams(window.location.search);
-            const inviteParam = urlParams.get("invite");
+            // Check if mobile
+            const ua = window.navigator.userAgent.toLowerCase();
+            const isMobile = /android|iphone|ipad|ipod/.test(ua);
+
+            if (isMobile) {
+                await signInWithRedirect(auth, provider);
+                return; // Will redirect and handle in useEffect
+            }
 
             const result = await signInWithPopup(auth, provider);
             // Fetch user data (including role) before redirecting
