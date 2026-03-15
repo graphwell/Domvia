@@ -8,7 +8,8 @@ import { ref, onValue, set } from "firebase/database";
 import {
     CreditCard, Save, CheckCircle2, X,
     MessageSquare, Link2, FileText, Calculator,
-    Camera, TrendingUp, Crown, Edit3, Sparkles
+    Camera, TrendingUp, Crown, Edit3, Sparkles,
+    ShoppingCart
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────

@@ -999,6 +999,99 @@ ${d.observacoes ? `${labels.notes}: ${d.observacoes}\n\n` : ""}${b?.name ? `${la
     },
 };
 
+// ── 12. Contrato de Compra e Venda de Terreno ────────────
+const contratoVendaTerreno: DocumentTemplate = {
+    id: "contrato-venda-terreno",
+    name: "Contrato de Compra e Venda de Terreno",
+    shortName: "Venda de Terreno",
+    description: "Contrato para compra e venda de terrenos, lotes ou áreas, com suporte a posse e escritura.",
+    category: "proposta",
+    icon: "Handshake",
+    color: "text-brand-600 bg-brand-50",
+    fields: [
+        { key: "data", label: "Data do Contrato", type: "date", required: true, section: "Ato" },
+        { key: "local", label: "Local (Cidade - UF)", type: "text", required: true, section: "Ato" },
+
+        { key: "vendedor_nome", label: "Vendedor — Nome Completo", type: "text", required: true, section: "Vendedor" },
+        { key: "vendedor_cpf", label: "Vendedor — CPF/CNPJ", type: "cpf", required: true, section: "Vendedor" },
+        { key: "vendedor_rg", label: "Vendedor — RG", type: "text", section: "Vendedor" },
+        { key: "vendedor_civil", label: "Vendedor — Estado Civil", type: "select", section: "Vendedor", options: [{ value: "Solteiro(a)", label: "Solteiro(a)" }, { value: "Casado(a)", label: "Casado(a)" }, { value: "Divorciado(a)", label: "Divorciado(a)" }, { value: "Viúvo(a)", label: "Viúvo(a)" }] },
+        { key: "vendedor_endereco", label: "Vendedor — Endereço Res.", type: "text", section: "Vendedor" },
+
+        { key: "comprador_nome", label: "Comprador — Nome Completo", type: "text", required: true, section: "Comprador" },
+        { key: "comprador_cpf", label: "Comprador — CPF/CNPJ", type: "cpf", required: true, section: "Comprador" },
+        { key: "comprador_rg", label: "Comprador — RG", type: "text", section: "Comprador" },
+        { key: "comprador_civil", label: "Comprador — Estado Civil", type: "select", section: "Comprador", options: [{ value: "Solteiro(a)", label: "Solteiro(a)" }, { value: "Casado(a)", label: "Casado(a)" }, { value: "Divorciado(a)", label: "Divorciado(a)" }, { value: "Viúvo(a)", label: "Viúvo(a)" }] },
+        { key: "comprador_endereco", label: "Comprador — Endereço Res.", type: "text", section: "Comprador" },
+
+        { key: "imovel_endereco", label: "Endereço do Terreno", type: "text", required: true, section: "Objeto" },
+        { key: "imovel_area", label: "Área Total (m²)", type: "number", required: true, section: "Objeto" },
+        { key: "imovel_matricula", label: "Matrícula / Transcrição", type: "text", section: "Objeto", placeholder: "Se houver" },
+        { key: "imovel_iptu", label: "Inscrição Municipal (IPTU)", type: "text", section: "Objeto" },
+        {
+            key: "tipo_direito", label: "Tipo de Direito Transmitido", type: "select", required: true, section: "Objeto",
+            options: [{ value: "Propriedade Plena (Escritura)", label: "Propriedade Plena" }, { value: "Posse e Direitos", label: "Posse e Direitos" }, { value: "Cessão de Direitos Hereditários", label: "Cessão de Direitos" }]
+        },
+
+        { key: "valor_total", label: "Valor Total (R$)", type: "currency", required: true, section: "Pagamento" },
+        { key: "valor_sinal", label: "Valor do Sinal (R$)", type: "currency", section: "Pagamento" },
+        { key: "pagamento_detalhes", label: "Condições de Pagamento", type: "textarea", placeholder: "Ex: Saldo em 10 parcelas mensais de R$...", section: "Pagamento" },
+
+        { key: "data_posse", label: "Data da Transmissão da Posse", type: "date", section: "Cláusulas" },
+        { key: "foro", label: "Foro da Comarca (Cidade/UF)", type: "text", section: "Cláusulas" },
+        { key: "observacoes", label: "Observações Adicionais", type: "textarea", section: "Cláusulas" },
+
+        { key: "testemunha1", label: "Testemunha 1 (Nome)", type: "text", section: "Testemunhas" },
+        { key: "testemunha2", label: "Testemunha 2 (Nome)", type: "text", section: "Testemunhas" },
+    ],
+    generateText: (d, b, lang) => {
+        const isEn = lang === "en";
+        const isEs = lang === "es";
+        const locale = isEn ? "en-US" : isEs ? "es-ES" : "pt-BR";
+        const dateStr = d.data ? new Date(d.data).toLocaleDateString(locale) : today(lang);
+
+        return `
+CONTRATO PARTICULAR DE COMPRA E VENDA DE TERRENO
+
+VENDEDOR(A): ${fmt(d.vendedor_nome)}, ${fmt(d.vendedor_civil)}, portador(a) do RG n.º ${fmt(d.vendedor_rg)} e inscrito(a) no CPF n.º ${fmt(d.vendedor_cpf)}, residente e domiciliado(a) em ${fmt(d.vendedor_endereco)}.
+
+COMPRADOR(A): ${fmt(d.comprador_nome)}, ${fmt(d.comprador_civil)}, portador(a) do RG n.º ${fmt(d.comprador_rg)} e inscrito(a) no CPF n.º ${fmt(d.comprador_cpf)}, residente e domiciliado(a) em ${fmt(d.comprador_endereco)}.
+
+1. DO OBJETO
+O Vendedor é legítimo possuidor/proprietário do imóvel situado em ${fmt(d.imovel_endereco)}, com área total de ${fmt(d.imovel_area)}m²${d.imovel_matricula ? `, matriculado sob o n.º ${d.imovel_matricula}` : ""}${d.imovel_iptu ? `, cadastro municipal n.º ${d.imovel_iptu}` : ""}. Pelo presente instrumento, o Vendedor transmite ao Comprador a ${fmt(d.tipo_direito)} do referido imóvel.
+
+2. DO PREÇO E PAGAMENTO
+O valor total da transação é de ${fmtCurrency(d.valor_total, lang)}.
+${d.valor_sinal ? `Sendo pago a título de sinal e princípio de pagamento a quantia de ${fmtCurrency(d.valor_sinal, lang)}.` : ""}
+Condições: ${fmt(d.pagamento_detalhes)}
+
+3. DA POSSE
+A posse precária ou definitiva do imóvel será transmitida ao Comprador em ${d.data_posse ? new Date(d.data_posse).toLocaleDateString(locale) : "data do pagamento total"}, momento a partir do qual correrão por conta do Comprador todos os impostos e taxas incidentes sobre o imóvel.
+
+4. DA ESCRITURA E TRANSFERÊNCIA
+O Vendedor se compromete a assinar toda a documentação necessária para a transferência do imóvel assim que quitado o valor total, ficando as despesas com escritura e registro por conta do Comprador.
+
+5. DO FORO
+Fica eleito o foro da comarca de ${fmt(d.foro || d.local)} para dirimir quaisquer dúvidas oriundas deste contrato.
+
+${d.local}, ${dateStr}
+
+____________________________________
+VENDEDOR
+
+____________________________________
+COMPRADOR
+
+Testemunhas:
+1. ${fmt(d.testemunha1)}
+2. ${fmt(d.testemunha2)}
+
+${d.observacoes ? `\nOBSERVAÇÕES:\n${d.observacoes}` : ""}
+${b?.name ? `\nIntermediação: ${b.name}${b.creci ? ` - CRECI ${b.creci}` : ""}` : ""}
+        `.trim();
+    },
+};
+
 export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     reciboChaves,
     reciboSinal,
@@ -1011,6 +1104,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     autorizacaoLocacao,
     termoReserva,
     fichaTerreno,
+    contratoVendaTerreno,
 ];
 
 export function getTemplate(id: string): DocumentTemplate | undefined {

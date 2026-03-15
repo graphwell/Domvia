@@ -12,7 +12,7 @@ import {
     Search, UserPlus, Edit2, Trash2, Power, X, Crown,
     Mail, Calendar, BarChart2, Clock, ShieldCheck,
     ChevronRight, Gift, AlertTriangle, TrendingUp, MessageSquare,
-    FileText, Calculator, Link2, Camera, Copy, CheckCircle, Coins
+    FileText, Calculator, Link2, Camera, Copy, CheckCircle, Coins, Users
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -271,7 +271,7 @@ export default function AdminUsersPage() {
             {/* Summary cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: "Total Cadastrados", value: totalUsers, icon: Users2, color: "text-indigo-600 bg-indigo-50" },
+                    { label: "Total Cadastrados", value: totalUsers, icon: Users, color: "text-indigo-600 bg-indigo-50" },
                     { label: "Ativos", value: activeCount, icon: CheckCircle, color: "text-emerald-600 bg-emerald-50" },
                     { label: "Inativos +7d", value: inactiveSince7, icon: AlertTriangle, color: "text-amber-600 bg-amber-50" },
                     { label: "Ações Totais", value: totalActionsAll.toLocaleString("pt-BR"), icon: BarChart2, color: "text-purple-600 bg-purple-50" },

@@ -272,6 +272,10 @@
                 "ficha-terreno": {
                     "name": "Ficha de Captação de Terreno",
                     "desc": "Ficha técnica completa para captação de terrenos, áreas e lotes."
+                },
+                "contrato-venda-terreno": {
+                    "name": "Contrato de Venda de Terreno",
+                    "desc": "Contrato para compra e venda de terrenos, lotes ou áreas, com suporte a posse e escritura."
                 }
             }
         },

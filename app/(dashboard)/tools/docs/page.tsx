@@ -11,13 +11,15 @@ import { DOCUMENT_TEMPLATES, DocumentTemplate } from "@/lib/document-templates";
 import {
     FileText, Key, Banknote, Receipt, FileSignature,
     DoorOpen, ClipboardCheck, UserCheck, Handshake,
-    Home, CalendarClock, Bot, ArrowRight, Sparkles, History
+    Home, CalendarClock, Bot, ArrowRight, Sparkles, History,
+    Building2, Store, Map as LandPlot, Plus
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
     Key, Banknote, Receipt, FileSignature,
     DoorOpen, ClipboardCheck, UserCheck, Handshake,
     Home, CalendarClock, FileText, History,
+    Building2, Store, LandPlot
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -93,14 +95,28 @@ export default function DocsHubPage() {
                     </p>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="relative group flex-1 sm:flex-none">
+                        <Button leftIcon={<Plus className="h-4 w-4" />} className="w-full">
+                            Novo Documento
+                        </Button>
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 hidden group-hover:block z-50">
+                            <Link href="/tools/docs/casa?mode=form" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                <Home className="h-4 w-4 text-blue-500" /> Casa
+                            </Link>
+                            <Link href="/tools/docs/apartamento?mode=form" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                <Building2 className="h-4 w-4 text-indigo-500" /> Apartamento
+                            </Link>
+                            <Link href="/tools/docs/comercial?mode=form" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                <Store className="h-4 w-4 text-orange-500" /> Comercial
+                            </Link>
+                            <Link href="/tools/docs/terreno?mode=form" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                <LandPlot className="h-4 w-4 text-emerald-500" /> Terreno
+                            </Link>
+                        </div>
+                    </div>
                     <Link href="/tools/docs/history" className="flex-1 sm:flex-none">
                         <Button variant="outline" leftIcon={<History className="h-4 w-4" />} className="w-full">
                             Ver Histórico
-                        </Button>
-                    </Link>
-                    <Link href="/tools/docs/ai" className="flex-1 sm:flex-none">
-                        <Button leftIcon={<Sparkles className="h-4 w-4" />} className="w-full">
-                            {t("docs.hub.btn_ai_prompt")}
                         </Button>
                     </Link>
                 </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useNotifications } from "@/context/NotificationContext";
-import { Bell, CreditCard, UserPlus, Zap } from "lucide-react";
+import { Bell, CreditCard, UserPlus, Zap, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ export default function NotificationsPage() {
             case 'credit': return <CreditCard className="h-5 w-5" />;
             case 'lead': return <UserPlus className="h-5 w-5" />;
             case 'achievement': return <Zap className="h-5 w-5" />;
+            case 'engagement': return <Sparkles className="h-5 w-5" />;
             default: return <Bell className="h-5 w-5" />;
         }
     };
@@ -24,6 +25,7 @@ export default function NotificationsPage() {
             case 'credit': return "bg-amber-100 text-amber-600";
             case 'lead': return "bg-blue-100 text-blue-600";
             case 'achievement': return "bg-purple-100 text-purple-600";
+            case 'engagement': return "bg-violet-100 text-violet-600";
             default: return "bg-slate-100 text-slate-600";
         }
     };

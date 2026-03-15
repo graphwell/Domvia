@@ -77,6 +77,7 @@ function NotificationBell() {
                                                     "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
                                                     n.type === 'credit' ? "bg-amber-100 text-amber-600" :
                                                     n.type === 'lead' ? "bg-blue-100 text-blue-600" :
+                                                    n.type === 'engagement' ? "bg-purple-100 text-purple-600" :
                                                     "bg-slate-100 text-slate-600"
                                                 )}>
                                                     <Bell className="h-4 w-4" />

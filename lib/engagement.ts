@@ -28,24 +28,29 @@ export interface UserEngagementData {
 const DEFAULT_MESSAGES: Omit<EngagementMessage, 'id'>[] = [
     {
         category: "motivation",
-        content: "Bem-vindo ao Domvia 👋 Hoje pode ser um ótimo dia para captar novos imóveis. Vamos pra cima?"
-    },
-    {
-        category: "tip",
-        content: "Dica Domvia: Corretores que captam pelo menos 1 imóvel por semana vendem 3x mais. Já usou a Captação Inteligente hoje?"
+        content: "Bem-vindo ao Domvia 👋 Hoje pode ser um ótimo dia para captar novos imóveis. Que tal criar um link de captação para divulgar?",
     },
     {
         category: "opportunity",
-        content: "O mercado está aquecido! Que tal criar um novo link de captação e compartilhar nos seus grupos agora?"
+        content: "Corretores que captam pelo menos 1 imóvel por semana vendem muito mais. Que tal usar o Domvia hoje para criar um link de captação?",
+    },
+    {
+        category: "tip",
+        content: "Uma estratégia simples: procure imóveis no bairro mais valorizado da sua cidade e publique nos grupos hoje. O Domvia pode gerar o link em segundos.",
     },
     {
         category: "feature_suggestion",
-        content: "Você sabia que o Domvia pode criar descrições incríveis para seus imóveis usando IA? Experimente o Gerador de Descrição!",
+        content: "Você sabia que o Domvia pode gerar descrições profissionais para seus imóveis em segundos? Experimente o Gerador de Descrição.",
         targetTool: "ai_description_generate"
     },
     {
+        category: "feature_suggestion",
+        content: "Ainda não criou seu primeiro Tour 360? É uma das formas que mais geram leads no sistema.",
+        targetTool: "tour_created"
+    },
+    {
         category: "motivation",
-        content: "Consistência é a chave do sucesso. Um link compartilhado hoje pode ser a venda de amanhã. Boa jornada!"
+        content: "O mercado está aquecido! Continue focado e use a tecnologia para multiplicar seus resultados."
     }
 ];
 
@@ -68,16 +73,16 @@ export async function checkEngagement(user: User): Promise<void> {
         const todayStr = new Date().toISOString().slice(0, 10);
         const currentMonth = todayStr.slice(0, 7);
 
-        // 1. Update activity tracking
+        // ── 1. Update activity tracking
         if (data.lastLoginDate !== todayStr) {
+            const lastLogin = data.lastLoginDate ? new Date(data.lastLoginDate).getTime() : now;
+            const daysInactive = Math.floor((now - lastLogin) / (24 * 60 * 60 * 1000));
+
             await set(ref(rtdb, `users/${user.id}/engagement/lastLoginDate`), todayStr);
             
-            // Check if it's the first login of the day to evaluate notification
-            await evaluateTriggers(user, data, todayStr, currentMonth);
+            // Trigger evaluate with extra metadata
+            await evaluateTriggers(user, { ...data, daysInactive }, todayStr, currentMonth);
         }
-
-        // 2. Check for inactivity (last activity > 7 days) - Handled separately if needed, 
-        // but for now we focus on active session re-engagement.
 
     } catch (error) {
         console.error("[Engagement] Error checking engagement:", error);
@@ -86,7 +91,7 @@ export async function checkEngagement(user: User): Promise<void> {
 
 async function evaluateTriggers(
     user: User, 
-    data: UserEngagementData, 
+    data: UserEngagementData & { daysInactive?: number }, 
     todayStr: string,
     currentMonth: string
 ) {
@@ -101,13 +106,33 @@ async function evaluateTriggers(
         await set(ref(rtdb, `users/${user.id}/engagement/weeklyCount`), 0);
     }
 
-    // Cooldown checks
+    // --- COOLDOWN & ANTI-SPAM RULES ---
+    // 1. Min 72 hours between notifications
     if (data.lastNotificationSent && (now - data.lastNotificationSent < COOLDOWN_MIN_TIME)) return;
+    
+    // 2. Max 3 per month
     if (monthlyCount >= MAX_MONTHLY) return;
     
-    // Weekly check
+    // 3. Max 1 per week (using 7 days check)
     if (data.lastNotificationSent && (now - data.lastNotificationSent < 7 * 24 * 60 * 60 * 1000)) {
         if (data.weeklyCount && data.weeklyCount >= MAX_WEEKLY) return;
+    }
+
+    // --- SELECT MESSAGE CATEGORY ---
+    let category: EngagementCategory = "motivation";
+    
+    // Priority 1: Inactivity re-engagement
+    if (data.daysInactive && data.daysInactive >= 7) {
+        category = "motivation"; // Will select a re-engagement style message
+    } 
+    // Priority 2: Feature discovery
+    else if (Math.random() > 0.5) {
+        category = "feature_suggestion";
+    }
+    // Priority 3: Random tip or opportunity
+    else {
+        const cats: EngagementCategory[] = ["tip", "opportunity"];
+        category = cats[Math.floor(Math.random() * cats.length)];
     }
 
     // Load messages from RTDB
@@ -123,7 +148,7 @@ async function evaluateTriggers(
     }
 
     // Logic to select message
-    const message = selectMessage(user, data, messages);
+    const message = selectMessage(user, data, messages, category);
     if (!message) return;
 
     // Trigger notification
@@ -138,27 +163,29 @@ async function evaluateTriggers(
 function selectMessage(
     user: User, 
     data: UserEngagementData, 
-    messages: Omit<EngagementMessage, 'id'>[]
+    messages: Omit<EngagementMessage, 'id'>[],
+    preferredCategory: EngagementCategory
 ): Omit<EngagementMessage, 'id'> | null {
-    // Feature discovery priority
-    const unusedTools = messages.filter(m => 
-        m.category === "feature_suggestion" && 
-        m.targetTool && 
-        !data.toolsUsed?.[m.targetTool]
-    );
-
-    if (unusedTools.length > 0 && Math.random() > 0.4) {
-        return unusedTools[Math.floor(Math.random() * unusedTools.length)];
+    // Filter by category
+    let filtered = messages.filter(m => m.category === preferredCategory);
+    
+    // If it's a feature suggestion, don't suggest already used tools
+    if (preferredCategory === "feature_suggestion") {
+        filtered = filtered.filter(m => m.targetTool && !data.toolsUsed?.[m.targetTool]);
     }
 
-    // Random motivation or tip
-    const generalMessages = messages.filter(m => m.category !== "feature_suggestion");
-    if (generalMessages.length === 0) return null;
-    return generalMessages[Math.floor(Math.random() * generalMessages.length)];
+    if (filtered.length === 0) {
+        // Fallback to any motivation
+        filtered = messages.filter(m => m.category === "motivation");
+    }
+
+    if (filtered.length === 0) return null;
+    return filtered[Math.floor(Math.random() * filtered.length)];
 }
 
 async function triggerNotification(user: User, message: Omit<EngagementMessage, 'id'>) {
-    const notificationRef = ref(rtdb, `notifications/${user.id}`);
+    // FIX: Consistent path with NotificationContext
+    const notificationRef = ref(rtdb, `users/${user.id}/notifications`);
     const newRef = push(notificationRef);
     
     await set(newRef, {
