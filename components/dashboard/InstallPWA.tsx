@@ -15,9 +15,11 @@ export function InstallPWA() {
     useEffect(() => {
         // 1. Detect platform
         const ua = window.navigator.userAgent.toLowerCase();
-        const isIos = /iphone|ipad|ipod/.test(ua);
+        const isIos = /iphone|ipad|ipod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         const isAndroid = /android/.test(ua);
         
+        console.log("PWA Detection:", { ua, isIos, isAndroid, standalone: (window.navigator as any).standalone });
+
         // 2. Check if already installed (standalone)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
             || (window.navigator as any).standalone 
