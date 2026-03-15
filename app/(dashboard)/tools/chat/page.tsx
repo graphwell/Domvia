@@ -12,6 +12,7 @@ import { Send, Loader2, Bot, User, Sparkles, RefreshCw, Share2, Coins } from "lu
 import { getToolCostDynamic } from "@/lib/billing";
 import { useLanguage } from "@/hooks/use-language";
 import { triggerHaptic } from "@/lib/haptic";
+import { reportToolError } from "@/lib/admin-alerts";
 
 interface Message {
     role: "assistant" | "user";
@@ -90,7 +91,9 @@ export default function ChatPage() {
                 ...prev,
                 { role: "assistant", content: data.answer ?? t("chat.error_processing"), ts: Date.now() },
             ]);
-        } catch {
+        } catch (error: any) {
+            console.error("AI Chat Error:", error);
+            reportToolError(user?.id || 'unknown', "ai_chat", error, { messageCount: messages.length });
             setMessages((prev) => [
                 ...prev,
                 { role: "assistant", content: t("chat.error_connection"), ts: Date.now() },

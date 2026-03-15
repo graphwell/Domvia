@@ -22,6 +22,7 @@ import { triggerHaptic } from "@/lib/haptic";
 import { trackUsage } from "@/lib/usage-tracking";
 import { getToolCostDynamic } from "@/lib/billing";
 import { Coins, AlertCircle } from "lucide-react";
+import { reportToolError } from "@/lib/admin-alerts";
 
 function toTitleCase(str: string) {
     if (!str) return "";
@@ -229,6 +230,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
     }>({});
     const [saved, setSaved] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Added for general submission state
     const [errors, setErrors] = useState<Record<string, boolean>>({});
     const [showWitness2, setShowWitness2] = useState(false);
     const [toolCost, setToolCost] = useState<number | null>(null);
@@ -309,6 +311,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
     const handlePrint = () => window.print();
 
     const handleDownloadPDF = async () => {
+        setIsSubmitting(true); // Set submitting state
         try {
             toast.loading("Gerando PDF...");
             // @ts-ignore
@@ -316,6 +319,7 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             const element = document.getElementById("doc-preview");
             if (!element) {
                 toast.error("Erro ao localizar elemento para o PDF.");
+                setIsSubmitting(false); // Reset submitting state on error
                 return;
             }
             
@@ -338,10 +342,13 @@ export function DocFormClient({ templateId }: DocFormClientProps) {
             if (user?.id) trackUsage(user.id, "doc_form_generate", { templateId });
             toast.dismiss();
             toast.success("PDF baixado com sucesso!");
-        } catch (err) {
-            console.error(err);
+        } catch (error: any) {
+            console.error("Error generating document:", error);
+            reportToolError(user?.id || 'unknown', "doc_gen", error, { templateId, templateName: template.name });
             toast.dismiss();
             toast.error("Erro ao gerar o PDF.");
+        } finally {
+            setIsSubmitting(false); // Ensure submitting state is reset
         }
     }
 

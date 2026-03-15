@@ -27,3 +27,10 @@ export const adminAuth = {
         return admin.auth();
     }
 } as any;
+
+export const adminMessaging = {
+    sendEachForMulticast: (message: any) => {
+        getAdminApp();
+        return admin.messaging().sendEachForMulticast(message);
+    }
+} as any;

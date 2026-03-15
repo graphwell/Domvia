@@ -3,6 +3,7 @@
 import { useAuth } from "@/hooks/auth-provider";
 import { checkAndConsumeCredits, DEFAULT_TOOL_CREDIT_COSTS as TOOL_CREDIT_COSTS, getToolCostDynamic } from "@/lib/billing";
 import { useState, useEffect } from "react";
+import { reportToolError } from "@/lib/admin-alerts";
 
 export function useToolAccess(toolId: string) {
     const { user } = useAuth();
@@ -46,9 +47,13 @@ export function useToolAccess(toolId: string) {
         setIsChecking(true);
         try {
             const result = await checkAndConsumeCredits(user.id, mappedToolId);
+            if (!result.success) {
+                reportToolError(user.id, mappedToolId, "Insufficient credits or limit reached", { description, reason: result.reason });
+            }
             return result.success;
         } catch (error: any) {
             console.error("Access error:", error.message);
+            reportToolError(user.id, mappedToolId, error, { description });
             return false;
         } finally {
             setIsChecking(false);
