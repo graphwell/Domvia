@@ -10,6 +10,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import { FloatingIntelligentButton } from "@/components/dashboard/FloatingIntelligentButton";
 import { FeedbackPrompt } from "@/components/dashboard/FeedbackPrompt";
+import { InstallPWA } from "@/components/dashboard/InstallPWA";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/auth-provider";
 import { NotificationProvider, useNotifications, NotificationItem } from "@/context/NotificationContext";
@@ -207,6 +208,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {/* Smart Feedback Prompt */}
                 <FeedbackPrompt />
+
+                {/* PWA Install Facilitator */}
+                <InstallPWA />
 
                 {/* Mobile bottom nav */}
                 <MobileNav />
