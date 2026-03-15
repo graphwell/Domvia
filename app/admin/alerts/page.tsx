@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { 
     AlertTriangle, ShieldAlert, Info, CheckCircle, 
-    Trash2, ExternalLink, User, Clock, Tooltip
+    Trash2, ExternalLink, User, Clock
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
