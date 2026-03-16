@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                                 {user && (
                                     <Link 
-                                        href="/convite" 
+                                        href="/referrals" 
                                         className="flex items-center gap-1 px-2 sm:gap-1.5 sm:px-3 py-1.5 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 hover:bg-brand-100 transition-all shadow-sm active:scale-95 animate-pulse-gentle"
                                     >
                                         <UserPlus className="h-4 w-4" />

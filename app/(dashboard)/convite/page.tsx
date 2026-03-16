@@ -16,12 +16,17 @@ import Image from "next/image";
 export default function InvitePage() {
     const { user } = useAuth();
     const [copied, setCopied] = useState(false);
-
-    const inviteLink = typeof window !== "undefined" 
-        ? `${window.location.origin}/register?ref=${user?.id || 'domvia'}`
-        : "https://domvia.ai/register";
+    const inviteLink = (user?.inviteCode && user?.inviteCode !== "undefined")
+        ? (typeof window !== "undefined" 
+            ? `${window.location.origin}/register?invite=${user.inviteCode}`
+            : `https://domvia.somar.ia.br/register?invite=${user.inviteCode}`)
+        : "";
 
     const copyLink = () => {
+        if (!inviteLink) {
+            toast.error("Aguarde um instante, seu link está sendo gerado...");
+            return;
+        }
         triggerHaptic('light');
         navigator.clipboard.writeText(inviteLink);
         setCopied(true);
@@ -30,9 +35,13 @@ export default function InvitePage() {
     };
 
     const shareWhatsApp = () => {
+        if (!inviteLink) {
+            toast.error("Aguarde um instante, seu link está sendo gerado...");
+            return;
+        }
         triggerHaptic('medium');
-        const text = encodeURIComponent(`Olá! Estou usando o Domvia para acelerar minhas vendas com IA e ferramentas inteligentes. Use meu convite para começar grátis: ${inviteLink}`);
-        window.open(`https://wa.me/?text=${text}`, '_blank');
+        const text = `🏠 *Domvia — Seu braço direito no mercado imobiliário*\n\nEi colega corretor! 🚀 Estou usando o Domvia para criar links inteligentes, tours virtuais e gerenciar meus leads com IA. Está me ajudando muito a ganhar tempo!\n\nCadastre-se pelo meu link exclusivo para ganhar *créditos bônus* e começar agora:\n\n👉 ${inviteLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     };
 
     return (
@@ -59,13 +68,22 @@ export default function InvitePage() {
                         </div>
                         <div className="space-y-2">
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Link de Indicação</p>
-                            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                <code className="text-xs text-slate-500 font-mono truncate flex-1">
-                                    {inviteLink}
-                                </code>
-                                <button onClick={copyLink} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
-                                    {copied ? <CheckCheck className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4 text-slate-400" />}
-                                </button>
+                            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 min-h-[48px]">
+                                {inviteLink ? (
+                                    <>
+                                        <code className="text-xs text-slate-500 font-mono truncate flex-1">
+                                            {inviteLink}
+                                        </code>
+                                        <button onClick={copyLink} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
+                                            {copied ? <CheckCheck className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4 text-slate-400" />}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div className="flex-1 flex items-center gap-2">
+                                        <div className="h-2 w-2 bg-brand-400 rounded-full animate-pulse" />
+                                        <span className="text-[10px] text-slate-400">Gerando seu link exclusivo...</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

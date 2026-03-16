@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Coins, UserPlus, ArrowUpRight, ArrowDownRight, Clock, Copy, CheckCircle } from "lucide-react";
 import { CreditTransaction } from "@/lib/credits";
+import { toast } from "sonner";
 
 export default function CreditsPage() {
     const { user } = useAuth();
@@ -35,9 +36,17 @@ export default function CreditsPage() {
 
     if (!user) return null;
 
-    const inviteLink = `${window.location.origin}/login?invite=${user.inviteCode}`;
+    const inviteLink = (user.inviteCode && user.inviteCode !== "undefined")
+        ? (typeof window !== "undefined" 
+            ? `${window.location.origin}/register?invite=${user.inviteCode}`
+            : `https://domvia.somar.ia.br/register?invite=${user.inviteCode}`)
+        : "";
 
     const handleCopy = () => {
+        if (!inviteLink) {
+            toast.error("Aguarde um instante, seu link está sendo gerado...");
+            return;
+        }
         navigator.clipboard.writeText(inviteLink);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -98,8 +107,15 @@ export default function CreditsPage() {
                             </p>
 
                             <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full overflow-hidden">
-                                <div className="flex-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[11px] sm:text-sm font-medium text-slate-600 break-all font-mono">
-                                    {inviteLink}
+                                <div className="flex-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[11px] sm:text-sm font-medium text-slate-600 break-all font-mono min-h-[48px] flex items-center">
+                                    {inviteLink ? (
+                                        inviteLink
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2 w-2 bg-brand-400 rounded-full animate-pulse" />
+                                            <span className="text-[10px] text-slate-400">Gerando seu link...</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <Button
                                     onClick={handleCopy}
