@@ -137,15 +137,18 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
     await set(userRef, userData);
 
     // If there is an inviteFromParams, reward the referrer and the new user
-    if (inviteFromParams) {
+    // Protect against the literal string "undefined" coming from bad links
+    const validInvite = inviteFromParams && inviteFromParams !== "undefined" ? inviteFromParams : null;
+
+    if (validInvite) {
         try {
-            console.log(`[Referral] Checking code: ${inviteFromParams}`);
+            console.log(`[Referral] Checking code: ${validInvite}`);
             // We need to look up who has this invite code
             const usersRef = ref(rtdb, "users");
             const snapAll = await get(usersRef);
             if (snapAll.exists()) {
                 const usersVal = snapAll.val();
-                const referrerId = Object.keys(usersVal).find(uid => usersVal[uid]?.inviteCode === inviteFromParams);
+                const referrerId = Object.keys(usersVal).find(uid => usersVal[uid]?.inviteCode === validInvite);
                 if (referrerId && referrerId !== firebaseUser.uid) {
                     console.log(`[Referral] Found referrer: ${referrerId}`);
                     // Use the new consolidated referral processing logic
@@ -157,7 +160,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
                         localStorage.removeItem("lb_pending_invite");
                     }
                 } else {
-                    console.warn(`[Referral] Invalid referrer or self-referral: ${inviteFromParams}`);
+                    console.warn(`[Referral] Invalid referrer or self-referral: ${validInvite}`);
                 }
             }
         } catch (e) {

@@ -235,7 +235,7 @@ export async function processReferral(referrerId: string, newUserId: string) {
         
         if (!snap.exists()) return;
 
-        const currentCount = snap.val().inviteCount || 0;
+        const currentCount = snap.val().referredCount || snap.val().inviteCount || 0;
         
         // 1. Check referral limit
         if (currentCount >= (rules.limit_per_user || 5)) {
@@ -259,7 +259,7 @@ export async function processReferral(referrerId: string, newUserId: string) {
         );
 
         // 3. Increment referrer's invite count
-        await update(referrerRef, { inviteCount: currentCount + 1 });
+        await update(referrerRef, { referredCount: currentCount + 1 });
 
         // 4. Mark the referral connection specifically for audit
         const referralLogRef = ref(rtdb, `referrals/${referrerId}/${newUserId}`);

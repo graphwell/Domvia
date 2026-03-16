@@ -43,7 +43,7 @@ interface UserRecord {
     simulatorLevel?: "basic" | "advanced" | "professional";
     inviteCode?: string;
     invitedBy?: string;
-    inviteCount?: number;
+    referredCount?: number;
     credits?: number;
 }
 
@@ -142,7 +142,7 @@ export default function AdminUsersPage() {
                 simulatorLevel: u.simulatorLevel,
                 inviteCode: u.inviteCode ?? genInviteCode(u.name ?? "user"),
                 invitedBy: u.invitedBy,
-                inviteCount: u.inviteCount ?? 0,
+                referredCount: u.referredCount ?? u.inviteCount ?? 0,
                 credits: u.credits ?? 0,
             }));
             setUsers(list.sort((a, b) => b.createdAt - a.createdAt));
@@ -407,7 +407,7 @@ export default function AdminUsersPage() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1.5">
                                                 <Gift className="h-3.5 w-3.5 text-indigo-400" />
-                                                <span className="text-xs font-bold text-slate-700">{u.inviteCount ?? 0}/5</span>
+                                                <span className="text-xs font-bold text-slate-700">{u.referredCount ?? 0}/5</span>
                                             </div>
                                             <button
                                                 onClick={() => copyInvite(u.inviteCode!, u.id)}

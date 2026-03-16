@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Share2, Users, Coins, Gift, Copy, CheckCheck, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
+import { toast } from "sonner";
 
 export default function ReferralPage() {
     const { user } = useAuth();
@@ -13,17 +14,27 @@ export default function ReferralPage() {
 
     if (!user) return null;
 
-    const referralLink = typeof window !== "undefined" 
-        ? `${window.location.origin}/register?invite=${user.inviteCode}`
-        : `https://domvia.somar.ia.br/register?invite=${user.inviteCode}`;
+    const referralLink = (user.inviteCode && user.inviteCode !== "undefined")
+        ? (typeof window !== "undefined" 
+            ? `${window.location.origin}/register?invite=${user.inviteCode}`
+            : `https://domvia.somar.ia.br/register?invite=${user.inviteCode}`)
+        : "";
 
     const shareOnWhatsApp = () => {
+        if (!referralLink) {
+            toast.error("Aguarde um instante, seu link está sendo gerado...");
+            return;
+        }
         const text = `🏠 *Domvia — Seu braço direito no mercado imobiliário*\n\nEi colega corretor! 🚀 Estou usando o Domvia para criar links inteligentes, tours virtuais e gerenciar meus leads com IA. Está me ajudando muito a ganhar tempo!\n\nCadastre-se pelo meu link exclusivo para ganhar *créditos bônus* e começar agora:\n\n👉 ${referralLink}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(whatsappUrl, '_blank');
     };
 
     const copyLink = () => {
+        if (!referralLink) {
+            toast.error("Aguarde um instante, seu link está sendo gerado...");
+            return;
+        }
         if (typeof navigator !== 'undefined' && navigator.clipboard) {
             navigator.clipboard.writeText(referralLink);
             setCopied(true);
@@ -54,7 +65,14 @@ export default function ReferralPage() {
                         </div>
                         
                         <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <code className="flex-1 text-[10px] sm:text-xs text-brand-700 font-mono truncate">{referralLink}</code>
+                            {referralLink ? (
+                                <code className="flex-1 text-[10px] sm:text-xs text-brand-700 font-mono truncate">{referralLink}</code>
+                            ) : (
+                                <div className="flex-1 flex items-center gap-2">
+                                    <div className="h-2 w-2 bg-brand-400 rounded-full animate-pulse" />
+                                    <span className="text-[10px] text-slate-400">Gerando seu link exclusivo...</span>
+                                </div>
+                            )}
                             <button 
                                 onClick={copyLink}
                                 className="p-2 rounded-lg bg-white border border-slate-200 hover:border-brand-300 transition-colors shrink-0"
