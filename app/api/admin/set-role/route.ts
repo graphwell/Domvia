@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rtdb } from "@/lib/firebase";
-import { ref, get, update } from "firebase/database";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 // ── POST /api/admin/set-role ──────────────────────────────────────
 // Body: { uid: string, role: "ADMIN" | "ADMIN_MASTER" | "CORRETOR", secret: string }
@@ -27,14 +26,15 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user exists
-        const userRef = ref(rtdb, `users/${uid}`);
-        const snap = await get(userRef);
+        const db = getAdminDb();
+        const userRef = db.ref(`users/${uid}`);
+        const snap = await userRef.get();
         if (!snap.exists()) {
             return NextResponse.json({ error: `User ${uid} not found in RTDB` }, { status: 404 });
         }
-
+ 
         // Update role
-        await update(userRef, { role });
+        await userRef.update({ role });
 
         const userData = snap.val();
         return NextResponse.json({
@@ -57,7 +57,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Missing uid param" }, { status: 400 });
     }
 
-    const snap = await get(ref(rtdb, `users/${uid}`));
+    const db = getAdminDb();
+    const snap = await db.ref(`users/${uid}`).get();
     if (!snap.exists()) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

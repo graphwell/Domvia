@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
-import { adminDb, adminMessaging } from "@/lib/firebase-admin";
+import { getAdminDb, adminMessaging } from "@/lib/firebase-admin";
 
 export async function POST(req: Request) {
     try {
         const alert = await req.json();
         
         // 1. Find all admins
-        const usersRef = adminDb.ref('users');
+        const db = getAdminDb();
+        const usersRef = db.ref('users');
         const adminSnap = await usersRef.orderByChild('role').equalTo('admin').get();
         
         if (!adminSnap.exists()) {

@@ -14,19 +14,15 @@ function getAdminApp() {
     return admin.apps[0];
 }
 
-export const adminDb = {
-    get ref() {
-        getAdminApp();
-        return admin.database().ref;
-    }
-} as any;
+export const getAdminDb = () => {
+    getAdminApp();
+    return admin.database();
+};
 
-export const adminAuth = {
-    get auth() {
-        getAdminApp();
-        return admin.auth();
-    }
-} as any;
+export const getAdminAuth = () => {
+    getAdminApp();
+    return admin.auth();
+};
 
 export const adminMessaging = {
     sendEachForMulticast: (message: any) => {

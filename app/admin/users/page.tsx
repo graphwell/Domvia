@@ -194,29 +194,31 @@ export default function AdminUsersPage() {
         if (currentUser && u.id === currentUser.id) {
             return alert("Você não pode excluir sua própria conta administrativa.");
         }
-        if (!confirm(`Excluir permanentemente ${u.name}? Essa ação removerá TODOS os dados, créditos e histórico e NÃO pode ser desfeita.`)) return;
         
+        const confirmName = prompt(`ATENÇÃO: Você está prestes a excluir PERMANENTEMENTE o usuário ${u.name}.\n\nEsta ação removerá o acesso ao sistema, créditos, histórico e documentos em todas as camadas.\n\nPara confirmar, digite o nome do usuário abaixo:`, "");
+        
+        if (confirmName !== u.name) {
+            if (confirmName !== null) alert("O nome digitado não confere. Exclusão cancelada.");
+            return;
+        }
+
         try {
-            const paths = [
-                `users/${u.id}`,
-                `user_credits/${u.id}`,
-                `usage/${u.id}`,
-                `usage_stats/${u.id}`,
-                `documents/${u.id}`,
-                `credit_history/${u.id}`,
-                `tool_unlocks/${u.id}`,
-                `tool_usage/${u.id}`,
-                `credit_transactions/${u.id}`
-            ];
-            
-            const updates: any = {};
-            paths.forEach(p => updates[p] = null);
-            await update(ref(rtdb), updates);
-            
-            alert("Usuário e todos os seus dados foram excluídos com sucesso.");
-        } catch (err) {
+            const res = await fetch("/api/admin/delete-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uid: u.id }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert(data.message || "Usuário excluído com sucesso.");
+            } else {
+                alert("Erro: " + data.error);
+            }
+        } catch (err: any) {
             console.error(err);
-            alert("Erro ao excluir usuário.");
+            alert("Erro ao conectar com o servidor para exclusão.");
         }
     };
 

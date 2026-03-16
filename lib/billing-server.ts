@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import * as admin from "firebase-admin";
-import { adminDb } from "./firebase-admin";
+import { getAdminDb } from "./firebase-admin";
 import { PLAN_CONFIG } from "./billing";
 
 function getStripe() {
@@ -30,7 +30,7 @@ export async function activateTrial(userId: string) {
     updates[`user_credits/${userId}/updated_at`] = Date.now();
 
     // Log transaction
-    const txId = adminDb.ref(`credit_transactions/${userId}`).push().key;
+    const txId = getAdminDb().ref(`credit_transactions/${userId}`).push().key;
     updates[`credit_transactions/${userId}/${txId}`] = {
         type: 'bonus',
         amount: PLAN_CONFIG.trial.creditsInbound,
@@ -39,7 +39,7 @@ export async function activateTrial(userId: string) {
         created_at: Date.now()
     };
 
-    await adminDb.ref().update(updates);
+    await getAdminDb().ref().update(updates);
 }
 
 /**
@@ -79,7 +79,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
         const planType = session.metadata?.plan_type as any || 'pro';
         
-        await adminDb.ref(`users/${userId}`).update({
+        await getAdminDb().ref(`users/${userId}`).update({
             stripeSubscriptionId: subscriptionId,
             stripeCustomerId: session.customer as string,
             planId: planType,
@@ -106,11 +106,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function logSale(userId: string, amount: number, currency: string, type: 'subscription' | 'credits') {
-    const saleId = adminDb.ref('sales').push().key;
+    const saleId = getAdminDb().ref('sales').push().key;
     const now = new Date();
     const month = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
 
-    await adminDb.ref(`sales/${saleId}`).set({
+    await getAdminDb().ref(`sales/${saleId}`).set({
         userId,
         amount,
         currency,
@@ -120,7 +120,7 @@ async function logSale(userId: string, amount: number, currency: string, type: '
     });
 
     // Also update monthly aggregates
-    const metricsRef = adminDb.ref(`financial_metrics/${month}`);
+    const metricsRef = getAdminDb().ref(`financial_metrics/${month}`);
     await metricsRef.transaction((curr: any) => {
         const data = curr || { total_sales: 0, subscription_revenue: 0, credit_revenue: 0, count: 0 };
         data.total_sales += amount;
@@ -134,14 +134,14 @@ async function logSale(userId: string, amount: number, currency: string, type: '
 async function renewSubscription(subscriptionId: string) {
     const stripe = getStripe();
     const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
-    const userSnap = await adminDb.ref('users').orderByChild('stripeSubscriptionId').equalTo(subscriptionId).get();
+    const userSnap = await getAdminDb().ref('users').orderByChild('stripeSubscriptionId').equalTo(subscriptionId).get();
     
     if (userSnap.exists()) {
         const users = userSnap.val();
         const userId = Object.keys(users)[0];
         const planType = users[userId].planId || 'pro';
 
-        await adminDb.ref(`users/${userId}`).update({
+        await getAdminDb().ref(`users/${userId}`).update({
             planStatus: 'active',
             currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
         });
@@ -163,13 +163,13 @@ export async function resetMonthlyUsage(userId: string, planType: string) {
     updates[`user_credits/${userId}/plan_credits`] = config.creditsInbound;
     
     // Total credits update
-    const creditsSnap = await adminDb.ref(`user_credits/${userId}/bonus_credits`).get();
+    const creditsSnap = await getAdminDb().ref(`user_credits/${userId}/bonus_credits`).get();
     const bonus = creditsSnap.val() || 0;
     updates[`user_credits/${userId}/total_credits`] = config.creditsInbound + bonus;
     updates[`user_credits/${userId}/last_reset`] = Date.now();
 
     // Transaction log
-    const txId = adminDb.ref(`credit_transactions/${userId}`).push().key;
+    const txId = getAdminDb().ref(`credit_transactions/${userId}`).push().key;
     updates[`credit_transactions/${userId}/${txId}`] = {
         type: 'reset',
         amount: config.creditsInbound,
@@ -178,11 +178,11 @@ export async function resetMonthlyUsage(userId: string, planType: string) {
         created_at: Date.now()
     };
 
-    await adminDb.ref().update(updates);
+    await getAdminDb().ref().update(updates);
 }
 
 async function addBonusCredits(userId: string, amount: number, description: string) {
-    const creditsRef = adminDb.ref(`user_credits/${userId}`);
+    const creditsRef = getAdminDb().ref(`user_credits/${userId}`);
     const snap = await creditsRef.get();
     const data = snap.val() || { plan_credits: 0, bonus_credits: 0 };
     
@@ -194,7 +194,7 @@ async function addBonusCredits(userId: string, amount: number, description: stri
     updates[`user_credits/${userId}/total_credits`] = newTotal;
     updates[`user_credits/${userId}/updated_at`] = Date.now();
 
-    const txId = adminDb.ref(`credit_transactions/${userId}`).push().key;
+    const txId = getAdminDb().ref(`credit_transactions/${userId}`).push().key;
     updates[`credit_transactions/${userId}/${txId}`] = {
         type: 'recharge',
         amount,
@@ -203,7 +203,7 @@ async function addBonusCredits(userId: string, amount: number, description: stri
         created_at: Date.now()
     };
 
-    await adminDb.ref().update(updates);
+    await getAdminDb().ref().update(updates);
 }
 /**
  * Server-side version of checkAndConsumeCredits using Firebase Admin
@@ -214,7 +214,7 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
     const toolCostDefault = DEFAULT_TOOL_CREDIT_COSTS[tool] ?? 1;
     if (toolCostDefault === 0) return { success: true };
 
-    const userRef = adminDb.ref(`users/${userId}`);
+    const userRef = getAdminDb().ref(`users/${userId}`);
     const snap = await userRef.get();
     if (!snap.exists()) return { success: false };
 
@@ -228,7 +228,7 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
     const currentMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
     
     // 3. Check monthly usage limit
-    const usageRef = adminDb.ref(`tool_usage/${userId}/${currentMonth}/${tool}`);
+    const usageRef = getAdminDb().ref(`tool_usage/${userId}/${currentMonth}/${tool}`);
     const usageSnap = await usageRef.get();
     const currentUsage = usageSnap.val() || 0;
     
@@ -242,7 +242,7 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
     }
 
     // 4. Exceeded monthly limit, try to consume credits from settings
-    const costRef = adminDb.ref(`settings/tool_costs/${tool}`);
+    const costRef = getAdminDb().ref(`settings/tool_costs/${tool}`);
     const costSnap = await costRef.get();
     let cost = toolCostDefault;
     if (costSnap.exists()) {
@@ -251,7 +251,7 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
     }
 
     if (cost === 0) return { success: true };
-    const creditsRef = adminDb.ref(`user_credits/${userId}`);
+    const creditsRef = getAdminDb().ref(`user_credits/${userId}`);
     const creditsSnap = await creditsRef.get();
     const creditsData = creditsSnap.val() || { plan_credits: 0, bonus_credits: 0 };
     
@@ -283,7 +283,7 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
     updates[`user_credits/${userId}/updated_at`] = admin.database.ServerValue.TIMESTAMP;
 
     // Transaction log
-    const txRef = adminDb.ref(`credit_transactions/${userId}`).push();
+    const txRef = getAdminDb().ref(`credit_transactions/${userId}`).push();
     updates[`credit_transactions/${userId}/${txRef.key}`] = {
         type: 'consume',
         tool,
@@ -296,7 +296,7 @@ export async function checkAndConsumeCreditsAdmin(userId: string, tool: string):
     // Also record as usage for stats
     updates[`tool_usage/${userId}/${currentMonth}/${tool}`] = currentUsage + 1;
 
-    await adminDb.ref().update(updates);
+    await getAdminDb().ref().update(updates);
 
     return { success: true };
 }
