@@ -4,7 +4,7 @@ import { AppSidebar, MobileNav } from "@/components/layout/AppSidebar";
 import { UserAvatar } from "@/components/layout/UserAvatar";
 import { DomviaLogo } from "@/components/layout/Header";
 import { Bell, Search, Menu, X, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/use-language";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
@@ -13,6 +13,7 @@ import { FeedbackPrompt } from "@/components/dashboard/FeedbackPrompt";
 import { InstallPWA } from "@/components/dashboard/InstallPWA";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/auth-provider";
+import { useRouter } from "next/navigation";
 import { NotificationProvider, useNotifications, NotificationItem } from "@/context/NotificationContext";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { ptBR } from "date-fns/locale/pt-BR";
@@ -120,8 +121,29 @@ function NotificationBell() {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { t } = useLanguage();
-    const { user } = useAuth();
+    const { user, isLoading } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isLoading && !user) {
+            console.log("[Dashboard] No user found, redirecting to login...");
+            router.replace("/login");
+        }
+    }, [user, isLoading, router]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600" />
+                    <p className="text-slate-400 text-sm font-medium">Sincronizando acesso...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) return null;
 
     return (
         <NotificationProvider>

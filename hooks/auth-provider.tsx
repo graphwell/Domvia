@@ -245,8 +245,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     }
                 });
 
-                // Auto-redirect to dashboard if user lands on home while logged in
-                if (window.location.pathname === "/") {
+                // Auto-redirect to dashboard if user lands on home or login while already logged in
+                const path = window.location.pathname;
+                if (path === "/" || path === "/login" || path === "/register") {
+                    console.log("[Auth] User found on public path, redirecting to appropriate dashboard...");
                     if (initialUser.role === "ADMIN_MASTER" || initialUser.role === "ADMIN") {
                         router.push("/admin/dashboard");
                     } else {
