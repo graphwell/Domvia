@@ -235,6 +235,14 @@ export async function processReferral(referrerId: string, newUserId: string) {
         
         if (!snap.exists()) return;
 
+        // 0.5 Check if already processed (Idempotency)
+        const referralLogRef = ref(rtdb, `referrals/${referrerId}/${newUserId}`);
+        const logSnap = await get(referralLogRef);
+        if (logSnap.exists()) {
+            console.log(`[Credits] Referral already processed for ${newUserId} by ${referrerId}`);
+            return;
+        }
+
         const currentCount = snap.val().referredCount || snap.val().inviteCount || 0;
         
         // 1. Check referral limit
@@ -262,7 +270,6 @@ export async function processReferral(referrerId: string, newUserId: string) {
         await update(referrerRef, { referredCount: currentCount + 1 });
 
         // 4. Mark the referral connection specifically for audit
-        const referralLogRef = ref(rtdb, `referrals/${referrerId}/${newUserId}`);
         await set(referralLogRef, {
             acceptedAt: Date.now(),
             status: 'accepted'

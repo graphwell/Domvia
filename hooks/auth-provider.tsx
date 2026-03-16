@@ -94,8 +94,8 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
     // First time user — create record with CORRETOR role
     const newInviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    // Initial welcome notification
-    const welcomeNotifId = `welcome_${Date.now()}`;
+    // Initial welcome notification - Use a static ID to prevent duplicates if called twice
+    const welcomeNotifId = "welcome_initial";
     const initialNotifications = {
         [welcomeNotifId]: {
             title: "Bem-vindo ao Domvia! 🚀",
@@ -151,14 +151,14 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
                 const referrerId = Object.keys(usersVal).find(uid => usersVal[uid]?.inviteCode === validInvite);
                 if (referrerId && referrerId !== firebaseUser.uid) {
                     console.log(`[Referral] Found referrer: ${referrerId}`);
-                    // Use the new consolidated referral processing logic
-                    const { processReferral } = require("@/lib/credits");
-                    await processReferral(referrerId, firebaseUser.uid);
-                    
-                    // Clear the stored invite code so it's only used once
+                    // Clear the stored invite code so it's only used once (immediately)
                     if (typeof window !== 'undefined') {
                         localStorage.removeItem("lb_pending_invite");
                     }
+
+                    // Use the new consolidated referral processing logic
+                    const { processReferral } = require("@/lib/credits");
+                    await processReferral(referrerId, firebaseUser.uid);
                 } else {
                     console.warn(`[Referral] Invalid referrer or self-referral: ${validInvite}`);
                 }
