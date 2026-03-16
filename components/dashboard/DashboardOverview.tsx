@@ -123,18 +123,18 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
                 ))}
             </div>
 
-            {/* Referral Banner */}
+            {/* Referral Banner - More compact on mobile */}
             <Card hover padding="none" className="overflow-hidden border-brand-100 bg-gradient-to-r from-brand-600/5 to-transparent">
-                <div className="flex flex-col sm:flex-row items-center gap-4 p-4">
-                    <div className="h-12 w-12 rounded-2xl bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
-                        <Gift className="h-6 w-6 text-white" />
+                <div className="flex items-center gap-3 p-3">
+                    <div className="h-10 w-10 rounded-xl bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                        <Gift className="h-5 w-5 text-white" />
                     </div>
-                    <div className="flex-1 text-center sm:text-left">
-                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{t("dashboard.referral_banner.title")}</h4>
-                        <p className="text-xs text-slate-500">{t("dashboard.referral_banner.desc")}</p>
+                    <div className="flex-1 min-w-0">
+                        <h4 className="text-[10px] sm:text-sm font-black text-slate-900 uppercase tracking-tight truncate">{t("dashboard.referral_banner.title")}</h4>
+                        <p className="text-[9px] sm:text-xs text-slate-500 line-clamp-1">{t("dashboard.referral_banner.desc")}</p>
                     </div>
-                    <Link href="/referrals">
-                        <Button size="sm" variant="primary" className="font-black uppercase tracking-widest text-[10px] h-9 px-4">
+                    <Link href="/referrals" className="shrink-0">
+                        <Button size="sm" variant="primary" className="font-black uppercase tracking-widest text-[9px] h-8 px-3">
                             {t("dashboard.referral_banner.cta")}
                         </Button>
                     </Link>
