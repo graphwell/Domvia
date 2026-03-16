@@ -59,11 +59,20 @@ export const metadata: Metadata = {
     siteName: "Domvia",
     title: "Domvia — Plataforma de IA para Corretores de Imóveis",
     description: "Link inteligente por imóvel com IA conversacional 24h, captação automática de leads e ferramentas de IA para corretores.",
+    images: [
+      {
+        url: "/og-image.png?v=3",
+        width: 1200,
+        height: 630,
+        alt: "Domvia",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Domvia",
-    description: "Plataforma de IA para corretores de imóveis.",
+    title: "Domvia — Plataforma de IA para Corretores de Imóveis",
+    description: "Link inteligente por imóvel com IA conversacional 24h, captação automática de leads e ferramentas de IA para corretores.",
+    images: ["/og-image.png?v=3"],
   },
   manifest: "/manifest.json",
   appleWebApp: {
@@ -75,8 +84,8 @@ export const metadata: Metadata = {
     telephone: true,
   },
   icons: {
-    icon: "/favicon.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/favicon.png?v=3",
+    apple: "/apple-touch-icon.png?v=3",
   },
 };
 
