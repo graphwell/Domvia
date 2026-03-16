@@ -24,7 +24,7 @@ interface Message {
 export default function ChatPage() {
     const { user } = useAuth();
     const { t, language } = useLanguage();
-    const { useTool, cost: toolCost, ConfirmationModal } = useToolAccess('ai_chat');
+    const { useTool, cost: toolCost, ConfirmationModal } = useToolAccess('ai_chat', { sessionBased: true });
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
@@ -55,9 +55,8 @@ export default function ChatPage() {
         if (!text.trim() || loading) return;
 
         // NEW: Demand credit confirmation/usage before proceeding
-        // Only if it's the first message or if you want to charge per message?
-        // User says: "IA Conversacional - Custo: 1 crédito por interação"
-        const canProceed = await useTool(`Interação no Chat: ${text.substring(0, 30)}...`);
+        // Only if it's the first message of this session (handled by sessionBased: true)
+        const canProceed = await useTool(`Conversa com IA: ${text.substring(0, 30)}...`);
         if (!canProceed) return;
 
         const userMsg: Message = { role: "user", content: text.trim(), ts: Date.now() };
@@ -296,7 +295,7 @@ export default function ChatPage() {
                     {toolCost !== null && toolCost > 0 && (
                         <div className="flex items-center gap-1 text-[10px] font-bold text-brand-600 animate-pulse">
                             <Coins className="h-2.5 w-2.5" />
-                            {toolCost} créditos por mensagem
+                            {toolCost} crédito por conversa
                         </div>
                     )}
                 </div>

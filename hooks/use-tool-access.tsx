@@ -15,12 +15,17 @@ interface ToolAccess {
     ConfirmationModal: React.JSX.Element;
 }
 
-export function useToolAccess(toolId: string): ToolAccess {
+export interface ToolAccessOptions {
+    sessionBased?: boolean;
+}
+
+export function useToolAccess(toolId: string, options: ToolAccessOptions = {}): ToolAccess {
     const { user } = useAuth();
     const [isChecking, setIsChecking] = useState(false);
     const [dynamicCost, setDynamicCost] = useState<number | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [pendingAction, setPendingAction] = useState<{resolve: (v: boolean) => void, desc: string} | null>(null);
+    const [sessionUnlocked, setSessionUnlocked] = useState(false);
 
     // Map legacy toolIds to new ones if needed
     const toolMap: any = {
@@ -45,6 +50,7 @@ export function useToolAccess(toolId: string): ToolAccess {
 
     const canAccess = async () => {
         if (!user) return false;
+        if (sessionUnlocked) return true;
         if (['max', 'elite', 'lifetime'].includes((user.planId || 'trial').toLowerCase())) return true;
         return (user.credits || 0) >= cost;
     };
@@ -56,6 +62,8 @@ export function useToolAccess(toolId: string): ToolAccess {
             const result = await checkAndConsumeCredits(user.id, mappedToolId);
             if (!result.success) {
                 reportToolError(user.id, mappedToolId, "Insufficient credits or limit reached", { description, reason: result.reason });
+            } else if (options.sessionBased) {
+                setSessionUnlocked(true);
             }
             return result.success;
         } catch (error: any) {
@@ -72,6 +80,9 @@ export function useToolAccess(toolId: string): ToolAccess {
      */
     const useTool = async (description: string): Promise<boolean> => {
         if (!user) return false;
+
+        // Skip confirmation if already unlocked in this session
+        if (sessionUnlocked) return true;
         
         // Skip confirmation for Max/Elite/Lifetime or free tools
         const isUnlimited = ['max', 'elite', 'lifetime'].includes((user.planId || 'trial').toLowerCase());
@@ -127,7 +138,7 @@ export function useToolAccess(toolId: string): ToolAccess {
 
     return {
         isIncludedInPlan: true,
-        cost,
+        cost: sessionUnlocked ? 0 : cost,
         canAccess,
         useTool,
         isChecking,
