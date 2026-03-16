@@ -210,6 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleRedirect();
 
         const authUnsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            console.log("[Auth] State changed. User:", firebaseUser?.email || "none");
             if (firebaseUser) {
                 // 1. Initial manual fetch (for registration/metadata)
                 const pendingInvite = localStorage.getItem("lb_pending_invite") || undefined;
@@ -274,6 +275,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
+        // Force account selection to show saved Google accounts on the device
+        provider.setCustomParameters({ prompt: 'select_account' });
         
         try {
             console.log("[Auth] Initiating Google Login...");
