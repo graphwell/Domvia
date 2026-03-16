@@ -13,12 +13,22 @@ export default function ReferralPage() {
 
     if (!user) return null;
 
-    const referralLink = `${window.location.origin}/register?invite=${user.inviteCode}`;
+    const referralLink = typeof window !== "undefined" 
+        ? `${window.location.origin}/register?invite=${user.inviteCode}`
+        : `https://domvia.somar.ia.br/register?invite=${user.inviteCode}`;
+
+    const shareOnWhatsApp = () => {
+        const text = `Ei colega corretor! 🚀 Conheça o Domvia, a plataforma de IA que está transformando o mercado imobiliário. Cadastre-se pelo meu link e ganhe créditos bônus para começar:\n\n${referralLink}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
+    };
 
     const copyLink = () => {
-        navigator.clipboard.writeText(referralLink);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+            navigator.clipboard.writeText(referralLink);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     return (
@@ -37,23 +47,27 @@ export default function ReferralPage() {
             {/* Invite Card */}
             <Card hover className="overflow-hidden border-brand-200">
                 <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
-                    <div className="flex-1 space-y-4 text-center sm:text-left">
+                    <div className="flex-1 space-y-4 text-center sm:text-left w-full">
                         <div>
                             <h3 className="text-xl font-bold text-slate-900">Seu Link de Convite</h3>
-                            <p className="text-sm text-slate-500 mt-1">Copie o link abaixo e envie pelo WhatsApp.</p>
+                            <p className="text-sm text-slate-500 mt-1">Copie o link abaixo ou compartilhe direto no WhatsApp.</p>
                         </div>
                         
                         <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <code className="flex-1 text-xs text-brand-700 font-mono truncate">{referralLink}</code>
+                            <code className="flex-1 text-[10px] sm:text-xs text-brand-700 font-mono truncate">{referralLink}</code>
                             <button 
                                 onClick={copyLink}
-                                className="p-2 rounded-lg bg-white border border-slate-200 hover:border-brand-300 transition-colors"
+                                className="p-2 rounded-lg bg-white border border-slate-200 hover:border-brand-300 transition-colors shrink-0"
                             >
                                 {copied ? <CheckCheck className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4 text-slate-400" />}
                             </button>
                         </div>
 
-                        <Button className="w-full gap-2" variant="whatsapp">
+                        <Button 
+                            className="w-full gap-2 font-bold uppercase tracking-wider text-xs" 
+                            variant="whatsapp"
+                            onClick={shareOnWhatsApp}
+                        >
                             <Share2 className="h-4 w-4" /> Compartilhar no WhatsApp
                         </Button>
                     </div>

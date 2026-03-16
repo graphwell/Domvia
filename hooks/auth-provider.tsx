@@ -63,6 +63,13 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         const rawPlan = data.planId ?? data.plan ?? "trial";
         const normalizedPlanId = rawPlan.toLowerCase();
         
+        let inviteCode = data.inviteCode;
+        if (!inviteCode) {
+            inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            // Fire and forget updating the DB with the new invite code
+            set(ref(rtdb, `users/${firebaseUser.uid}/inviteCode`), inviteCode).catch(console.error);
+        }
+
         return {
             id: firebaseUser.uid,
             name: data.name ?? firebaseUser.displayName ?? "Usuário",
@@ -76,7 +83,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
             bonusCredits: data.bonusCredits ?? 0,
             lastActivity: data.lastActivity ?? Date.now(),
             referredCount: data.referredCount ?? 0,
-            inviteCode: data.inviteCode,
+            inviteCode: inviteCode,
             phone: data.phone,
             creci: data.creci,
             logoURL: data.logoURL,
