@@ -105,9 +105,22 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 setNotifications(list);
                 setUnreadCount(list.filter(n => !n.read).length);
                 initialLoad.current = false;
+
+                // Update App Icon Badge
+                if (typeof navigator !== 'undefined' && 'setAppBadge' in navigator) {
+                    const count = list.filter(n => !n.read).length;
+                    if (count > 0) {
+                        (navigator as any).setAppBadge(count).catch(console.error);
+                    } else {
+                        (navigator as any).clearAppBadge().catch(console.error);
+                    }
+                }
             } else {
                 setNotifications([]);
                 setUnreadCount(0);
+                if (typeof navigator !== 'undefined' && 'clearAppBadge' in navigator) {
+                    (navigator as any).clearAppBadge().catch(console.error);
+                }
                 initialLoad.current = false;
             }
         });

@@ -4,7 +4,7 @@
     "description": "Ecossistema Inteligente para o Mercado Imobiliário",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
+    "background_color": "#2057f5",
     "theme_color": "#2057f5",
     "icons": [
         {
