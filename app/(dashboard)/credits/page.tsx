@@ -6,7 +6,7 @@ import { rtdb } from "@/lib/firebase";
 import { ref, onValue, query, orderByChild } from "firebase/database";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Coins, UserPlus, ArrowUpRight, ArrowDownRight, Clock, Copy, CheckCircle } from "lucide-react";
+import { Coins, UserPlus, ArrowUpRight, ArrowDownRight, Clock, Copy, CheckCircle, Share2 } from "lucide-react";
 import { CreditTransaction } from "@/lib/credits";
 import { toast } from "sonner";
 
@@ -50,6 +50,15 @@ export default function CreditsPage() {
         navigator.clipboard.writeText(inviteLink);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleShare = () => {
+        if (!inviteLink) {
+            toast.error("Aguarde um instante, seu link está sendo gerado...");
+            return;
+        }
+        const text = `🏠 *Domvia — Seu braço direito no mercado imobiliário*\n\nEi colega corretor! 🚀 Estou usando o Domvia para criar links inteligentes, tours virtuais e gerenciar meus leads com IA. Está me ajudando muito a ganhar tempo!\n\nCadastre-se pelo meu link exclusivo para ganhar *créditos bônus* e começar agora:\n\n👉 ${inviteLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     };
 
     return (
@@ -96,7 +105,7 @@ export default function CreditsPage() {
                         <div className="h-12 w-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
                             <UserPlus className="h-6 w-6" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h2 className="font-display font-bold text-lg text-slate-900">Indique e Ganhe</h2>
                             <p className="text-slate-500 text-sm mt-1 max-w-md">
                                 Aproveite as vantagens de indicar o Domvia! Ganhe bônus por cada novo corretor que começar a usar o sistema.
@@ -106,26 +115,35 @@ export default function CreditsPage() {
                                 </ul>
                             </p>
 
-                            <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full overflow-hidden">
-                                <div className="flex-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[11px] sm:text-sm font-medium text-slate-600 break-all font-mono min-h-[48px] flex items-center">
-                                    {inviteLink ? (
-                                        inviteLink
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 bg-brand-400 rounded-full animate-pulse" />
-                                            <span className="text-[10px] text-slate-400">Gerando seu link...</span>
-                                        </div>
-                                    )}
+                            <div className="mt-6 space-y-3">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full overflow-hidden">
+                                    <div className="flex-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[11px] sm:text-sm font-medium text-slate-600 break-all font-mono min-h-[48px] flex items-center">
+                                        {inviteLink ? (
+                                            inviteLink
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-2 w-2 bg-brand-400 rounded-full animate-pulse" />
+                                                <span className="text-[10px] text-slate-400">Gerando seu link...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <Button
+                                        onClick={handleCopy}
+                                        className={`w-full sm:w-auto h-11 shrink-0 ${copied ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-900 hover:bg-slate-800'}`}
+                                    >
+                                        {copied ? (
+                                            <><CheckCircle className="h-4 w-4 mr-2" /> Copiado</>
+                                        ) : (
+                                            <><Copy className="h-4 w-4 mr-2" /> Copiar Link</>
+                                        )}
+                                    </Button>
                                 </div>
-                                <Button
-                                    onClick={handleCopy}
-                                    className={`w-full sm:w-auto h-11 shrink-0 ${copied ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-900 hover:bg-slate-800'}`}
+                                
+                                <Button 
+                                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                                    onClick={handleShare}
                                 >
-                                    {copied ? (
-                                        <><CheckCircle className="h-4 w-4 mr-2" /> Copiado</>
-                                    ) : (
-                                        <><Copy className="h-4 w-4 mr-2" /> Copiar Link</>
-                                    )}
+                                    <Share2 className="h-4 w-4 mr-2" /> Compartilhar no WhatsApp
                                 </Button>
                             </div>
                         </div>

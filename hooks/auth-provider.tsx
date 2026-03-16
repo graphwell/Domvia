@@ -238,7 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         
                         // Ensure inviteCode exists even in real-time updates
                         let inviteCode = data.inviteCode;
-                        if (!inviteCode) {
+                        if (!inviteCode || inviteCode === "undefined") {
                             inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
                             set(ref(rtdb, `users/${firebaseUser.uid}/inviteCode`), inviteCode).catch(console.error);
                             return; // Wait for the next listener fire with the actual value
