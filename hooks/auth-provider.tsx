@@ -182,8 +182,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 0. Handle Redirect Result (from Google Login on Mobile)
         const handleRedirect = async () => {
             try {
+                console.log("[Auth] Checking redirect result...");
                 const result = await getRedirectResult(auth);
                 if (result) {
+                    console.log("[Auth] Redirect result found for:", result.user.email);
                     const pendingInvite = localStorage.getItem("lb_pending_invite") || undefined;
                     const mappedUser = await fetchUserFromDB(result.user, pendingInvite);
                     setUser(mappedUser);
@@ -195,9 +197,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         toast.success("Bem-vindo ao Domvia! ✨");
                         router.push("/dashboard");
                     }
+                } else {
+                    console.log("[Auth] No redirect result found (standard load)");
                 }
-            } catch (error) {
-                console.error("Error handling redirect result:", error);
+            } catch (error: any) {
+                console.error("[Auth] Redirect result error:", error);
+                if (error.code !== 'auth/internal-error') {
+                    toast.error("Erro no login: " + error.message);
+                }
             }
         };
         handleRedirect();
@@ -265,37 +272,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
-        // REMOVED select_account for mobile to avoid potential blockages in Safari
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const inviteParam = urlParams.get("invite");
-
         try {
             console.log("[Auth] Initiating Google Login...");
-            // Check if mobile
             const ua = window.navigator.userAgent.toLowerCase();
-            const isMobile = /android|iphone|ipad|ipod/.test(ua);
+            const isInstagram = /instagram|fbav|messenger/.test(ua);
 
-            if (isMobile) {
-                console.log("[Auth] Mobile detected, using signInWithRedirect");
+            if (isInstagram) {
+                console.log("[Auth] In-app browser (Instagram/FB) detected, forcing Redirect");
                 await signInWithRedirect(auth, provider);
-                return; 
+                return;
             }
 
-            console.log("[Auth] Desktop detected, using signInWithPopup");
-            provider.setCustomParameters({ prompt: 'select_account' });
-            const result = await signInWithPopup(auth, provider);
-            // Fetch user data (including role) before redirecting
-            const mappedUser = await fetchUserFromDB(result.user, inviteParam || undefined);
-            setUser(mappedUser);
-            localStorage.setItem("lb_user", JSON.stringify(mappedUser));
+            try {
+                // Try Popup first as it's more reliable for state persistence in most modern mobile browsers
+                // If it fails (e.g. popup blocked), we fallback to Redirect
+                console.log("[Auth] Attempting signInWithPopup...");
+                const result = await signInWithPopup(auth, provider);
+                const pendingInvite = localStorage.getItem("lb_pending_invite") || undefined;
+                const mappedUser = await fetchUserFromDB(result.user, pendingInvite);
+                setUser(mappedUser);
+                localStorage.setItem("lb_user", JSON.stringify(mappedUser));
 
-            // Redirect based on role
-            if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
-                router.push("/admin/dashboard");
-            } else {
-                toast.success("Bem-vindo ao Domvia! ✨");
-                router.push("/dashboard");
+                if (mappedUser.role === "ADMIN_MASTER" || mappedUser.role === "ADMIN") {
+                    router.push("/admin/dashboard");
+                } else {
+                    toast.success("Bem-vindo ao Domvia! ✨");
+                    router.push("/dashboard");
+                }
+            } catch (popupErr: any) {
+                console.warn("[Auth] Popup failed/blocked, falling back to Redirect", popupErr);
+                if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-closed-by-user') {
+                    await signInWithRedirect(auth, provider);
+                } else {
+                    throw popupErr;
+                }
             }
         } catch (error: any) {
             console.error("Error signing in with Google:", error);
