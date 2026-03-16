@@ -57,7 +57,7 @@ function NotificationBell() {
                             </div>
                             {unreadCount > 0 && (
                                 <button 
-                                    onClick={() => markAllAsRead()}
+                                    onClick={() => { markAllAsRead(); setIsOpen(false); }}
                                     className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-lg font-bold transition-colors"
                                 >
                                     Ler todas
@@ -72,7 +72,7 @@ function NotificationBell() {
                                         <div 
                                             key={n.id} 
                                             className={cn("p-4 hover:bg-slate-50 transition-colors cursor-pointer border-l-4", n.read ? "border-transparent opacity-60" : "bg-brand-50/30 border-brand-500")}
-                                            onClick={() => markAsRead(n.id)}
+                                            onClick={() => { markAsRead(n.id); setIsOpen(false); }}
                                         >
                                             <div className="flex gap-3">
                                                 <div className={cn(
