@@ -93,11 +93,15 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 relative z-20">
                 <Button
+                    type="button"
                     loading={loading}
-                    onClick={handleGoogleLogin}
-                    className="w-full h-12 flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-50 border-none shadow-xl transition-all hover:scale-[1.01]"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        handleGoogleLogin();
+                    }}
+                    className="w-full h-12 flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-50 border-none shadow-xl transition-all hover:scale-[1.01] active:scale-95 touch-manipulation"
                 >
                     <GoogleLogo />
                     <span className="font-semibold">{t("auth.google_login")}</span>

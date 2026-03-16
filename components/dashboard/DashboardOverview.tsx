@@ -17,6 +17,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
     AreaChart, Area, BarChart, Bar
 } from "recharts";
+import { toast } from "sonner";
 import { triggerHaptic } from "@/lib/haptic";
 
 interface DashboardOverviewProps {
@@ -88,34 +89,24 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
         { label: t("dashboard.stats.captures"), value: stats.totalCaptures || 0, icon: Camera, color: "text-blue-600 bg-blue-50", href: "/tools/captacao" },
     ];
 
+
+    useEffect(() => {
+        // Trigger welcome notification if it's a new user and hasn't been shown in this session
+        if (stats.totalLinks === 0 && !sessionStorage.getItem('welcome_notified')) {
+            toast.success("Bem-vindo ao Domvia! ✨", {
+                description: "Estamos felizes em ter você aqui. Comece criando seu primeiro link!",
+                duration: 6000
+            });
+            sessionStorage.setItem('welcome_notified', 'true');
+        }
+    }, [stats.totalLinks]);
+
     return (
         <div className="space-y-6">
             {/* Page header & Rotary Phrases */}
             <div className="text-center pt-2">
                 <RotaryPhrases />
             </div>
-
-            {/* Welcome Banner for New Users */}
-            {stats.totalLinks === 0 && (
-                <Card className="bg-gradient-to-br from-brand-600 to-indigo-700 border-none shadow-xl shadow-brand-500/20 overflow-hidden relative" padding="lg">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <Gift className="h-32 w-32 -rotate-12" />
-                    </div>
-                    <div className="relative z-10 flex flex-col items-center sm:items-start text-center sm:text-left gap-4">
-                        <div className="space-y-1">
-                            <h2 className="text-xl sm:text-2xl font-display font-black text-white italic">Bem-vindo ao Domvia! 🚀</h2>
-                            <p className="text-brand-100 text-sm font-medium max-w-md">
-                                Estamos muito felizes em ter você aqui. Que tal começar criando seu primeiro link inteligente para captar leads?
-                            </p>
-                        </div>
-                        <Link href="/links">
-                            <Button variant="secondary" className="font-black uppercase tracking-widest text-xs h-11 px-6 shadow-lg shadow-black/10">
-                                Criar meu primeiro link
-                            </Button>
-                        </Link>
-                    </div>
-                </Card>
-            )}
 
             {/* Compact Stat Cards - 2x2 Grid on Mobile */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

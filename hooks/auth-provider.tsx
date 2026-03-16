@@ -87,6 +87,18 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
     // First time user — create record with CORRETOR role
     const newInviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
+    // Initial welcome notification
+    const welcomeNotifId = `welcome_${Date.now()}`;
+    const initialNotifications = {
+        [welcomeNotifId]: {
+            title: "Bem-vindo ao Domvia! 🚀",
+            message: "Estamos muito felizes em ter você aqui. Que tal começar criando seu primeiro link inteligente?",
+            type: "system",
+            timestamp: Date.now(),
+            read: false
+        }
+    };
+
     const newUser: User = {
         id: firebaseUser.uid,
         name: firebaseUser.displayName ?? "Usuário",
@@ -112,6 +124,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         credits: 20,
         inviteCode: newInviteCode,
         referredBy: inviteFromParams || null,
+        notifications: initialNotifications // Add initial notification
     };
 
     await set(userRef, userData);
@@ -252,21 +265,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-
+        // REMOVED select_account for mobile to avoid potential blockages in Safari
+        
         const urlParams = new URLSearchParams(window.location.search);
         const inviteParam = urlParams.get("invite");
 
         try {
+            console.log("[Auth] Initiating Google Login...");
             // Check if mobile
             const ua = window.navigator.userAgent.toLowerCase();
             const isMobile = /android|iphone|ipad|ipod/.test(ua);
 
             if (isMobile) {
+                console.log("[Auth] Mobile detected, using signInWithRedirect");
                 await signInWithRedirect(auth, provider);
-                return; // Will redirect and handle in useEffect
+                return; 
             }
 
+            console.log("[Auth] Desktop detected, using signInWithPopup");
+            provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
             // Fetch user data (including role) before redirecting
             const mappedUser = await fetchUserFromDB(result.user, inviteParam || undefined);
@@ -280,8 +297,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 toast.success("Bem-vindo ao Domvia! ✨");
                 router.push("/dashboard");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error signing in with Google:", error);
+            toast.error("Erro ao entrar com Google: " + (error.message || "Tente novamente."));
             throw error;
         }
     };
