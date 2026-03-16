@@ -18,7 +18,7 @@ export default function ReferralPage() {
         : `https://domvia.somar.ia.br/register?invite=${user.inviteCode}`;
 
     const shareOnWhatsApp = () => {
-        const text = `Ei colega corretor! 🚀 Conheça o Domvia, a plataforma de IA que está transformando o mercado imobiliário. Cadastre-se pelo meu link e ganhe créditos bônus para começar:\n\n${referralLink}`;
+        const text = `🏠 *Domvia — Seu braço direito no mercado imobiliário*\n\nEi colega corretor! 🚀 Estou usando o Domvia para criar links inteligentes, tours virtuais e gerenciar meus leads com IA. Está me ajudando muito a ganhar tempo!\n\nCadastre-se pelo meu link exclusivo para ganhar *créditos bônus* e começar agora:\n\n👉 ${referralLink}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(whatsappUrl, '_blank');
     };

@@ -233,6 +233,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         const rawPlan = data.planId ?? data.plan ?? "trial";
                         const normalizedPlanId = rawPlan.toLowerCase();
                         
+                        // Ensure inviteCode exists even in real-time updates
+                        let inviteCode = data.inviteCode;
+                        if (!inviteCode) {
+                            inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                            set(ref(rtdb, `users/${firebaseUser.uid}/inviteCode`), inviteCode).catch(console.error);
+                            return; // Wait for the next listener fire with the actual value
+                        }
+
                         const updatedUser: User = {
                             id: firebaseUser.uid,
                             name: data.name ?? firebaseUser.displayName ?? initialUser.name,
@@ -247,6 +255,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             creci: data.creci,
                             logoURL: data.logoURL,
                             useLogoInDocs: data.useLogoInDocs ?? true,
+                            inviteCode: inviteCode,
+                            referredCount: data.referredCount ?? 0,
                         };
                         setUser(updatedUser);
                         localStorage.setItem("lb_user", JSON.stringify(updatedUser));
