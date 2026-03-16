@@ -104,7 +104,7 @@ export function LinksList({ links }: { links: CampaignLink[] }) {
             {/* Instrução */}
             <div className="rounded-2xl bg-brand-50 border border-brand-200 p-4 text-sm text-brand-800 print:hidden">
                 <p className="font-semibold mb-1">💡 Como funciona</p>
-                <p className="text-brand-700">Crie um link para cada anúncio e compartilhe no Instagram, WhatsApp ou qualquer rede social. Quando o cliente acessar, verá a IA especialista + calculadora + botão de contato.</p>
+                <p className="text-brand-700">Crie um link para cada anúncio e compartilhe no Instagram, WhatsApp ou qualquer rede social. O cliente verá a IA especialista + calculadora + botão de contato, ou opte pela **nova Landing Page completa** para destacar seu imóvel.</p>
             </div>
 
             {/* Search */}
