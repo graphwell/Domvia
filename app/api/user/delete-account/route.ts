@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { getAdminAuth, getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(req: NextRequest) {
     try {
@@ -7,6 +7,9 @@ export async function POST(req: NextRequest) {
         if (!userId) {
             return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
         }
+
+        const auth = getAdminAuth();
+        const db = getAdminDb();
 
         // 1. Delete user data from Realtime Database
         // We delete their captures, leads, and usage logs
@@ -19,13 +22,13 @@ export async function POST(req: NextRequest) {
         ];
 
         const deletePromises = pathsToDelete.map(path => 
-            adminDb.ref(path).remove()
+            db.ref(path).remove()
         );
 
         await Promise.all(deletePromises);
 
         // 2. Delete user from Firebase Auth
-        await adminAuth.deleteUser(userId);
+        await auth.deleteUser(userId);
 
         return NextResponse.json({ success: true, message: "Conta e dados excluídos com sucesso." });
     } catch (error: any) {
