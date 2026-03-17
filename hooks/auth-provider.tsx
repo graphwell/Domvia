@@ -106,6 +106,27 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         }
     };
 
+    // Check for pending source (campaigns)
+    let startingCredits = 20;
+    let registrationSource = null;
+    let campaignNotification = null;
+
+    if (typeof window !== 'undefined') {
+        registrationSource = localStorage.getItem("lb_pending_source");
+        if (registrationSource === "ads" || registrationSource === "sponsored") {
+            startingCredits = 30; // Campaign bonus
+            campaignNotification = {
+                [`campaign_${Date.now()}`]: {
+                    title: "Bônus de Campanha! 🎁",
+                    message: "Você ganhou 10 créditos extras por entrar através do nosso anúncio. Aproveite!",
+                    type: "achievement",
+                    timestamp: Date.now(),
+                    read: false
+                }
+            };
+        }
+    }
+
     const newUser: User = {
         id: firebaseUser.uid,
         name: firebaseUser.displayName ?? "Usuário",
@@ -114,7 +135,7 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         role: "CORRETOR",
         planId: "trial",
         plan: "Trial",
-        credits: 20,
+        credits: startingCredits,
         inviteCode: newInviteCode,
     };
 
@@ -128,10 +149,14 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         status: "active",
         createdAt: Date.now(),
         simulatorLevel: "basic",
-        credits: 20,
+        credits: startingCredits,
         inviteCode: newInviteCode,
         referredBy: inviteFromParams || null,
-        notifications: initialNotifications // Add initial notification
+        registrationSource: registrationSource,
+        notifications: {
+            ...initialNotifications,
+            ...(campaignNotification || {})
+        }
     };
 
     await set(userRef, userData);
@@ -168,6 +193,11 @@ async function fetchUserFromDB(firebaseUser: FirebaseUser, inviteFromParams?: st
         }
     }
 
+    // Clear pending campaign source
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem("lb_pending_source");
+    }
+
     return newUser;
 }
 
@@ -184,6 +214,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (invite) {
                 localStorage.setItem("lb_pending_invite", invite);
                 console.log(`[Auth] Saved pending invite: ${invite}`);
+            }
+
+            const source = urlParams.get("source");
+            if (source) {
+                localStorage.setItem("lb_pending_source", source);
+                console.log(`[Auth] Saved pending source: ${source}`);
             }
         }
 
