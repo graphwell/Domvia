@@ -7,7 +7,8 @@ import { ref, onValue } from "firebase/database";
 import {
     Users, TrendingUp, HandCoins,
     Bot, ArrowUpRight, ArrowDownRight,
-    Activity, Globe, Link2, UserCheck, Clock
+    Activity, Globe, Link2, UserCheck, Clock,
+    Copy, Check
 } from "lucide-react";
 import {
     BarChart, Bar, XAxis, YAxis,
@@ -78,6 +79,7 @@ export default function AdminDashboard() {
     const [links, setLinks] = useState<Record<string, LinkRecord>>({});
     const [usage, setUsage] = useState<Record<string, UsageStats>>({});
     const [finMetrics, setFinMetrics] = useState<any>(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const off1 = onValue(ref(rtdb, "users"), (s) => setUsers(s.val() ?? {}));
@@ -195,6 +197,41 @@ export default function AdminDashboard() {
                 <h1 className="font-display text-3xl font-bold text-slate-900">Visão Geral</h1>
                 <p className="text-slate-500 text-sm">Dashboard administrativo · dados em tempo real</p>
             </div>
+
+            {/* Campaign Link Section */}
+            <Card padding="md" className="bg-gradient-to-r from-indigo-50 to-white border-indigo-100 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+                            <Globe className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h2 className="font-display font-bold text-slate-900">Link Universal de Campanha (Ads)</h2>
+                            <p className="text-xs text-slate-500">Use este link em anúncios patrocinados. Novos usuários ganham +10 créditos de bônus.</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-inner">
+                        <code className="text-xs font-mono text-indigo-600 px-2 font-bold truncate max-w-[200px] md:max-w-none">
+                            domvia.ai/register?source=ads
+                        </code>
+                        <button 
+                            onClick={() => {
+                                navigator.clipboard.writeText("https://domvia.ai/register?source=ads");
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                            }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                                copied 
+                                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-200" 
+                                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                            }`}
+                        >
+                            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                            {copied ? "Copiado!" : "Copiar Link"}
+                        </button>
+                    </div>
+                </div>
+            </Card>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
