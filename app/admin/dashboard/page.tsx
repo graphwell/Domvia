@@ -212,11 +212,11 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-inner">
                         <code className="text-xs font-mono text-indigo-600 px-2 font-bold truncate max-w-[200px] md:max-w-none">
-                            domvia.ai/register?source=ads
+                            domvia.somar.ia.br/register?source=ads
                         </code>
                         <button 
                             onClick={() => {
-                                navigator.clipboard.writeText("https://domvia.ai/register?source=ads");
+                                navigator.clipboard.writeText("https://domvia.somar.ia.br/register?source=ads");
                                 setCopied(true);
                                 setTimeout(() => setCopied(false), 2000);
                             }}
