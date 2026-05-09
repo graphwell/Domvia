@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { analyzeCaptureImage } from "@/lib/ai";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import { triggerHaptic } from "@/lib/haptic";
 import { trackUsage } from "@/lib/usage-tracking";
@@ -159,92 +160,123 @@ export function CaptacaoClient() {
         setIsProcessing(true);
         setIsCapturing(true);
 
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const rawBase64 = event.target?.result as string;
+        try {
+            // 1. Preview imediato para o usuário
+            const rawBase64 = await new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => resolve(ev.target?.result as string);
+                reader.readAsDataURL(file);
+            });
             setCurrentPhoto(rawBase64);
 
-            try {
-                // Run compression and GPS concurrently
-                const [base64, geoPos] = await Promise.all([
-                    compressImage(rawBase64),
-                    getPosition()
-                ]);
+            // 2. Compressão, GPS e OCR em paralelo
+            const [base64, geoPos] = await Promise.all([
+                compressImage(rawBase64),
+                getPosition()
+            ]);
 
-                let captureLocation = location;
-                
-                if (geoPos) {
-                    // Reverse geocode if getting new coordinates
-                    const lat = geoPos.coords.latitude;
-                    const lng = geoPos.coords.longitude;
-                    const streetAddress = await getAddressFromCoords(lat, lng);
-                    
-                    captureLocation = { lat, lng, address: streetAddress || "" };
-                    setLocation(captureLocation);
-                    if (streetAddress) setAddress(streetAddress);
-                }
+            let captureLocation = location;
 
-                const result = await analyzeCaptureImage(base64);
-                const validCaptures = (result.captures || []).filter(c => c.phones && c.phones.length > 0);
+            if (geoPos) {
+                const lat = geoPos.coords.latitude;
+                const lng = geoPos.coords.longitude;
+                const streetAddress = await getAddressFromCoords(lat, lng);
+                captureLocation = { lat, lng, address: streetAddress || "" };
+                setLocation(captureLocation);
+                if (streetAddress) setAddress(streetAddress);
+            }
 
-                if (validCaptures.length > 0 && user?.id) {
-                    // Consume credit right before saving the batch
-                    const consumed = await toolAccess.useTool("Captação Inteligente (OCR)");
-                    if (!consumed) {
-                        toast.error("Erro ao debitar crédito da captação.");
-                        resetCapture();
-                        return;
-                    }
+            const result = await analyzeCaptureImage(base64);
+            const validCaptures = (result.captures || []).filter(c => c.phones && c.phones.length > 0);
 
-                    const capturesRef = ref(rtdb, `captures/${user.id}`);
-                    
-                    const savePromises = validCaptures.map(c => {
-                        const finalAddress = captureLocation?.address || c.address || "";
-                        const itemLocation = captureLocation ? { ...captureLocation, address: finalAddress } : { lat: 0, lng: 0, address: finalAddress };
-
-                        const newRef = push(capturesRef);
-                        return set(newRef, {
-                            imageUrl: base64,
-                            phones: c.phones,
-                            intent: c.intent || null,
-                            location: itemLocation,
-                            timestamp: Date.now(),
-                            notes: c.notes || ""
-                        });
-                    });
-
-                    await Promise.all(savePromises);
-                    trackUsage(user.id, "lead_captured", { source: "smart_capture", count: validCaptures.length });
-                    toast.success(`${validCaptures.length} captaç${validCaptures.length > 1 ? 'ões' : 'ão'} salva${validCaptures.length > 1 ? 's' : ''} com sucesso!`);
+            if (validCaptures.length > 0 && user?.id) {
+                // 3. Debitar crédito
+                const consumed = await toolAccess.useTool("Captação Inteligente (OCR)");
+                if (!consumed) {
+                    toast.error("Erro ao debitar crédito da captação.");
                     resetCapture();
                     return;
-                } else {
-                    const debugInfo = result.captures?.[0]?.rawDebug || "Por favor, digite os dados manualmente.";
-                    toast.error("Erro na leitura", {
-                        description: `Nenhum telefone lido. ${debugInfo}`
+                }
+
+                // 4. Upload da imagem para o Cloudinary (só URL salva no RTDB)
+                let imageUrl: string;
+                try {
+                    imageUrl = await uploadToCloudinary(file);
+                } catch (uploadErr) {
+                    console.error("Cloudinary upload error:", uploadErr);
+                    toast.error("Falha no upload da foto.", {
+                        description: "Verifique sua conexão e tente novamente."
                     });
+                    resetCapture();
                     return;
                 }
-            } catch (err) {
-                console.error("AI Error:", err);
-                toast.error("Processamento falhou.", {
-                    description: "Sua foto é muito grande ou a conexão caiu. Tente novamente."
+
+                // 5. Salvar apenas a URL no RTDB
+                const capturesRef = ref(rtdb, `captures/${user.id}`);
+                const savePromises = validCaptures.map(c => {
+                    const finalAddress = captureLocation?.address || c.address || "";
+                    const itemLocation = captureLocation
+                        ? { ...captureLocation, address: finalAddress }
+                        : { lat: 0, lng: 0, address: finalAddress };
+
+                    const newRef = push(capturesRef);
+                    return set(newRef, {
+                        imageUrl,
+                        phones: c.phones,
+                        intent: c.intent || null,
+                        location: itemLocation,
+                        timestamp: Date.now(),
+                        notes: c.notes || ""
+                    });
                 });
-            } finally {
-                setIsProcessing(false);
+
+                await Promise.all(savePromises);
+                trackUsage(user.id, "lead_captured", { source: "smart_capture", count: validCaptures.length });
+                toast.success(`${validCaptures.length} captaç${validCaptures.length > 1 ? 'ões' : 'ão'} salva${validCaptures.length > 1 ? 's' : ''} com sucesso!`);
+                resetCapture();
+            } else {
+                const debugInfo = result.captures?.[0]?.rawDebug || "Por favor, digite os dados manualmente.";
+                toast.error("Erro na leitura", {
+                    description: `Nenhum telefone lido. ${debugInfo}`
+                });
             }
-        };
-        reader.readAsDataURL(file);
+        } catch (err) {
+            console.error("AI Error:", err);
+            toast.error("Processamento falhou.", {
+                description: "Sua foto é muito grande ou a conexão caiu. Tente novamente."
+            });
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleSave = async () => {
         if (!user?.id || !currentPhoto) return;
         setIsSaving(true);
         try {
+            // Salvar apenas URL no RTDB — nunca base64
+            // currentPhoto é base64 de preview; fazemos upload para Cloudinary primeiro
+            // Para o fluxo manual (handleSave), precisamos do File original.
+            // Como não temos o File aqui, convertemos base64 → Blob → File para o upload.
+            const res = await fetch(currentPhoto);
+            const blob = await res.blob();
+            const fileFromBlob = new File([blob], "captacao.jpg", { type: blob.type || "image/jpeg" });
+
+            let imageUrl: string;
+            try {
+                imageUrl = await uploadToCloudinary(fileFromBlob);
+            } catch (uploadErr) {
+                console.error("Cloudinary upload error:", uploadErr);
+                toast.error("Falha no upload da foto.", {
+                    description: "Verifique sua conexão e tente novamente."
+                });
+                return;
+            }
+
             const capturesRef = ref(rtdb, `captures/${user.id}`);
             const newRef = push(capturesRef);
             await set(newRef, {
-                imageUrl: currentPhoto,
+                imageUrl,
                 phones: detectedPhones,
                 intent: intent || null,
                 location: location ? { ...location, address } : null,
@@ -254,6 +286,9 @@ export function CaptacaoClient() {
             resetCapture();
         } catch (err) {
             console.error("Save error:", err);
+            toast.error("Erro ao salvar captação.", {
+                description: "Tente novamente. Se persistir, verifique sua conexão."
+            });
         } finally {
             setIsSaving(false);
         }

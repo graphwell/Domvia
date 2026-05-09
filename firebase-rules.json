@@ -1,16 +1,52 @@
 {
-    "rules": {
-        "links": {
-            ".read": true,
-            ".write": true
-        },
-        "leads": {
-            ".read": true,
-            ".write": true
-        },
-        "tours": {
-            ".read": true,
-            ".write": true
-        }
+  "rules": {
+    "links": {
+      ".read": true,
+      ".write": true
+    },
+    "leads": {
+      ".read": true,
+      ".write": true
+    },
+    "tours": {
+      ".read": true,
+      ".write": true
+    },
+
+    "captures": {
+      "$uid": {
+        ".read":  "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "users": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "global_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
+    },
+
+    "system_alerts": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
+    },
+
+    "ai_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
+    },
+
+    "credit_costs": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
     }
+  }
 }
