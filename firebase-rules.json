@@ -1,17 +1,8 @@
 {
   "rules": {
-    "links": {
-      ".read": true,
-      ".write": true
-    },
-    "leads": {
-      ".read": true,
-      ".write": true
-    },
-    "tours": {
-      ".read": true,
-      ".write": true
-    },
+    "links": { ".read": true, ".write": true },
+    "leads": { ".read": true, ".write": true },
+    "tours": { ".read": true, ".write": true },
 
     "captures": {
       "$uid": {
@@ -20,11 +11,58 @@
       }
     },
 
+    "usage": {
+      "$uid": {
+        ".read":  "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "usage_stats": {
+      "$uid": {
+        ".read":  "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "tool_unlocks": {
+      "$uid": {
+        ".read":  "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "tool_usage": {
+      "$uid": {
+        ".read":  "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "credit_history": {
+      "$uid": {
+        ".read":  "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "referrals": {
+      "$uid": {
+        ".read":  "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "settings": {
+      ".read":  "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
+    },
+
     "users": {
       ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
       ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
+        ".read":  "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
