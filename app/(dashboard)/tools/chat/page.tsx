@@ -70,7 +70,7 @@ export default function ChatPage() {
 
         try {
             // Build conversation history for the API
-            const history = messages.slice(-10).map((m) => ({
+            const history = messages.slice(1).slice(-10).map((m) => ({
                 role: m.role,
                 content: m.content,
             }));
