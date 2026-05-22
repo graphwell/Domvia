@@ -162,7 +162,7 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
                     <div className="p-4 h-[250px] relative overflow-hidden group">
                         <div className={cn("absolute inset-0 p-4 transition-all duration-700 flex flex-col", activeChart === 0 ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 pointer-events-none")}>
                             <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Leads vs Visitas</p>
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <AreaChart data={chartData}>
                                     <defs>
                                         <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
@@ -200,7 +200,7 @@ export function DashboardOverview({ user, stats, recentLeads, links, chartData, 
                                     >Mês</button>
                                 </div>
                             </div>
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <BarChart data={capturesData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />

@@ -3,7 +3,14 @@
     "links": { ".read": true, ".write": true },
     "leads": { ".read": true, ".write": true },
     "tours": { ".read": true, ".write": true },
-
+    "engagement_messages": { ".read": "auth != null", ".write": "auth != null" },
+    "suggestions": { ".read": "auth != null", ".write": "auth != null" },
+    "documents": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
     "captures": {
       "$uid": {
         ".read":  "auth != null && auth.uid === $uid",
@@ -56,6 +63,13 @@
     "settings": {
       ".read":  "auth != null",
       ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
+    },
+
+    "admin": {
+      "alerts": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+        ".write": "auth != null"
+      }
     },
 
     "users": {

@@ -214,7 +214,7 @@ export default function AdminMetricsPage() {
                     <Card padding="lg" className="border-slate-200">
                         <h3 className="font-display font-bold text-slate-900 mb-6">Total de Usos por Funcionalidade</h3>
                         <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <BarChart data={featureTotals} layout="vertical" margin={{ left: 10 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                                     <XAxis type="number" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
@@ -233,7 +233,7 @@ export default function AdminMetricsPage() {
                     <Card padding="lg" className="border-slate-200">
                         <h3 className="font-display font-bold text-slate-900 mb-6">Distribuição de Uso</h3>
                         <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <PieChart>
                                     <Pie
                                         data={featureTotals}

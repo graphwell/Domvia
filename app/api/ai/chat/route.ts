@@ -30,8 +30,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getRealEstateChatResponse } from "@/lib/ai";
-import { checkAndConsumeCredits } from "@/lib/billing";
-
+import { checkAndConsumeCreditsAdmin } from "@/lib/billing-server";
 export async function POST(req: NextRequest) {
     try {
         const { question, brokerName, history, language } = await req.json();
@@ -44,7 +43,7 @@ export async function POST(req: NextRequest) {
         // User ID should be passed in headers or extracted from session
         const userId = req.headers.get("x-user-id"); 
         if (userId) {
-            const creditCheck = await checkAndConsumeCredits(userId, 'ai_chat');
+            const creditCheck = await checkAndConsumeCreditsAdmin(userId, 'ai_chat');
             if (!creditCheck.success) {
                 return NextResponse.json({ 
                     error: "Insufficient credits", 
