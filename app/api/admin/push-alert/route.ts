@@ -4,48 +4,51 @@ import { getAdminDb, adminMessaging } from "@/lib/firebase-admin";
 export async function POST(req: Request) {
     try {
         const alert = await req.json();
-        
-        // 1. Find all admins
-        const db = getAdminDb();
-        const usersRef = db.ref('users');
-        const adminSnap = await usersRef.orderByChild('role').equalTo('admin').get();
-        
-        if (!adminSnap.exists()) {
-            return NextResponse.json({ success: true, message: "No admins found" });
-        }
 
-        const admins = adminSnap.val();
+        const db = getAdminDb();
+        const usersRef = db.ref("users");
+
+        // Query both ADMIN and ADMIN_MASTER roles
+        const [adminSnap, masterSnap] = await Promise.all([
+            usersRef.orderByChild("role").equalTo("ADMIN").get(),
+            usersRef.orderByChild("role").equalTo("ADMIN_MASTER").get(),
+        ]);
+
         const tokens: string[] = [];
 
-        Object.values(admins).forEach((u: any) => {
-            if (u.fcmToken) tokens.push(u.fcmToken);
-        });
+        const collectTokens = (snap: any) => {
+            if (!snap.exists()) return;
+            Object.values(snap.val() as Record<string, any>).forEach((u: any) => {
+                if (u.fcmToken) tokens.push(u.fcmToken);
+            });
+        };
+
+        collectTokens(adminSnap);
+        collectTokens(masterSnap);
 
         if (tokens.length === 0) {
+            console.log("[PushAlert] Nenhum token de admin encontrado.");
             return NextResponse.json({ success: true, message: "No admin tokens found" });
         }
 
-        // 2. Prepare multicast message
         const message = {
             notification: {
                 title: `🚨 Alerta: Erro em ${alert.toolId}`,
-                body: `${alert.userName || 'Usuário'} encontrou um erro: ${alert.message}`
+                body: `${alert.userName || "Usuário"} encontrou um erro: ${alert.message}`,
             },
             data: {
-                url: '/admin/alerts',
-                alertId: alert.id || ''
+                url: "/admin/alerts",
+                alertId: alert.id || "",
             },
-            tokens: tokens
+            tokens,
         };
 
-        // 3. Send
         const response = await adminMessaging.sendEachForMulticast(message);
-        
-        console.log(`[PushAlert] Sent ${response.successCount} messages, ${response.failureCount} failures.`);
+        console.log(`[PushAlert] Enviado: ${response.successCount} ok, ${response.failureCount} falhas.`);
 
         return NextResponse.json({ success: true, sent: response.successCount });
     } catch (error: any) {
-        console.error("[PushAlert API Error]:", error);
+        console.error("[PushAlert] ERRO:", error?.message, error?.stack);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

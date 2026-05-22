@@ -33,16 +33,15 @@ import { getRealEstateChatResponse } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
     try {
-        // Diagnóstico: verificar se a chave está configurada
-        const hasKey = !!process.env.GEMINI_API_KEY;
-        const keyPrefix = process.env.GEMINI_API_KEY?.substring(0, 8) || "NÃO DEFINIDA";
-        const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+        const hasKey = !!process.env.GROQ_API_KEY;
+        const keyPrefix = process.env.GROQ_API_KEY?.substring(0, 8) || "NÃO DEFINIDA";
+        const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-        console.log(`[AI Chat] GEMINI_API_KEY presente: ${hasKey}, prefixo: ${keyPrefix}, modelo: ${model}`);
+        console.log(`[AI Chat] GROQ_API_KEY presente: ${hasKey}, prefixo: ${keyPrefix}, modelo: ${model}`);
 
         if (!hasKey) {
-            return NextResponse.json({ 
-                error: "GEMINI_API_KEY não está configurada no servidor",
+            return NextResponse.json({
+                error: "GROQ_API_KEY não está configurada no servidor",
                 debug: { hasKey, keyPrefix, model }
             }, { status: 500 });
         }

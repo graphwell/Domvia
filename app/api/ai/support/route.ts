@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
+
+const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 
 const SUPPORT_SYSTEM_PROMPT = `Você é o Assistente de Suporte da plataforma Domvia.
 Seu objetivo é ajudar corretores de imóveis a utilizarem as ferramentas do sistema.
@@ -27,26 +29,30 @@ export async function POST(req: Request) {
     try {
         const { question, history } = await req.json();
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.GROQ_API_KEY;
         if (!apiKey) {
             return NextResponse.json({ answer: "Serviço de suporte temporariamente indisponível." });
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
-            systemInstruction: SUPPORT_SYSTEM_PROMPT,
+        const client = new Groq({ apiKey });
+
+        const messages: Groq.Chat.ChatCompletionMessageParam[] = [
+            { role: "system", content: SUPPORT_SYSTEM_PROMPT },
+            ...(history || []).map((msg: { role: string; content: string }) => ({
+                role: msg.role === "assistant" ? "assistant" as const : "user" as const,
+                content: msg.content,
+            })),
+            { role: "user", content: question },
+        ];
+
+        const response = await client.chat.completions.create({
+            model: MODEL,
+            messages,
+            max_tokens: 512,
+            temperature: 0.5,
         });
 
-        const chatHistory = (history || []).map((msg: { role: string; content: string }) => ({
-            role: msg.role === "assistant" ? "model" : "user",
-            parts: [{ text: msg.content }],
-        }));
-
-        const chat = model.startChat({ history: chatHistory });
-        const result = await chat.sendMessage(question);
-        const answer = result.response.text();
-
+        const answer = response.choices[0]?.message?.content ?? "";
         return NextResponse.json({ answer });
     } catch (error) {
         console.error("Support AI Error:", error);
