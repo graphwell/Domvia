@@ -68,7 +68,10 @@
     "admin": {
       "alerts": {
         ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')",
-        ".write": "auth != null"
+        ".write": false,
+        "$alertId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'ADMIN_MASTER' || root.child('users').child(auth.uid).child('role').val() === 'ADMIN')"
+        }
       }
     },
 
