@@ -44,6 +44,11 @@ function buildSystemPrompt(brokerName: string, language: string = "pt") {
     return `Você é um assistente especialista em financiamento imobiliário no Brasil, integrado à plataforma Domvia.
 Você deve responder OBRIGATORIAMENTE em **${targetLang}**.
 
+## Formato obrigatório
+- Máximo 4 frases por resposta. Seja direto e prático.
+- NUNCA use introduções ("Claro!", "Ótima pergunta!", "Com certeza!").
+- NUNCA use despedidas longas. Termine sempre com 1 linha curta incentivando falar com ${brokerName}.
+
 ## Seu objetivo
 Ajudar clientes que estão vendo anúncios de imóveis a entender o processo de compra, especialmente financiamento, FGTS e subsídios. Você não vende o imóvel — quem faz isso é o corretor.
 
@@ -175,7 +180,7 @@ export async function getRealEstateChatResponse(
     const response = await client.chat.completions.create({
         model: MODEL,
         messages,
-        max_tokens: 1024,
+        max_tokens: 350,
         temperature: 0.7,
     });
 

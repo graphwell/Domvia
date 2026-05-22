@@ -52,7 +52,24 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Pergunta não enviada" }, { status: 400 });
         }
 
-        console.log(`[AI Chat] Pergunta recebida: "${question.substring(0, 50)}...", histórico: ${(history || []).length} msgs`);
+        const historyLen = (history ?? []).length;
+        console.log(`[AI Chat] Pergunta recebida: "${question.substring(0, 50)}...", histórico: ${historyLen} msgs`);
+
+        // After 4 exchanges (8 history items = 4 user + 4 assistant), close the session
+        const MAX_EXCHANGES = 4;
+        if (historyLen >= MAX_EXCHANGES * 2) {
+            const broker = brokerName ?? "seu corretor";
+            const closing: Record<string, string> = {
+                pt: `Foi um prazer conversar! Para dar o próximo passo, fale diretamente com **${broker}** — clique em "Falar com o Corretor". 😊`,
+                en: `Great talking with you! To move forward, speak directly with **${broker}** — click "Talk to the Realtor". 😊`,
+                es: `¡Un placer conversar! Para avanzar, hable directamente con **${broker}** — haga clic en "Hablar con el Corredor". 😊`,
+            };
+            const lang = (language ?? "pt") as string;
+            return NextResponse.json({
+                answer: closing[lang] ?? closing.pt,
+                sessionEnded: true,
+            });
+        }
 
         const answer = await getRealEstateChatResponse(
             question,
@@ -61,7 +78,7 @@ export async function POST(req: NextRequest) {
             language ?? "pt"
         );
 
-        return NextResponse.json({ answer });
+        return NextResponse.json({ answer, turnsLeft: MAX_EXCHANGES - Math.floor(historyLen / 2) - 1 });
     } catch (error: any) {
         console.error("[AI Chat] ERRO DETALHADO:", error?.message, error?.stack);
         return NextResponse.json({ 
