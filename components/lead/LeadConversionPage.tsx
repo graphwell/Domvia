@@ -8,15 +8,14 @@ import { formatCurrency, buildWhatsAppLink } from "@/lib/utils";
 import { calculateFinancing } from "@/lib/financing";
 import {
     Brain, Send, Calculator, Phone, X,
-    Building2, ChevronDown, ChevronUp,
-    MessageSquare, Sparkles, Sliders,
+    MessageSquare, Sparkles,
     CheckCircle2, Info, Camera
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { LeadCaptureForm } from "./LeadCaptureForm";
 import MarzipanoViewer from "@/components/tours/MarzipanoViewer";
 import { rtdb } from "@/lib/firebase";
-import { ref, onValue, query, orderByChild, equalTo } from "firebase/database";
+import { ref, onValue, update } from "firebase/database";
 import Image from "next/image";
 import { PropertyLandingPage } from "./PropertyLandingPage";
 import { triggerHaptic } from "@/lib/haptic";
@@ -43,57 +42,47 @@ export function LeadConversionPage({ link }: Props) {
     ]);
     const [isRegistered, setIsRegistered] = useState(false);
     const [leadData, setLeadData] = useState<{ name: string; lastName: string; phone: string } | null>(null);
+    const [leadId, setLeadId] = useState<string | null>(null);
+    const [sessionEnded, setSessionEnded] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const chatStartedRef = useRef(false);
+
     const [showTour, setShowTour] = useState(false);
     const [brokerBranding, setBrokerBranding] = useState<{ logoURL?: string; useLogoInDocs?: boolean }>({});
-
-    // Tour State
     const [tour, setTour] = useState<any>(null);
     const [currentRoomIdx, setCurrentRoomIdx] = useState(0);
     const [showLanding, setShowLanding] = useState(link.landing_enabled || false);
 
-    // Buscar tour associado no Firebase
+    // Buscar tour associado e branding do corretor
     useEffect(() => {
-        const toursRef = ref(rtdb, "tours");
-        const unsubscribe = onValue(toursRef, (snapshot) => {
+        const unsubTour = onValue(ref(rtdb, "tours"), (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 const tourList = Object.entries(data).map(([id, val]: [string, any]) => ({ id, ...val }));
-                const foundTour = tourList.find(t => t.linkId === link.id || t.title === link.title) || tourList[0];
-                setTour(foundTour);
+                const found = tourList.find(t => t.linkId === link.id || t.title === link.title) || tourList[0];
+                setTour(found);
             }
         });
 
-        // Buscar branding do corretor
-        const brokerRef = ref(rtdb, `users/${link.userId}`);
-        const unsubBroker = onValue(brokerRef, (snap) => {
+        const unsubBroker = onValue(ref(rtdb, `users/${link.userId}`), (snap) => {
             if (snap.exists()) {
-                const data = snap.val();
-                setBrokerBranding({
-                    logoURL: data.logoURL,
-                    useLogoInDocs: data.useLogoInDocs
-                });
+                const d = snap.val();
+                setBrokerBranding({ logoURL: d.logoURL, useLogoInDocs: d.useLogoInDocs });
             }
         });
 
-        return () => {
-            unsubscribe();
-            unsubBroker();
-        };
+        return () => { unsubTour(); unsubBroker(); };
     }, [link]);
 
-    // Calculadora States
+    // Calculadora
     const [calcMode, setCalcMode] = useState<"simple" | "complete">("simple");
     const [calc, setCalc] = useState({
         propertyValue: link.price ?? 500_000,
         downPayment: link.price ? Math.round(link.price * 0.2) : 100_000,
         years: 30,
         annualRate: 10.99,
-        subsidio: 0,
-        itbi: 0,
-        seguro: 0,
     });
 
     const calcResult = calculateFinancing({
@@ -107,9 +96,25 @@ export function LeadConversionPage({ link }: Props) {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isTyping]);
 
+    // WhatsApp base (simulação)
+    const whatsappLink = buildWhatsAppLink(
+        link.whatsapp,
+        `Olá! Vi seu anúncio *${link.title}* e tenho interesse.\n\nSimulação:\n- Valor: ${formatCurrency(calc.propertyValue)}\n- Entrada: ${formatCurrency(calc.downPayment)}\n- Parcela: ${formatCurrency(calcResult.monthlyInstallment)}`
+    );
+
+    // WhatsApp com contexto das perguntas (usado no CTA de encerramento)
+    const buildContextWhatsApp = useCallback(() => {
+        const userQuestions = messages
+            .filter(m => m.role === "user")
+            .map(m => `• ${m.content}`)
+            .join("\n");
+        const msg = `Olá, ${link.brokerName}! Acabei de conversar com sua IA sobre *${link.title}*.\n\nMinhas dúvidas foram:\n${userQuestions}\n\nSimulação: entrada ${formatCurrency(calc.downPayment)}, parcela ~${formatCurrency(calcResult.monthlyInstallment)}.\n\nGostaria de dar o próximo passo! 😊`;
+        return buildWhatsAppLink(link.whatsapp, msg);
+    }, [messages, link, calc.downPayment, calcResult.monthlyInstallment]);
+
     const sendMessage = useCallback(async (text?: string) => {
         const question = text ?? inputValue.trim();
-        if (!question) return;
+        if (!question || sessionEnded) return;
         setInputValue("");
 
         const userMsg: ChatMessage = {
@@ -121,6 +126,19 @@ export function LeadConversionPage({ link }: Props) {
         setMessages((prev) => [...prev, userMsg]);
         setIsTyping(true);
 
+        // Items 3 & 4: Atualizar lead no Firebase (usedChat + questions)
+        if (leadId) {
+            const allQuestions = [
+                ...messages.filter(m => m.role === "user").map(m => m.content),
+                question,
+            ];
+            update(ref(rtdb, `leads/${leadId}`), {
+                usedChat: true,
+                questions: allQuestions,
+            }).catch(err => console.error("[Lead] Falha ao atualizar lead:", err));
+            chatStartedRef.current = true;
+        }
+
         const history = messages
             .slice(-10)
             .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
@@ -129,19 +147,22 @@ export function LeadConversionPage({ link }: Props) {
             const res = await fetch("/api/ai/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    question,
-                    history,
-                    brokerName: link.brokerName
-                }),
+                body: JSON.stringify({ question, history, brokerName: link.brokerName }),
             });
             const data = await res.json();
+
             setMessages((prev) => [...prev, {
                 id: Date.now() + "_r",
                 role: "assistant",
                 content: data.answer ?? "Desculpe, houve um problema. Tente novamente!",
                 timestamp: new Date().toISOString(),
             }]);
+
+            // Item 1: Encerrar sessão quando a API sinalizar
+            if (data.sessionEnded) {
+                setSessionEnded(true);
+                triggerHaptic("medium");
+            }
         } catch {
             setMessages((prev) => [...prev, {
                 id: Date.now() + "_e",
@@ -152,83 +173,73 @@ export function LeadConversionPage({ link }: Props) {
         } finally {
             setIsTyping(false);
         }
-    }, [inputValue, messages, link.brokerName]);
-
-    const whatsappLink = buildWhatsAppLink(
-        link.whatsapp,
-        `Olá! Vi seu anúncio *${link.title}* e tenho interesse.\n\nSimulação:\n- Valor: ${formatCurrency(calc.propertyValue)}\n- Entrada: ${formatCurrency(calc.downPayment)}\n- Parcela: ${formatCurrency(calcResult.monthlyInstallment)}`
-    );
+    }, [inputValue, messages, link.brokerName, leadId, sessionEnded]);
 
     const handleCaptureSuccess = async (data: { name: string; lastName: string; phone: string }) => {
         try {
-            // Registrar o lead na API com todos os dados de rastreamento
-            await fetch("/api/leads", {
+            const res = await fetch("/api/leads", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...data,
                     linkId: link.id,
                     linkTitle: link.title,
-                    userId: link.userId,   // atribui o lead ao dono do link
+                    userId: link.userId,
                     brokerName: link.brokerName,
                 }),
             });
-
+            const result = await res.json();
+            setLeadId(result.id ?? null);
             setLeadData(data);
             setIsRegistered(true);
         } catch (error) {
             console.error("Erro ao registrar lead:", error);
-            // Mesmo se houver erro no registro, permitimos o acesso
             setIsRegistered(true);
         }
     };
 
     if (showLanding && link.landing_enabled) {
         return (
-            <PropertyLandingPage 
-                link={link} 
-                onContinue={() => {
-                    triggerHaptic('medium');
-                    setShowLanding(false);
-                }}
+            <PropertyLandingPage
+                link={link}
+                onContinue={() => { triggerHaptic("medium"); setShowLanding(false); }}
                 brokerLogo={brokerBranding.logoURL}
             />
         );
     }
 
     if (!isRegistered) {
-        return <LeadCaptureForm
-            onSuccess={handleCaptureSuccess}
-            brokerName={link.brokerName}
-            brokerLogo={brokerBranding.logoURL}
-            useLogo={brokerBranding.useLogoInDocs}
-        />;
+        return (
+            <LeadCaptureForm
+                onSuccess={handleCaptureSuccess}
+                brokerName={link.brokerName}
+                brokerLogo={brokerBranding.logoURL}
+                useLogo={brokerBranding.useLogoInDocs}
+            />
+        );
     }
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
-            {/* Minimal Header */}
+            {/* Header */}
             <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
                 <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="relative h-8 w-32">
-                            <Image
-                                src={(brokerBranding.useLogoInDocs && brokerBranding.logoURL) ? brokerBranding.logoURL : "/logo-domvia.png?v=202603092100"}
-                                alt="Logo"
-                                fill
-                                unoptimized
-                                className="object-contain"
-                            />
-                        </div>
+                    <div className="relative h-8 w-32">
+                        <Image
+                            src={(brokerBranding.useLogoInDocs && brokerBranding.logoURL) ? brokerBranding.logoURL : "/logo-domvia.png?v=202603092100"}
+                            alt="Logo"
+                            fill
+                            unoptimized
+                            className="object-contain"
+                        />
                     </div>
                     <Badge variant="brand" className="text-[10px] hidden sm:flex">Link Verificado</Badge>
                 </div>
             </header>
 
             <main className="flex-1 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 lg:p-8">
-                {/* ── Esquerda: Info & Calculadora (7 Colunas) ───────────────── */}
+                {/* ── Esquerda: Calculadora ─────────────────────── */}
                 <div className="lg:col-span-7 space-y-6">
-                    {/* Header do Imóvel/Anúncio */}
                     <div className="space-y-4">
                         <div className="space-y-1">
                             <h1 className="font-display text-2xl lg:text-4xl font-black text-slate-900 leading-tight">
@@ -253,13 +264,10 @@ export function LeadConversionPage({ link }: Props) {
                             </div>
                         </div>
                         {link.description && (
-                            <p className="text-slate-500 text-sm leading-relaxed max-w-2xl">
-                                {link.description}
-                            </p>
+                            <p className="text-slate-500 text-sm leading-relaxed max-w-2xl">{link.description}</p>
                         )}
                     </div>
 
-                    {/* Calculadora Integrada (Ambiente Único) */}
                     <Card padding="lg" className="border-emerald-100 shadow-xl shadow-emerald-900/5 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
@@ -274,20 +282,9 @@ export function LeadConversionPage({ link }: Props) {
                             </div>
                         </div>
 
-                        {/* Toggle de Modo */}
                         <div className="flex p-1 bg-slate-100 rounded-xl w-fit mb-6">
-                            <button
-                                onClick={() => setCalcMode("simple")}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${calcMode === "simple" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                            >
-                                Simples
-                            </button>
-                            <button
-                                onClick={() => setCalcMode("complete")}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${calcMode === "complete" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                            >
-                                Completa
-                            </button>
+                            <button onClick={() => setCalcMode("simple")} className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${calcMode === "simple" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>Simples</button>
+                            <button onClick={() => setCalcMode("complete")} className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${calcMode === "complete" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>Completa</button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -296,42 +293,24 @@ export function LeadConversionPage({ link }: Props) {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Valor do Imóvel</label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">R$</span>
-                                        <input
-                                            type="number"
-                                            value={calc.propertyValue}
-                                            onChange={(e) => setCalc({ ...calc, propertyValue: Number(e.target.value) })}
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                                        />
+                                        <input type="number" value={calc.propertyValue} onChange={(e) => setCalc({ ...calc, propertyValue: Number(e.target.value) })} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" />
                                     </div>
                                 </div>
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Entrada Desejada</label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">R$</span>
-                                        <input
-                                            type="number"
-                                            value={calc.downPayment}
-                                            onChange={(e) => setCalc({ ...calc, downPayment: Number(e.target.value) })}
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                                        />
+                                        <input type="number" value={calc.downPayment} onChange={(e) => setCalc({ ...calc, downPayment: Number(e.target.value) })} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" />
                                     </div>
-                                    <p className="text-[10px] text-slate-400 px-1 italic">
-                                        {Math.round((calc.downPayment / calc.propertyValue) * 100)}% do valor total
-                                    </p>
+                                    <p className="text-[10px] text-slate-400 px-1 italic">{Math.round((calc.downPayment / calc.propertyValue) * 100)}% do valor total</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Prazo de Pagamento</label>
-                                    <select
-                                        value={calc.years}
-                                        onChange={(e) => setCalc({ ...calc, years: Number(e.target.value) })}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                                    >
-                                        {[10, 15, 20, 25, 30, 35].map((y) => (
-                                            <option key={y} value={y}>{y} anos ({y * 12} meses)</option>
-                                        ))}
+                                    <select value={calc.years} onChange={(e) => setCalc({ ...calc, years: Number(e.target.value) })} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none">
+                                        {[10, 15, 20, 25, 30, 35].map((y) => <option key={y} value={y}>{y} anos ({y * 12} meses)</option>)}
                                     </select>
                                 </div>
 
@@ -339,13 +318,7 @@ export function LeadConversionPage({ link }: Props) {
                                     <div className="space-y-1.5 text-left animate-in fade-in slide-in-from-top-2 duration-300">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Taxa de Juros (Anual)</label>
                                         <div className="relative">
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                value={calc.annualRate}
-                                                onChange={(e) => setCalc({ ...calc, annualRate: Number(e.target.value) })}
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                                            />
+                                            <input type="number" step="0.01" value={calc.annualRate} onChange={(e) => setCalc({ ...calc, annualRate: Number(e.target.value) })} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" />
                                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">%</span>
                                         </div>
                                     </div>
@@ -360,11 +333,8 @@ export function LeadConversionPage({ link }: Props) {
                             </div>
                         </div>
 
-                        {/* Banner de Resultado */}
                         <div className="mt-8 p-6 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-3xl text-white shadow-lg shadow-emerald-200 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-6 opacity-10">
-                                <Sparkles className="h-20 w-20" />
-                            </div>
+                            <div className="absolute top-0 right-0 p-6 opacity-10"><Sparkles className="h-20 w-20" /></div>
                             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                                 <div className="space-y-1">
                                     <p className="text-emerald-100/80 text-xs font-bold uppercase tracking-widest">Sua Parcela Estimada</p>
@@ -373,9 +343,7 @@ export function LeadConversionPage({ link }: Props) {
                                         <span className="text-emerald-100 text-sm">/mês</span>
                                     </div>
                                     <p className="text-emerald-100/60 text-[10px] italic">*Cálculo baseado no sistema Price</p>
-                                    <p className="text-emerald-100/60 text-[9px] mt-1 leading-tight">
-                                        As informações apresentadas são apenas uma base de cálculo simulativo e estão sujeitas à análise de crédito e aprovação pela instituição financeira.
-                                    </p>
+                                    <p className="text-emerald-100/60 text-[9px] mt-1 leading-tight">As informações apresentadas são apenas uma base de cálculo simulativo e estão sujeitas à análise de crédito e aprovação pela instituição financeira.</p>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2 text-sm font-bold">
@@ -393,7 +361,7 @@ export function LeadConversionPage({ link }: Props) {
                     </Card>
                 </div>
 
-                {/* ── Direita: IA Conversacional (5 Colunas) ──────────────────── */}
+                {/* ── Direita: Chat IA ──────────────────────────── */}
                 <div className="lg:col-span-5 h-[600px] lg:h-auto flex flex-col">
                     <Card padding="none" className="flex-1 flex flex-col overflow-hidden border-brand-100 shadow-xl shadow-brand-900/5 bg-white">
                         {/* Header do Chat */}
@@ -406,11 +374,17 @@ export function LeadConversionPage({ link }: Props) {
                                     <h3 className="font-bold text-slate-900 text-sm">Assistente de Financiamento</h3>
                                     <p className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                        Disponível Agora
+                                        {sessionEnded ? "Sessão encerrada" : "Disponível Agora"}
                                     </p>
                                 </div>
                             </div>
-                            <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2">Limpar Chat</Button>
+                            {!sessionEnded && (
+                                <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2" onClick={() => setMessages([{
+                                    id: "1", role: "assistant",
+                                    content: `Olá! 👋 Sou seu assistente de financiamento. Como posso ajudar você hoje?\n\nPosso tirar dúvidas sobre **FGTS, MCMV, documentação** ou ajudar com a **simulação** ao lado.`,
+                                    timestamp: new Date().toISOString(),
+                                }])}>Limpar</Button>
+                            )}
                         </div>
 
                         {/* Feed de Mensagens */}
@@ -442,54 +416,90 @@ export function LeadConversionPage({ link }: Props) {
                             <div ref={chatEndRef} />
                         </div>
 
-                        {/* Perguntas Rápidas */}
-                        <div className="px-4 py-3 bg-slate-50 border-t border-slate-100">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Perguntas Frequentes</p>
-                            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-                                {QUICK_QUESTIONS.map((q) => (
-                                    <button
-                                        key={q}
-                                        onClick={() => sendMessage(q)}
-                                        disabled={isTyping}
-                                        className="shrink-0 text-[11px] font-bold rounded-lg border border-slate-200 bg-white text-slate-700 px-3 py-1.5 hover:border-brand-300 hover:text-brand-600 transition-all disabled:opacity-50"
-                                    >
-                                        {q}
-                                    </button>
-                                ))}
+                        {/* Perguntas Rápidas — ocultas após encerramento */}
+                        {!sessionEnded && (
+                            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Perguntas Frequentes</p>
+                                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                                    {QUICK_QUESTIONS.map((q) => (
+                                        <button
+                                            key={q}
+                                            onClick={() => sendMessage(q)}
+                                            disabled={isTyping}
+                                            className="shrink-0 text-[11px] font-bold rounded-lg border border-slate-200 bg-white text-slate-700 px-3 py-1.5 hover:border-brand-300 hover:text-brand-600 transition-all disabled:opacity-50"
+                                        >
+                                            {q}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
-                        {/* Input de Mensagem */}
-                        <div className="p-4 bg-white border-t border-slate-100">
-                            <form
-                                onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
-                                className="flex gap-2"
-                            >
-                                <input
-                                    type="text"
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder="Escreva sua dúvida aqui..."
-                                    className="flex-1 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition-all outline-none"
-                                />
-                                <Button type="submit" size="icon" disabled={!inputValue.trim() || isTyping} className="bg-brand-600 rounded-xl h-11 w-11">
-                                    <Send className="h-4 w-4" />
-                                </Button>
-                            </form>
-                        </div>
+                        {/* Item 1: CTA de encerramento OU input normal */}
+                        {sessionEnded ? (
+                            <div className="p-4 bg-white border-t border-slate-100">
+                                <div className="rounded-2xl overflow-hidden border border-green-200 shadow-lg shadow-green-900/5">
+                                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 text-center space-y-3">
+                                        <div className="text-3xl">🏠</div>
+                                        <div>
+                                            <p className="text-sm font-black text-slate-800 leading-snug">
+                                                Quer dar o próximo passo?
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                <span className="font-bold text-green-700">{link.brokerName}</span> está disponível agora!
+                                            </p>
+                                        </div>
+                                        <a
+                                            href={buildContextWhatsApp()}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={() => triggerHaptic("medium")}
+                                            className="block"
+                                        >
+                                            <button className="w-full bg-[#25D366] hover:bg-[#1db954] active:scale-95 text-white font-black py-4 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-400/40">
+                                                <Phone className="h-5 w-5" />
+                                                Falar com {link.brokerName} no WhatsApp
+                                            </button>
+                                        </a>
+                                        <p className="text-[10px] text-slate-400">
+                                            Suas perguntas serão enviadas para o corretor como contexto
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="p-4 bg-white border-t border-slate-100">
+                                <form
+                                    onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
+                                    className="flex gap-2"
+                                >
+                                    <input
+                                        type="text"
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        placeholder="Escreva sua dúvida aqui..."
+                                        className="flex-1 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition-all outline-none"
+                                    />
+                                    <Button type="submit" size="icon" disabled={!inputValue.trim() || isTyping} className="bg-brand-600 rounded-xl h-11 w-11">
+                                        <Send className="h-4 w-4" />
+                                    </Button>
+                                </form>
+                            </div>
+                        )}
                     </Card>
                 </div>
             </main>
 
-            {/* Sticky Mobile/Desktop Footer Action */}
+            {/* Sticky Footer Mobile */}
             <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 lg:hidden safe-area-bottom">
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <a href={sessionEnded ? buildContextWhatsApp() : whatsappLink} target="_blank" rel="noopener noreferrer">
                     <Button variant="whatsapp" size="xl" className="w-full" leftIcon={<Phone className="h-5 w-5" />}>
-                        Falar com o Corretor
+                        Falar com {link.brokerName}
                     </Button>
                 </a>
             </div>
-            {/* 360 Tour Modal */}
+
+            {/* Tour 360° Modal */}
             {showTour && tour && (
                 <div className="fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
                     <div className="relative w-full max-w-5xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
@@ -502,25 +512,19 @@ export function LeadConversionPage({ link }: Props) {
                                 <X className="h-5 w-5" />
                             </Button>
                         </div>
-
                         <div className="flex-1 bg-slate-100 relative">
                             <MarzipanoViewer
-                                key={currentRoomIdx} // Forçar re-render ao trocar de sala
+                                key={currentRoomIdx}
                                 imageUrl={tour.rooms[currentRoomIdx].imageUrl}
                                 className="w-full h-full"
                                 title={tour.rooms[currentRoomIdx].label}
                             />
-
-                            {/* Room selector chips */}
                             <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 px-4 pointer-events-none">
                                 {tour.rooms.map((room: any, idx: number) => (
                                     <button
                                         key={room.id}
                                         onClick={() => setCurrentRoomIdx(idx)}
-                                        className={`pointer-events-auto px-4 py-2 backdrop-blur shadow-lg rounded-full text-xs font-bold transition-all border ${currentRoomIdx === idx
-                                            ? "bg-brand-600 text-white border-brand-500 scale-110"
-                                            : "bg-white/90 text-slate-700 border-slate-200 hover:bg-white"
-                                            }`}
+                                        className={`pointer-events-auto px-4 py-2 backdrop-blur shadow-lg rounded-full text-xs font-bold transition-all border ${currentRoomIdx === idx ? "bg-brand-600 text-white border-brand-500 scale-110" : "bg-white/90 text-slate-700 border-slate-200 hover:bg-white"}`}
                                     >
                                         {room.label}
                                     </button>
