@@ -30,27 +30,30 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getRealEstateChatResponse } from "@/lib/ai";
-import { checkAndConsumeCreditsAdmin } from "@/lib/billing-server";
+
 export async function POST(req: NextRequest) {
     try {
+        // Diagnóstico: verificar se a chave está configurada
+        const hasKey = !!process.env.GEMINI_API_KEY;
+        const keyPrefix = process.env.GEMINI_API_KEY?.substring(0, 8) || "NÃO DEFINIDA";
+        const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+
+        console.log(`[AI Chat] GEMINI_API_KEY presente: ${hasKey}, prefixo: ${keyPrefix}, modelo: ${model}`);
+
+        if (!hasKey) {
+            return NextResponse.json({ 
+                error: "GEMINI_API_KEY não está configurada no servidor",
+                debug: { hasKey, keyPrefix, model }
+            }, { status: 500 });
+        }
+
         const { question, brokerName, history, language } = await req.json();
 
         if (!question) {
-            return NextResponse.json({ error: "Missing question" }, { status: 400 });
+            return NextResponse.json({ error: "Pergunta não enviada" }, { status: 400 });
         }
 
-        // Check and consume credits
-        // User ID should be passed in headers or extracted from session
-        const userId = req.headers.get("x-user-id"); 
-        if (userId) {
-            const creditCheck = await checkAndConsumeCreditsAdmin(userId, 'ai_chat');
-            if (!creditCheck.success) {
-                return NextResponse.json({ 
-                    error: "Insufficient credits", 
-                    reason: creditCheck.reason 
-                }, { status: 402 });
-            }
-        }
+        console.log(`[AI Chat] Pergunta recebida: "${question.substring(0, 50)}...", histórico: ${(history || []).length} msgs`);
 
         const answer = await getRealEstateChatResponse(
             question,
@@ -60,8 +63,11 @@ export async function POST(req: NextRequest) {
         );
 
         return NextResponse.json({ answer });
-    } catch (error) {
-        console.error("AI chat error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    } catch (error: any) {
+        console.error("[AI Chat] ERRO DETALHADO:", error?.message, error?.stack);
+        return NextResponse.json({ 
+            error: "Erro no servidor de IA",
+            detail: error?.message || String(error),
+        }, { status: 500 });
     }
 }
